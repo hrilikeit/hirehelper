@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="520" viewBox="0 0 720 520" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="grad" x1="80" y1="70" x2="640" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B61F6"/>
+      <stop offset="1" stop-color="#9A8BFF"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="720" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCFDFF"/>
+      <stop offset="1" stop-color="#EEF2FB"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#111827" flood-opacity=".08"/>
+    </filter>
+  </defs>
+  <rect width="720" height="520" rx="40" fill="url(#bg)"/>
+  <circle cx="115" cy="83" r="88" fill="#EDEBFF"/>
+  <circle cx="634" cy="104" r="58" fill="#EAF3FF"/>
+  <circle cx="619" cy="406" r="76" fill="#F3F0FF"/>
+  
+
+<g filter="url(#shadow)">
+  <rect x="110" y="80" width="500" height="360" rx="32" fill="white" fill-opacity=".9"/>
+  <rect x="110.5" y="80.5" width="499" height="359" rx="31.5" stroke="white" stroke-opacity=".8"/>
+</g>
+
+<circle cx="220" cy="178" r="34" fill="url(#grad)" fill-opacity=".16"/>
+<circle cx="510" cy="188" r="34" fill="url(#grad)" fill-opacity=".16"/>
+<circle cx="360" cy="332" r="34" fill="url(#grad)" fill-opacity=".16"/>
+<path d="M220 178l140 154 150-144" stroke="url(#grad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="220" cy="178" r="18" fill="white" stroke="url(#grad)" stroke-width="6"/>
+<circle cx="360" cy="332" r="18" fill="white" stroke="url(#grad)" stroke-width="6"/>
+<circle cx="510" cy="188" r="18" fill="white" stroke="url(#grad)" stroke-width="6"/>
+<rect x="236" y="118" width="248" height="36" rx="18" fill="#F7F9FE" stroke="#E4E9F5"/>
+<rect x="278" y="360" width="164" height="24" rx="12" fill="#F7F9FE" stroke="#E4E9F5"/>
+
+</svg>

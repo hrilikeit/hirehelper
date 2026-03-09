@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42" fill="none">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="44" y2="42" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5B61F6"/><stop offset="1" stop-color="#9A8BFF"/>
+</linearGradient>
+</defs>
+<rect width="42" height="42" rx="10" fill="#F5F7FD"/>
+<g transform="translate(4,5)">
+<circle cx="8" cy="17" r="4" fill="url(#g)"/>
+<circle cx="19" cy="7" r="4" fill="url(#g)"/>
+<circle cx="30" cy="17" r="4" fill="url(#g)"/>
+<circle cx="19" cy="27" r="4" fill="url(#g)"/>
+<circle cx="4" cy="4" r="3.2" fill="#6C71FF" opacity=".78"/>
+<circle cx="34" cy="4" r="3.2" fill="#8E86FF" opacity=".82"/>
+<circle cx="34" cy="30" r="3.2" fill="#6D76FF" opacity=".82"/>
+<path d="M8 17L19 7L30 17L19 27L8 17Z" stroke="url(#g)" stroke-width="3.2" stroke-linejoin="round"/>
+<path d="M4 4L19 7" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>
+<path d="M34 4L30 17" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>
+<path d="M34 30L19 27" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>
+</g></svg>
