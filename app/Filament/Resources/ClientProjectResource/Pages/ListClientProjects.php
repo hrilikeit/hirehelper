@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ClientProjectResource\Pages;
 
 use App\Filament\Resources\ClientProjectResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListClientProjects extends ListRecords
@@ -11,6 +12,8 @@ class ListClientProjects extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            CreateAction::make(),
+        ];
     }
 }

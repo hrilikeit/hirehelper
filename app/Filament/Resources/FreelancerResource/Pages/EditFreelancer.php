@@ -11,6 +11,6 @@ class EditFreelancer extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return static::getResource()::getUrl('index');
+        return static::getResource()::getUrl('view', ['record' => $this->getRecord()]);
     }
 }

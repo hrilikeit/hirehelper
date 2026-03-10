@@ -11,18 +11,24 @@ class ClientProject extends Model
 
     protected $fillable = [
         'user_id',
+        'sales_manager_id',
+        'project_manager_id',
         'title',
         'description',
         'experience_level',
         'timeframe',
         'specialty',
         'status',
+        'external_reference',
+        'acceptance_notes',
+        'accepted_at',
         'last_saved_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'accepted_at' => 'datetime',
             'last_saved_at' => 'datetime',
         ];
     }
@@ -30,6 +36,16 @@ class ClientProject extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function salesManager()
+    {
+        return $this->belongsTo(User::class, 'sales_manager_id');
+    }
+
+    public function projectManager()
+    {
+        return $this->belongsTo(User::class, 'project_manager_id');
     }
 
     public function offers()
@@ -45,5 +61,10 @@ class ClientProject extends Model
     public function latestOffer()
     {
         return $this->hasOne(ProjectOffer::class)->latestOfMany();
+    }
+
+    public function getIsAcceptedAttribute(): bool
+    {
+        return ! in_array((string) $this->status, ['draft', 'pending'], true);
     }
 }

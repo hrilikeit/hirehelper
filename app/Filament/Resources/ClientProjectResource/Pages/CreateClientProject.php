@@ -3,14 +3,21 @@
 namespace App\Filament\Resources\ClientProjectResource\Pages;
 
 use App\Filament\Resources\ClientProjectResource;
-use Filament\Resources\Pages\EditRecord;
+use App\Support\AdminAccess;
+use Filament\Resources\Pages\CreateRecord;
 
-class EditClientProject extends EditRecord
+class CreateClientProject extends CreateRecord
 {
     protected static string $resource = ClientProjectResource::class;
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected static bool $canCreateAnother = false;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
+        if (AdminAccess::isSalesManager(auth()->user()) && empty($data['sales_manager_id'])) {
+            $data['sales_manager_id'] = auth()->id();
+        }
+
         if (! empty($data['status']) && ! in_array($data['status'], ['draft', 'pending'], true) && empty($data['accepted_at'])) {
             $data['accepted_at'] = now();
         }

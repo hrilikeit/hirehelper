@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\User;
+use App\Support\AdminAccess;
 use BackedEnum;
+use UnitEnum;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -15,6 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
 {
@@ -28,50 +31,53 @@ class UserResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?int $navigationSort = 11;
+    protected static string | UnitEnum | null $navigationGroup = 'Sales & Delivery';
 
-    protected static bool $shouldSkipAuthorization = true;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $slug = 'clients';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return AdminAccess::canViewClients(auth()->user());
+    }
 
     public static function canCreate(): bool
     {
         return false;
     }
 
+    public static function canEdit($record): bool
+    {
+        return AdminAccess::canEditClients(auth()->user());
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('role', UserRole::Client->value)
+            ->latest();
+    }
+
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Section::make('Account')
-                    ->schema([
-                        TextInput::make('name')->required(),
-                        TextInput::make('email')->email()->required(),
-                        TextInput::make('company'),
-                        TextInput::make('phone'),
-                        Select::make('role')
-                            ->options([
-                                'client' => 'Client',
-                                'admin' => 'Admin',
-                                'freelancer' => 'Freelancer',
-                            ])
-                            ->required(),
-                    ])
-                    ->columns(2),
-                Section::make('Workspace preferences')
-                    ->schema([
-                        Toggle::make('notify_messages'),
-                        Toggle::make('notify_reports'),
-                        Select::make('reminder_frequency')
-                            ->options([
-                                'daily' => 'Daily',
-                                'weekly' => 'Weekly',
-                                'monthly' => 'Monthly',
-                            ])
-                            ->required(),
-                    ])
-                    ->columns(3),
-            ]);
+        return $schema->components([
+            Section::make('Client account')
+                ->schema([
+                    TextInput::make('name')->required(),
+                    TextInput::make('email')->email()->required(),
+                    TextInput::make('company'),
+                    TextInput::make('phone'),
+                    Toggle::make('notify_messages'),
+                    Toggle::make('notify_reports'),
+                ])
+                ->columns(2),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -81,7 +87,10 @@ class UserResource extends Resource
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
                 TextColumn::make('company')->searchable()->toggleable(),
-                TextColumn::make('role')->badge()->sortable(),
+                TextColumn::make('phone')->toggleable(),
+                TextColumn::make('projects_count')
+                    ->label('Projects')
+                    ->counts('projects'),
                 TextColumn::make('created_at')->dateTime('M j, Y g:i A')->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
