@@ -83,7 +83,7 @@
             </ul>
           </div>
           @endif
-          <form class="site-form inquiry-form" data-inquiry-form novalidate method="POST" action="{{ route('hire.store') }}">
+          <form class="site-form inquiry-form" data-inquiry-form novalidate method="POST" action="{{ route('hire.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="form-section-title">Project request</div>
             <div class="grid grid-form">
@@ -205,11 +205,17 @@
               </select>
             </div>
 
+            <div class="field">
+              <label for="hire-attachments">Optional files</label>
+              <p class="field-help">Attach documents like a scope, screenshots, deck, or brief. Files from website forms are sent to <strong>support@hirehelper.ai</strong>.</p>
+              <input id="hire-attachments" name="attachments[]" type="file" multiple />
+            </div>
+
             <div class="form-actions">
               <button class="button button-primary button-large" type="submit">Submit Project Request <span class="button-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></button>
               <a class="button button-secondary button-large" href="contact.html">Need to talk first? Contact Us</a>
             </div>
-            <p class="form-note">We read every request carefully. If the project is a fit, the next step is a focused conversation about scope, priorities, and the right type of support.</p>
+            <p class="form-note">We read every request carefully. If the project is a fit, the next step is a focused conversation about scope, priorities, and the right type of support. Files from this form are sent to support@hirehelper.ai.</p>
           </form>
         </div>
       </div>
@@ -228,7 +234,7 @@
         </div>
         <div>
           <h3>Company</h3>
-          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms of Service</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
+          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms and Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
         </div>
         <div>
           <h3>Categories</h3>

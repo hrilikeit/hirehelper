@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHireRequestRequest;
 use App\Models\HireRequest;
+use App\Support\PublicSubmissionMailer;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 class HireRequestController extends Controller
 {
@@ -18,7 +21,7 @@ class HireRequestController extends Controller
     {
         $data = $request->validated();
 
-        HireRequest::create([
+        $hireRequest = HireRequest::create([
             'category' => $data['category'],
             'project_title' => $data['projectTitle'],
             'needs' => $data['needs'],
@@ -36,6 +39,24 @@ class HireRequestController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
         ]);
+
+        try {
+            PublicSubmissionMailer::send(
+                subject: 'Website hiring request: ' . Str::limit($hireRequest->project_title, 80),
+                view: 'emails.support.hire-request',
+                data: [
+                    'hireRequest' => $hireRequest,
+                    'supportInbox' => config('hirehelper.support_inbox'),
+                ],
+                files: [
+                    $request->file('attachment'),
+                    $request->file('attachments', []),
+                    $request->file('files', []),
+                ],
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+        }
 
         return redirect()
             ->route('hire.received')

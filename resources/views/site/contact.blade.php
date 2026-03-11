@@ -109,7 +109,7 @@
             </ul>
           </div>
           @endif
-          <form class="site-form" data-contact-form novalidate method="POST" action="{{ route('contact.store') }}">
+          <form class="site-form" data-contact-form novalidate method="POST" action="{{ route('contact.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="grid grid-form">
               <div class="field">
@@ -142,10 +142,15 @@
               <label for="contact-message">Message</label>
               <textarea id="contact-message" name="message" rows="6" minlength="20" required>{{ old('message') }}</textarea>
             </div>
+            <div class="field">
+              <label for="contact-attachments">Optional files</label>
+              <p class="field-help">You can attach briefs, screenshots, decks, or notes here. Files from website forms are sent to <strong>support@hirehelper.ai</strong>.</p>
+              <input id="contact-attachments" name="attachments[]" type="file" multiple />
+            </div>
             <div class="form-actions">
               <button class="button button-primary button-large" type="submit">Send Message <span class="button-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></button>
             </div>
-            <p class="form-note">We aim to respond to serious inquiries within one business day.</p>
+            <p class="form-note">We aim to respond to serious inquiries within one business day. You can also email support@hirehelper.ai directly if you prefer.</p>
           </form>
         </div>
         <aside class="form-aside" data-reveal>
@@ -175,7 +180,7 @@
         </div>
         <div>
           <h3>Company</h3>
-          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms of Service</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
+          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms and Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
         </div>
         <div>
           <h3>Categories</h3>
