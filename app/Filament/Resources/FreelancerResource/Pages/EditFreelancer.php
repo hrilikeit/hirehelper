@@ -4,11 +4,19 @@ namespace App\Filament\Resources\FreelancerResource\Pages;
 
 use App\Filament\Resources\FreelancerResource;
 use App\Models\Freelancer;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditFreelancer extends EditRecord
 {
     protected static string $resource = FreelancerResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make(),
+        ];
+    }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {

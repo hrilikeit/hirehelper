@@ -6,14 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Freelancer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
+        'contact_email',
         'slug',
         'title',
         'headline',
@@ -54,6 +56,7 @@ class Freelancer extends Model
             'total_earned' => 'decimal:2',
             'average_rating' => 'decimal:2',
             'is_featured' => 'boolean',
+            'deleted_at' => 'datetime',
         ];
     }
 

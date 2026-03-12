@@ -6,7 +6,6 @@
 
     <div class="page-heading">
         <div>
-            <span class="badge"><span class="dot"></span> Signed in</span>
             <h1>Reports</h1>
             <p>The reporting area summarizes spend, hours, pending offers, and workspace health after registration and login.</p>
         </div>
@@ -38,9 +37,16 @@
                 <div class="setting-row">
                     <div>
                         <strong>Verify billing method</strong>
-                        <span>Remove pause warnings and keep contracts uninterrupted.</span>
+                        <span>Add, remove, or change the primary billing method for the workspace.</span>
                     </div>
                     <a class="cta-link" href="{{ route('workspace.billing-method') }}">Open</a>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <strong>Invoice details</strong>
+                        <span>Keep company name, VAT, and billing contact details ready for invoicing.</span>
+                    </div>
+                    <a class="cta-link" href="{{ route('workspace.invoice-details') }}">Edit</a>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -48,13 +54,6 @@
                         <span>Make sure each freelancer has the right weekly hour limit before activation.</span>
                     </div>
                     <a class="cta-link" href="{{ route('workspace.invite-offer') }}">Edit</a>
-                </div>
-                <div class="setting-row">
-                    <div>
-                        <strong>Client dashboard check</strong>
-                        <span>Keep the project list, offers, and activity feed aligned with the current UI.</span>
-                    </div>
-                    <a class="cta-link" href="{{ route('workspace.dashboard-live') }}">Review</a>
                 </div>
             </div>
         </section>

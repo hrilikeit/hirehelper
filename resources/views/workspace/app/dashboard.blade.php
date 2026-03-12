@@ -6,7 +6,6 @@
 
     <div class="page-heading">
         <div>
-            <span class="badge"><span class="dot"></span> Signed in</span>
             <h1>Client dashboard</h1>
             <p>This is the client dashboard before an offer becomes active. Save a brief, then continue into the freelancer hiring flow.</p>
         </div>
@@ -90,7 +89,7 @@
                     <div class="separator"></div>
                 @endif
             @empty
-                <p class="empty">Freelancers will appear here after the workspace seed runs.</p>
+                <p class="empty">No freelancer personas added yet. You can still invite a freelancer by email from the offer page.</p>
             @endforelse
         </section>
 

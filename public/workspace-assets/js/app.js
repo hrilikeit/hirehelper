@@ -1,5 +1,5 @@
 const HHWorkspace = {
-  noticeKey: 'hirehelper_notice_closed_v3',
+  noticeKey: 'hirehelper_notice_closed_v4',
 };
 
 function setupMenu() {
@@ -42,9 +42,8 @@ function updateWeeklyMax() {
 }
 
 function setupInviteForm() {
-  const freelancerSelect = document.querySelector('[data-freelancer-select]');
-  const roleInput = document.querySelector('#role');
   const rateInput = document.querySelector('#hourly_rate');
+  const weeklyLimit = document.querySelector('#weekly_limit');
 
   updateWeeklyMax();
 
@@ -52,45 +51,13 @@ function setupInviteForm() {
     rateInput.addEventListener('input', updateWeeklyMax);
   }
 
-  const weeklyLimit = document.querySelector('#weekly_limit');
   if (weeklyLimit) {
     weeklyLimit.addEventListener('input', updateWeeklyMax);
   }
-
-  if (!freelancerSelect) return;
-
-  freelancerSelect.addEventListener('change', () => {
-    const option = freelancerSelect.options[freelancerSelect.selectedIndex];
-    if (!option) return;
-
-    if (roleInput && (!roleInput.value || roleInput.dataset.autofill !== '0')) {
-      roleInput.value = option.dataset.role || roleInput.value;
-    }
-
-    if (rateInput && (!rateInput.value || rateInput.dataset.autofill !== '0')) {
-      rateInput.value = option.dataset.rate || rateInput.value;
-      updateWeeklyMax();
-    }
-  });
-}
-
-function setupBillingChoices() {
-  const hidden = document.querySelector('[data-billing-input]');
-  const choices = document.querySelectorAll('[data-billing-choice]');
-  if (!hidden || !choices.length) return;
-
-  choices.forEach((choice) => {
-    choice.addEventListener('click', () => {
-      choices.forEach((row) => row.classList.remove('is-selected'));
-      choice.classList.add('is-selected');
-      hidden.value = choice.getAttribute('data-billing-choice') || hidden.value;
-    });
-  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   setupMenu();
   setupDismissNotice();
   setupInviteForm();
-  setupBillingChoices();
 });

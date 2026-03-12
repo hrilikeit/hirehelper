@@ -27,16 +27,12 @@ class ClientAuthController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'company' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user = User::create([
             'name' => $data['name'],
-            'company' => $data['company'] ?? null,
-            'phone' => $data['phone'] ?? null,
             'email' => $data['email'],
             'role' => 'client',
             'password' => Hash::make($data['password']),

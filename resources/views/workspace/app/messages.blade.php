@@ -6,7 +6,6 @@
 
     <div class="page-heading">
         <div>
-            <span class="badge"><span class="dot"></span> Signed in</span>
             <h1>Messages</h1>
             <p>The client inbox keeps all project communication, status updates, and hiring actions in one quieter workspace.</p>
         </div>
@@ -16,9 +15,9 @@
         <section class="project-card">
             @if ($offer)
                 <div class="avatar-line" style="margin-bottom:18px">
-                    <img src="{{ $offer->freelancer->avatar_url }}" alt="{{ $offer->freelancer->name }}">
+                    <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
                     <div>
-                        <strong>{{ $offer->freelancer->name }}</strong>
+                        <strong>{{ $offer->freelancer_display_name }}</strong>
                         <span>{{ $offer->role }}</span>
                     </div>
                 </div>

@@ -28,7 +28,7 @@
 
                 <div class="form-group">
                     <label class="form-label" for="title">Project title</label>
-                    <input class="input" id="title" name="title" placeholder="HireHelper.ai client dashboard rebuild" required value="{{ old('title', $project->title) }}" />
+                    <input class="input" id="title" name="title" placeholder="Write the project title" required value="{{ old('title', $project->title) }}" />
                 </div>
 
                 <div class="form-group">
@@ -82,19 +82,19 @@
             <div class="brief-mini">
                 <div class="mini-row">
                     <span class="mini-label">Current title</span>
-                    <strong>{{ $project->title }}</strong>
+                    <strong>{{ $project->title ?: 'Not set yet' }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Experience</span>
-                    <strong>{{ $project->experience_level }}</strong>
+                    <strong>{{ $project->experience_level ?: 'Not set yet' }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Timeframe</span>
-                    <strong>{{ $project->timeframe }}</strong>
+                    <strong>{{ $project->timeframe ?: 'Not set yet' }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Specialty</span>
-                    <strong>{{ $project->specialty }}</strong>
+                    <strong>{{ $project->specialty ?: 'Not set yet' }}</strong>
                 </div>
             </div>
 
@@ -106,7 +106,7 @@
 
             <div class="separator"></div>
 
-            <h3 style="font-size:24px;letter-spacing:-.03em;margin:0 0 14px">Suggested freelancers</h3>
+            <h3 style="font-size:24px;letter-spacing:-.03em;margin:0 0 14px">Freelancer personas</h3>
             @forelse ($freelancers as $freelancer)
                 <div class="offer-row">
                     <div class="avatar-line">
@@ -118,14 +118,13 @@
                     </div>
                     <div style="text-align:right">
                         <div class="muted small">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</div>
-                        <a class="cta-link" href="{{ route('workspace.invite-offer', ['project' => $project->id]) }}">Pick</a>
                     </div>
                 </div>
                 @if (! $loop->last)
                     <div class="separator"></div>
                 @endif
             @empty
-                <p class="empty">Freelancers will appear here after the seed runs.</p>
+                <p class="empty">No freelancer personas added yet. You can still continue and invite a freelancer by email on the next step.</p>
             @endforelse
         </aside>
     </div>

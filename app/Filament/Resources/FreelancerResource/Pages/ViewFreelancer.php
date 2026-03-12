@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FreelancerResource\Pages;
 
 use App\Filament\Resources\FreelancerResource;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -14,6 +15,7 @@ class ViewFreelancer extends ViewRecord
     {
         return [
             EditAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

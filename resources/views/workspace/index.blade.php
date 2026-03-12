@@ -6,7 +6,7 @@
         <div>
             <span class="badge"><span class="dot"></span> Client workspace</span>
             <h1>Client workspace with a streamlined project setup flow.</h1>
-            <p>This workspace now runs inside Laravel. Clients can register, sign in, save project briefs, send offers to freelancers, and manage everything from one dashboard.</p>
+            <p>This workspace now runs inside Laravel. Clients can register, sign in, save project briefs, send offers to freelancers by email, and manage everything from one dashboard.</p>
         </div>
     </div>
 
@@ -16,7 +16,7 @@
         <div>
             <span class="eyebrow"><span class="dot"></span> HireHelper.ai workspace</span>
             <h2>From registration to hiring in one clean flow.</h2>
-            <p>Use this workspace to create a client account, post a project brief, choose a freelancer, and move a contract into the active state.</p>
+            <p>Use this workspace to create a client account, post a project brief, invite a freelancer by email, and move a contract into the active state.</p>
             <div class="inline-actions">
                 @auth
                     <a class="button button-primary" href="{{ route('workspace.dashboard') }}">Open dashboard</a>
@@ -54,9 +54,9 @@
                     ['title' => 'Registration', 'text' => 'Create the client account that unlocks the workspace.', 'url' => route('client.register')],
                     ['title' => 'Dashboard', 'text' => 'See project drafts, live offers, and active work.', 'url' => auth()->check() ? route('workspace.dashboard') : route('client.login')],
                     ['title' => 'Project setup', 'text' => 'Write and save the project brief on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : route('client.login')],
-                    ['title' => 'Offer setup', 'text' => 'Choose a freelancer and set rate, hours, and manual time.', 'url' => auth()->check() ? route('workspace.invite-offer') : route('client.login')],
-                    ['title' => 'Billing setup', 'text' => 'Choose the billing method before activation.', 'url' => auth()->check() ? route('workspace.billing-method') : route('client.login')],
-                    ['title' => 'Messages', 'text' => 'Keep project communication inside the workspace.', 'url' => auth()->check() ? route('workspace.messages') : route('client.login')],
+                    ['title' => 'Offer setup', 'text' => 'Enter freelancer email, set rate, and confirm weekly limit.', 'url' => auth()->check() ? route('workspace.invite-offer') : route('client.login')],
+                    ['title' => 'Billing setup', 'text' => 'Add billing methods and set a primary option.', 'url' => auth()->check() ? route('workspace.billing-method') : route('client.login')],
+                    ['title' => 'Invoice details', 'text' => 'Save company, VAT, and billing address details.', 'url' => auth()->check() ? route('workspace.invoice-details') : route('client.login')],
                 ];
             @endphp
 
@@ -76,7 +76,7 @@
         <div class="page-heading">
             <div>
                 <h2>Featured freelancers</h2>
-                <p>The hiring flow uses these seeded freelancer profiles so the offer pages work immediately.</p>
+                <p>Freelancer personas added by the admin team can appear here. The offer page can still work with email-only invites even if this list is empty.</p>
             </div>
         </div>
 
@@ -98,7 +98,7 @@
                 </div>
             @empty
                 <div class="project-card">
-                    <p class="empty">No freelancers are available yet. The workspace will auto-seed demo freelancers on first use.</p>
+                    <p class="empty">No freelancer personas are available yet. Add them from the admin panel when you are ready.</p>
                 </div>
             @endforelse
         </div>

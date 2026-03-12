@@ -17,6 +17,10 @@ class ClientBillingMethod extends Model
         'is_default',
     ];
 
+    protected $appends = [
+        'display_label',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -27,5 +31,22 @@ class ClientBillingMethod extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getDisplayLabelAttribute(): string
+    {
+        if ($this->method_type === 'PayPal') {
+            return filled($this->label)
+                ? 'PayPal · ' . $this->label
+                : 'PayPal';
+        }
+
+        if (filled($this->last_four)) {
+            return $this->method_type . ' · •••• ' . $this->last_four;
+        }
+
+        return filled($this->label)
+            ? $this->method_type . ' · ' . $this->label
+            : $this->method_type;
     }
 }

@@ -8,6 +8,7 @@ use App\Filament\Resources\FreelancerResource\Pages\ListFreelancers;
 use App\Filament\Resources\FreelancerResource\Pages\ViewFreelancer;
 use App\Models\Freelancer;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -176,6 +177,7 @@ class FreelancerResource extends Resource
             Section::make('Freelancer profile')
                 ->schema([
                     TextEntry::make('name')->label('Freelancer full name'),
+                    TextEntry::make('contact_email')->label('Freelancer email')->placeholder('—'),
                     TextEntry::make('title'),
                     TextEntry::make('hourly_rate')->label('Rate')->money('USD'),
                     TextEntry::make('total_earned')->label('Total earned')->money('USD'),
@@ -195,6 +197,7 @@ class FreelancerResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label('Freelancer')->searchable()->sortable(),
+                TextColumn::make('contact_email')->label('Email')->searchable()->toggleable(),
                 TextColumn::make('title')->searchable()->limit(30),
                 TextColumn::make('hourly_rate')->label('Rate')->money('USD')->sortable(),
                 TextColumn::make('total_earned')->label('Total earned')->money('USD')->sortable(),
@@ -217,6 +220,7 @@ class FreelancerResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

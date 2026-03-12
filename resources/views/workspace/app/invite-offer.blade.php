@@ -14,32 +14,24 @@
         <div class="wizard-header" style="margin-bottom:8px">
             <img alt="HireHelper.ai" src="{{ asset('workspace-assets/img/logo.svg') }}" />
             <h1 class="wizard-title" style="font-size:42px">Create an offer</h1>
-            <p class="wizard-subtitle">Set the hourly rate, weekly cap, and manual time preferences, then continue to billing.</p>
+            <p class="wizard-subtitle">Add the freelancer email, set the rate, and confirm the weekly limit before billing.</p>
         </div>
 
         <form method="post" action="{{ route('workspace.invite-offer.store') }}" data-invite-form>
             @csrf
             <input type="hidden" name="project_id" value="{{ $project->id }}" />
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="freelancer_id">Freelancer</label>
-                    <select class="select" id="freelancer_id" name="freelancer_id" data-freelancer-select required>
-                        @foreach ($freelancers as $freelancer)
-                            <option
-                                value="{{ $freelancer->id }}"
-                                data-role="{{ $freelancer->title }}"
-                                data-rate="{{ number_format((float) $freelancer->hourly_rate, 0, '.', '') }}"
-                                @selected((int) $selectedFreelancerId === (int) $freelancer->id)
-                            >{{ $freelancer->name }} · {{ $freelancer->title }} · ${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="role">Role</label>
-                    <input class="input" id="role" name="role" required value="{{ old('role', $offer?->role ?? optional($freelancers->firstWhere('id', $selectedFreelancerId))->title ?? 'Full stack developer') }}" />
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="freelancer_email">Freelancer email</label>
+                <input
+                    class="input"
+                    id="freelancer_email"
+                    name="freelancer_email"
+                    type="email"
+                    placeholder="freelancer@example.com"
+                    required
+                    value="{{ old('freelancer_email', $offer?->freelancer_email ?? $offer?->freelancer?->contact_email) }}"
+                />
             </div>
 
             <div class="form-group">
@@ -47,23 +39,23 @@
                 <div class="input" style="display:flex;align-items:center;height:auto;min-height:56px">{{ $project->title }}</div>
             </div>
 
-            <h2 style="font-size:32px;letter-spacing:-.04em;margin:26px 0 16px;text-align:left">Rate and weekly limit</h2>
+            <h2 style="font-size:28px;letter-spacing:-.04em;margin:22px 0 14px;text-align:left">Rate and weekly limit</h2>
 
-            <div class="form-row">
+            <div class="offer-rate-grid compact-rate-grid">
                 <div class="form-group">
                     <label class="form-label" for="hourly_rate">Rate</label>
-                    <div style="display:grid;grid-template-columns:1fr 78px">
-                        <input class="input" id="hourly_rate" min="1" name="hourly_rate" required step="1" type="number" value="{{ old('hourly_rate', $offer?->hourly_rate ?? optional($freelancers->firstWhere('id', $selectedFreelancerId))->hourly_rate ?? 35) }}" />
-                        <div class="input" style="border-left:none;border-radius:0 16px 16px 0;display:grid;place-items:center;font-weight:700;background:#f3f6ff">$ / hr</div>
+                    <div class="compact-money-field">
+                        <input class="input" id="hourly_rate" min="1" name="hourly_rate" required step="1" type="number" value="{{ old('hourly_rate', $offer?->hourly_rate ?? 35) }}" />
+                        <div class="input compact-addon">$ / hr</div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="weekly_limit">Weekly limit</label>
-                    <div style="display:grid;grid-template-columns:1fr 110px 170px">
-                        <input class="input" id="weekly_limit" min="1" name="weekly_limit" required step="1" type="number" value="{{ old('weekly_limit', $offer?->weekly_limit ?? 20) }}" />
-                        <div class="input" style="border-left:none;border-radius:0;display:grid;place-items:center;font-weight:700;background:#f3f6ff">hrs/week</div>
-                        <div class="input" data-weekly-max style="border-left:none;border-radius:0 16px 16px 0;display:grid;place-items:center;background:#fbfcff">${{ number_format((float) old('hourly_rate', $offer?->hourly_rate ?? optional($freelancers->firstWhere('id', $selectedFreelancerId))->hourly_rate ?? 35) * (int) old('weekly_limit', $offer?->weekly_limit ?? 20), 2) }} max / week</div>
+                    <div class="compact-limit-field">
+                        <input class="input" id="weekly_limit" min="1" name="weekly_limit" required step="1" type="number" value="{{ old('weekly_limit', $offer?->weekly_limit ?? 40) }}" />
+                        <div class="input compact-addon">hrs/week</div>
+                        <div class="input compact-total" data-weekly-max>${{ number_format((float) old('hourly_rate', $offer?->hourly_rate ?? 35) * (int) old('weekly_limit', $offer?->weekly_limit ?? 40), 2) }} max / week</div>
                     </div>
                 </div>
             </div>

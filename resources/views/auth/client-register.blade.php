@@ -18,28 +18,14 @@
         <form method="post" action="{{ route('client.register') }}">
             @csrf
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="name">Full name</label>
-                    <input class="input" id="name" name="name" type="text" value="{{ old('name') }}" required />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="company">Company</label>
-                    <input class="input" id="company" name="company" type="text" value="{{ old('company') }}" />
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="name">Full name</label>
+                <input class="input" id="name" name="name" type="text" value="{{ old('name') }}" required />
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="email">Email address</label>
-                    <input class="input" id="email" name="email" type="email" value="{{ old('email') }}" required />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="phone">Phone</label>
-                    <input class="input" id="phone" name="phone" type="text" value="{{ old('phone') }}" />
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="email">Email address</label>
+                <input class="input" id="email" name="email" type="email" value="{{ old('email') }}" required />
             </div>
 
             <div class="form-row">

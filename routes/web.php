@@ -31,8 +31,8 @@ Route::redirect('/contact', '/contact.html');
 Route::get('/contact.html', [ContactMessageController::class, 'create'])->name('contact.show');
 Route::post('/contact.html', [ContactMessageController::class, 'store'])->name('contact.store');
 
-Route::redirect('/start-hiring', '/start-hiring.html');
-Route::get('/start-hiring.html', [HireRequestController::class, 'create'])->name('hire.start');
+Route::redirect('/start-hiring', '/client/register');
+Route::redirect('/start-hiring.html', '/client/register')->name('hire.start');
 Route::post('/start-hiring.html', [HireRequestController::class, 'store'])->name('hire.store');
 Route::get('/request-received.html', [HireRequestController::class, 'thankYou'])->name('hire.received');
 
@@ -82,6 +82,11 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
 
     Route::get('/billing-method.html', [WorkspaceController::class, 'billingMethod'])->name('billing-method');
     Route::post('/billing-method.html', [WorkspaceController::class, 'storeBillingMethod'])->name('billing-method.store');
+    Route::post('/billing-method/set-primary', [WorkspaceController::class, 'setPrimaryBillingMethod'])->name('billing-method.primary');
+    Route::post('/billing-method/remove', [WorkspaceController::class, 'destroyBillingMethod'])->name('billing-method.destroy');
+
+    Route::get('/invoice-details.html', [WorkspaceController::class, 'invoiceDetails'])->name('invoice-details');
+    Route::post('/invoice-details.html', [WorkspaceController::class, 'storeInvoiceDetails'])->name('invoice-details.store');
 
     Route::get('/project-pending.html', [WorkspaceController::class, 'projectPending'])->name('project-pending');
     Route::post('/project-pending/activate', [WorkspaceController::class, 'activateProject'])->name('project.activate');

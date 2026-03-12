@@ -591,3 +591,54 @@ button,input,select,textarea{font:inherit}
 @media (max-width: 640px){
   .footer-minimal{flex-direction:column;text-align:center}
 }
+
+.compact-rate-grid{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:16px;
+  align-items:end;
+}
+.compact-money-field{
+  display:grid;
+  grid-template-columns:1fr 84px;
+}
+.compact-limit-field{
+  display:grid;
+  grid-template-columns:100px 120px 1fr;
+}
+.compact-addon{
+  border-left:none;
+  border-radius:0;
+  display:grid;
+  place-items:center;
+  font-weight:700;
+  background:#f3f6ff;
+}
+.compact-money-field .compact-addon{
+  border-radius:0 16px 16px 0;
+}
+.compact-limit-field .compact-total{
+  border-left:none;
+  border-radius:0 16px 16px 0;
+  display:grid;
+  place-items:center;
+  background:#fbfcff;
+}
+.method-action-stack{
+  display:grid;
+  gap:10px;
+  justify-items:end;
+}
+
+@media (max-width: 860px){
+  .compact-rate-grid{
+    grid-template-columns:1fr;
+  }
+  .compact-limit-field{
+    grid-template-columns:1fr;
+  }
+  .method-action-stack{
+    justify-items:stretch;
+    width:100%;
+  }
+}

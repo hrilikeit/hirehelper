@@ -50,9 +50,9 @@
         </section>
 
         <aside class="sidebar-card side-profile">
-            <img src="{{ $offer->freelancer->avatar_url }}" alt="{{ $offer->freelancer->name }}">
-            <h3>{{ $offer->freelancer->name }}</h3>
-            <div class="place">{{ $offer->freelancer->location }}</div>
+            <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
+            <h3>{{ $offer->freelancer_display_name }}</h3>
+            <div class="place">{{ $offer->freelancer_display_location }}</div>
             <a class="cta-link" href="{{ route('workspace.messages') }}">Send a message</a>
             <div class="status-block">
                 <div>Offer date: <strong>{{ optional($offer->sent_at)->format('M j, Y') ?: now()->format('M j, Y') }}</strong></div>

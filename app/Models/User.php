@@ -96,6 +96,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(ClientBillingMethod::class)->where('is_default', true);
     }
 
+    public function invoiceDetail()
+    {
+        return $this->hasOne(ClientInvoiceDetail::class);
+    }
+
     public function addedFreelancers()
     {
         return $this->hasMany(Freelancer::class, 'added_by_user_id');

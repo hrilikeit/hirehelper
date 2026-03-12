@@ -34,7 +34,7 @@
             </div>
 
             <div class="separator"></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
                 <h2 style="font-size:30px;letter-spacing:-.04em;margin:0">Timesheet this week</h2>
                 <div class="muted small">Amount: $0.00</div>
             </div>
@@ -57,9 +57,9 @@
         </section>
 
         <aside class="sidebar-card side-profile">
-            <img src="{{ $offer->freelancer->avatar_url }}" alt="{{ $offer->freelancer->name }}">
-            <h3>{{ $offer->freelancer->name }}</h3>
-            <div class="place">{{ $offer->freelancer->location }}</div>
+            <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
+            <h3>{{ $offer->freelancer_display_name }}</h3>
+            <div class="place">{{ $offer->freelancer_display_location }}</div>
             <a class="cta-link" href="{{ route('workspace.messages') }}">Send a message</a>
             <div class="status-block">
                 <div>Start date: <strong>{{ optional($offer->activated_at)->format('M j, Y') ?: now()->format('M j, Y') }}</strong></div>

@@ -5,7 +5,7 @@
     $offer = $primaryOffer;
     $project = $primaryProject;
     $isActive = $offer && $offer->status === 'active';
-    $needsBilling = $offer && ! ($offer->billing_method ?: $billingMethod?->method_type ?? null);
+    $needsBilling = $offer && ! ($offer->billing_method ?: ($billingMethod?->display_label));
 @endphp
 
 <div class="container">
@@ -26,7 +26,6 @@
 
     <div class="page-heading">
         <div>
-            <span class="badge"><span class="dot"></span> Signed in</span>
             <h1>Client dashboard</h1>
             <p>This state reflects the dashboard after a brief is saved and the freelancer hiring flow has started.</p>
         </div>
@@ -67,7 +66,7 @@
                         <span class="project-bullet"></span>
                         <div>
                             <div class="project-title">{{ $project->title }}</div>
-                            <div class="project-sub">Freelancer: {{ $offer->freelancer->name }}</div>
+                            <div class="project-sub">Freelancer: {{ $offer->freelancer_display_name }}</div>
                         </div>
                     </div>
                     <span class="status-pill {{ $isActive ? 'status-active' : 'status-pending' }}">{{ $isActive ? 'Active' : 'Pending' }}</span>
@@ -87,10 +86,10 @@
             @if ($offer)
                 <div class="offer-row">
                     <div class="avatar-line">
-                        <img alt="{{ $offer->freelancer->name }}" src="{{ $offer->freelancer->avatar_url }}" />
+                        <img alt="{{ $offer->freelancer_display_name }}" src="{{ $offer->freelancer_display_avatar_url }}" />
                         <div>
-                            <strong>{{ $offer->freelancer->name }}</strong>
-                            <span>{{ $offer->freelancer->location }}</span>
+                            <strong>{{ $offer->freelancer_display_name }}</strong>
+                            <span>{{ $offer->freelancer_display_location }}</span>
                         </div>
                     </div>
                     <div style="text-align:right">
@@ -119,7 +118,7 @@
                 <div class="activity-row">
                     <div>
                         <div class="project-title">{{ $isActive ? 'Contract active' : 'Offer sent' }}</div>
-                        <div class="project-sub">{{ $isActive ? 'The contract is active with' : 'A new offer was created for' }} {{ $offer->freelancer->name }}.</div>
+                        <div class="project-sub">{{ $isActive ? 'The contract is active with' : 'A new offer was created for' }} {{ $offer->freelancer_display_name }}.</div>
                     </div>
                     <span class="status-pill status-neutral">{{ optional($offer->updated_at)->diffForHumans() }}</span>
                 </div>

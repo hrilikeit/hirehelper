@@ -12,6 +12,7 @@ class ProjectOffer extends Model
     protected $fillable = [
         'client_project_id',
         'freelancer_id',
+        'freelancer_email',
         'sales_manager_id',
         'project_manager_id',
         'role',
@@ -50,7 +51,7 @@ class ProjectOffer extends Model
 
     public function freelancer()
     {
-        return $this->belongsTo(Freelancer::class);
+        return $this->belongsTo(Freelancer::class)->withTrashed();
     }
 
     public function salesManager()
@@ -76,5 +77,23 @@ class ProjectOffer extends Model
     public function getIsAcceptedAttribute(): bool
     {
         return in_array((string) $this->status, ['active', 'closed'], true);
+    }
+
+    public function getFreelancerDisplayNameAttribute(): string
+    {
+        return $this->freelancer_email
+            ?: $this->freelancer?->contact_email
+            ?: $this->freelancer?->name
+            ?: 'Freelancer';
+    }
+
+    public function getFreelancerDisplayLocationAttribute(): string
+    {
+        return $this->freelancer?->display_location ?: 'Email invite';
+    }
+
+    public function getFreelancerDisplayAvatarUrlAttribute(): string
+    {
+        return $this->freelancer?->avatar_url ?: asset('workspace-assets/img/avatar-jade.svg');
     }
 }

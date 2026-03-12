@@ -6,9 +6,8 @@
 
     <div class="page-heading">
         <div>
-            <span class="badge"><span class="dot"></span> Signed in</span>
             <h1>Workspace settings</h1>
-            <p>This screen organizes the most common client-side settings after login: notifications, billing reminders, security, and interface preferences.</p>
+            <p>This screen organizes the most common client-side settings after login: notifications, billing reminders, invoicing, and interface preferences.</p>
         </div>
     </div>
 
@@ -67,21 +66,21 @@
         </section>
 
         <section class="project-card">
-            <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 16px">Account and security</h3>
+            <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 16px">Account and billing</h3>
             <div class="setting-list">
                 <div class="setting-row">
                     <div>
-                        <strong>Password and access</strong>
-                        <span>Review account credentials and manage workspace security controls.</span>
+                        <strong>Billing method</strong>
+                        <span>{{ $billingMethod?->display_label ?: 'No default billing method saved yet.' }}</span>
                     </div>
-                    <span class="badge">Laravel auth</span>
+                    <a class="cta-link" href="{{ route('workspace.billing-method') }}">Manage</a>
                 </div>
                 <div class="setting-row">
                     <div>
-                        <strong>Billing method</strong>
-                        <span>{{ $billingMethod?->method_type ?: 'No default billing method saved yet.' }}</span>
+                        <strong>Invoice details</strong>
+                        <span>{{ $invoiceDetail?->company_name ?: 'No invoice company details saved yet.' }}</span>
                     </div>
-                    <a class="cta-link" href="{{ route('workspace.billing-method') }}">Manage</a>
+                    <a class="cta-link" href="{{ route('workspace.invoice-details') }}">Open</a>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -92,12 +91,12 @@
                 </div>
             </div>
 
-            <div class="separator"></div>
-
-            <form method="post" action="{{ route('client.logout') }}">
-                @csrf
-                <button class="button button-secondary" type="submit">Sign out</button>
-            </form>
+            <div style="margin-top:22px">
+                <form method="post" action="{{ route('client.logout') }}">
+                    @csrf
+                    <button class="button button-secondary" type="submit">Sign out</button>
+                </form>
+            </div>
         </section>
     </div>
 </div>
