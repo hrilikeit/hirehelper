@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\FreelancerResource\Pages;
 
 use App\Filament\Resources\FreelancerResource;
-use App\Support\AdminAccess;
+use App\Models\Freelancer;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateFreelancer extends CreateRecord
@@ -14,11 +14,19 @@ class CreateFreelancer extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (AdminAccess::isSalesManager(auth()->user()) && empty($data['added_by_user_id'])) {
-            $data['added_by_user_id'] = auth()->id();
-        }
+        $data['slug'] = Freelancer::generateUniqueSlug((string) ($data['name'] ?? 'freelancer'));
+        $data['status'] = $data['status'] ?? 'active';
+        $data['avatar'] = $data['avatar'] ?? 'avatar-jade.svg';
+        $data['is_featured'] = (bool) ($data['is_featured'] ?? false);
+        $data['added_by_user_id'] = $data['added_by_user_id'] ?? auth()->id();
+        $data['overview'] = trim((string) ($data['bio'] ?? ''));
 
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        $this->record->syncReviewMetrics();
     }
 
     protected function getRedirectUrl(): string

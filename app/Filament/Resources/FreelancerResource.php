@@ -7,17 +7,15 @@ use App\Filament\Resources\FreelancerResource\Pages\EditFreelancer;
 use App\Filament\Resources\FreelancerResource\Pages\ListFreelancers;
 use App\Filament\Resources\FreelancerResource\Pages\ViewFreelancer;
 use App\Models\Freelancer;
-use App\Models\User;
-use App\Support\AdminAccess;
 use BackedEnum;
-use UnitEnum;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -27,7 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
+use UnitEnum;
 
 class FreelancerResource extends Resource
 {
@@ -55,68 +53,120 @@ class FreelancerResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Public profile')
+            Section::make('Required freelancer details')
+                ->description('This is the simplified sales form. Only the fields below are required.')
                 ->schema([
+                    Hidden::make('slug'),
+                    Hidden::make('status')->default('active'),
+                    Hidden::make('avatar')->default('avatar-jade.svg'),
+                    Hidden::make('is_featured')->default(false),
+                    Hidden::make('added_by_user_id')->default(fn (): ?int => auth()->id()),
+
                     TextInput::make('name')
+                        ->label('Freelancer full name')
                         ->required()
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(function ($state, $set) {
-                            $set('slug', Str::slug((string) $state));
-                        }),
-                    TextInput::make('slug')
+                        ->maxLength(255),
+
+                    TextInput::make('title')
+                        ->label('Title')
                         ->required()
-                        ->unique(ignoreRecord: true),
-                    TextInput::make('title')->required(),
-                    TextInput::make('headline')->label('Profile headline'),
-                    TextInput::make('specialization'),
-                    TextInput::make('hourly_rate')->numeric()->required()->prefix('$'),
-                    TextInput::make('country'),
-                    TextInput::make('city'),
-                    TextInput::make('location')->helperText('Legacy location field used by the client workspace cards.'),
-                    TextInput::make('english_level'),
-                    TextInput::make('timezone'),
-                    TextInput::make('availability'),
-                    TextInput::make('years_experience')->numeric()->minValue(0),
-                    TextInput::make('average_rating')->numeric()->minValue(0)->maxValue(5),
-                    TextInput::make('review_count')->numeric()->minValue(0),
-                    TextInput::make('completed_jobs')->numeric()->minValue(0),
-                    TextInput::make('avatar')->placeholder('avatar-ava.svg'),
-                    Select::make('status')
+                        ->maxLength(255),
+
+                    Select::make('average_rating')
+                        ->label('Stars')
                         ->options([
-                            'active' => 'Active',
-                            'paused' => 'Paused',
-                            'archived' => 'Archived',
+                            1 => '1',
+                            2 => '2',
+                            3 => '3',
+                            4 => '4',
+                            5 => '5',
                         ])
                         ->required(),
-                    Toggle::make('is_featured'),
+
+                    TextInput::make('hourly_rate')
+                        ->label('Rate')
+                        ->numeric()
+                        ->minValue(0)
+                        ->required()
+                        ->prefix('$'),
+
+                    TextInput::make('total_earned')
+                        ->label('Total earned')
+                        ->numeric()
+                        ->minValue(0)
+                        ->required()
+                        ->prefix('$'),
+
+                    TextInput::make('years_experience')
+                        ->label('Experience')
+                        ->numeric()
+                        ->minValue(0)
+                        ->required(),
+
+                    Textarea::make('bio')
+                        ->label('Description')
+                        ->required()
+                        ->rows(6)
+                        ->columnSpanFull(),
                 ])
                 ->columns(3),
 
-            Section::make('Expertise')
+            Section::make('Reviews')
+                ->description('Sales person can add up to 15 reviews.')
                 ->schema([
-                    TagsInput::make('skills'),
-                    TagsInput::make('tools'),
-                    Textarea::make('overview')->rows(4)->columnSpanFull(),
-                    Textarea::make('bio')->rows(6)->columnSpanFull(),
-                ])
-                ->columns(2),
+                    Repeater::make('reviews')
+                        ->relationship()
+                        ->addActionLabel('Add new review')
+                        ->maxItems(15)
+                        ->itemLabel(fn (array $state): string => filled($state['review_title'] ?? null) ? (string) $state['review_title'] : 'Review')
+                        ->schema([
+                            TextInput::make('review_title')
+                                ->label('Review title')
+                                ->required()
+                                ->maxLength(255)
+                                ->columnSpan(2),
 
-            Section::make('Links and internal notes')
-                ->schema([
-                    TextInput::make('portfolio_url')->url(),
-                    TextInput::make('linkedin_url')->url(),
-                    TextInput::make('github_url')->url(),
-                    TextInput::make('intro_video_url')->url(),
-                    Select::make('added_by_user_id')
-                        ->label('Added by')
-                        ->options(fn () => User::query()
-                            ->whereIn('role', ['superadmin', 'admin', 'sales_manager'])
-                            ->orderBy('name')
-                            ->pluck('name', 'id'))
-                        ->searchable(),
-                    Textarea::make('internal_notes')->rows(5)->columnSpanFull(),
-                ])
-                ->columns(2),
+                            Select::make('stars')
+                                ->label('Stars')
+                                ->options([
+                                    1 => '1',
+                                    2 => '2',
+                                    3 => '3',
+                                    4 => '4',
+                                    5 => '5',
+                                ])
+                                ->required(),
+
+                            DatePicker::make('date_from')
+                                ->label('From')
+                                ->required(),
+
+                            DatePicker::make('date_to')
+                                ->label('To')
+                                ->required(),
+
+                            TextInput::make('hours')
+                                ->label('Hours')
+                                ->numeric()
+                                ->minValue(0)
+                                ->required(),
+
+                            TextInput::make('rate')
+                                ->label('Rate')
+                                ->numeric()
+                                ->minValue(0)
+                                ->required()
+                                ->prefix('$'),
+
+                            Textarea::make('review_text')
+                                ->label('Review text')
+                                ->required()
+                                ->rows(4)
+                                ->columnSpanFull(),
+                        ])
+                        ->columns(3)
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 
@@ -125,41 +175,16 @@ class FreelancerResource extends Resource
         return $schema->components([
             Section::make('Freelancer profile')
                 ->schema([
-                    TextEntry::make('name'),
+                    TextEntry::make('name')->label('Freelancer full name'),
                     TextEntry::make('title'),
-                    TextEntry::make('headline'),
-                    TextEntry::make('specialization'),
-                    TextEntry::make('display_location')->label('Location'),
-                    TextEntry::make('hourly_rate')->money('USD'),
-                    TextEntry::make('years_experience')->label('Years experience'),
-                    TextEntry::make('availability'),
-                    TextEntry::make('english_level')->label('English'),
-                    TextEntry::make('timezone'),
-                    TextEntry::make('average_rating')->label('Rating'),
+                    TextEntry::make('hourly_rate')->label('Rate')->money('USD'),
+                    TextEntry::make('total_earned')->label('Total earned')->money('USD'),
+                    TextEntry::make('years_experience')->label('Experience'),
+                    TextEntry::make('average_rating')->label('Stars'),
                     TextEntry::make('review_count')->label('Reviews'),
-                    TextEntry::make('completed_jobs')->label('Completed jobs'),
-                    TextEntry::make('skills')
-                        ->formatStateUsing(fn ($state): string => implode(', ', $state ?? []))
-                        ->columnSpanFull(),
-                    TextEntry::make('tools')
-                        ->formatStateUsing(fn ($state): string => implode(', ', $state ?? []))
-                        ->columnSpanFull(),
-                    TextEntry::make('overview')->columnSpanFull(),
-                    TextEntry::make('bio')->columnSpanFull(),
-                    TextEntry::make('portfolio_url')
-                        ->url(fn ($state): ?string => filled($state) ? $state : null)
-                        ->openUrlInNewTab(),
-                    TextEntry::make('linkedin_url')
-                        ->url(fn ($state): ?string => filled($state) ? $state : null)
-                        ->openUrlInNewTab(),
-                    TextEntry::make('github_url')
-                        ->url(fn ($state): ?string => filled($state) ? $state : null)
-                        ->openUrlInNewTab(),
-                    TextEntry::make('intro_video_url')
-                        ->url(fn ($state): ?string => filled($state) ? $state : null)
-                        ->openUrlInNewTab(),
+                    TextEntry::make('bio')->label('Description')->columnSpanFull(),
                     TextEntry::make('addedBy.name')->label('Added by'),
-                    TextEntry::make('internal_notes')->columnSpanFull(),
+                    TextEntry::make('status')->badge(),
                 ])
                 ->columns(3),
         ]);
@@ -169,15 +194,16 @@ class FreelancerResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('name')->label('Freelancer')->searchable()->sortable(),
                 TextColumn::make('title')->searchable()->limit(30),
-                TextColumn::make('country')->toggleable(),
-                TextColumn::make('average_rating')->label('Rating')->sortable(),
+                TextColumn::make('hourly_rate')->label('Rate')->money('USD')->sortable(),
+                TextColumn::make('total_earned')->label('Total earned')->money('USD')->sortable(),
+                TextColumn::make('years_experience')->label('Experience')->sortable(),
+                TextColumn::make('average_rating')->label('Stars')->sortable(),
                 TextColumn::make('review_count')->label('Reviews')->sortable(),
-                TextColumn::make('hourly_rate')->money('USD')->sortable(),
                 TextColumn::make('addedBy.name')->label('Added by')->toggleable(),
                 TextColumn::make('status')->badge()->sortable(),
-                IconColumn::make('is_featured')->boolean(),
+                IconColumn::make('is_featured')->label('Featured')->boolean()->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -187,7 +213,7 @@ class FreelancerResource extends Resource
                         'archived' => 'Archived',
                     ]),
             ])
-            ->defaultSort('name')
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

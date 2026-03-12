@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Freelancer extends Model
 {
@@ -16,6 +19,7 @@ class Freelancer extends Model
         'headline',
         'specialization',
         'hourly_rate',
+        'total_earned',
         'overview',
         'bio',
         'skills',
@@ -47,19 +51,58 @@ class Freelancer extends Model
             'skills' => 'array',
             'tools' => 'array',
             'hourly_rate' => 'decimal:2',
+            'total_earned' => 'decimal:2',
             'average_rating' => 'decimal:2',
             'is_featured' => 'boolean',
         ];
     }
 
-    public function offers()
+    public function offers(): HasMany
     {
         return $this->hasMany(ProjectOffer::class);
     }
 
-    public function addedBy()
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(FreelancerReview::class);
+    }
+
+    public function addedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'added_by_user_id');
+    }
+
+    public static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $baseSlug = filled($baseSlug) ? $baseSlug : 'freelancer';
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (true) {
+            $query = static::query()->where('slug', $slug);
+
+            if ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            }
+
+            if (! $query->exists()) {
+                return $slug;
+            }
+
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+    }
+
+    public function syncReviewMetrics(): void
+    {
+        $reviewCount = $this->reviews()->count();
+
+        $this->forceFill([
+            'review_count' => $reviewCount,
+            'completed_jobs' => $reviewCount,
+        ])->saveQuietly();
     }
 
     public function getAvatarUrlAttribute(): string
