@@ -82,7 +82,10 @@
                     </div>
                     <div style="text-align:right">
                         <div class="muted small">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</div>
-                        <a class="cta-link" href="{{ route('workspace.invite-offer', ['project' => $draftProject?->id]) }}">Hire</a>
+                        <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+                            <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}">View profile</a>
+                            <a class="cta-link" href="{{ route('workspace.invite-offer', ['project' => $draftProject?->id]) }}">Hire</a>
+                        </div>
                     </div>
                 </div>
                 @if (! $loop->last)

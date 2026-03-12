@@ -1105,3 +1105,205 @@ select:focus{
   border-color: rgba(185, 28, 28, 0.14);
   color: #7f1d1d;
 }
+
+
+/* Public freelancer profile page */
+.freelancer-profile-section{
+  padding-top:clamp(3rem, 6vw, 5rem);
+}
+.freelancer-profile-grid{
+  display:grid;
+  grid-template-columns:minmax(280px, 340px) minmax(0, 1fr);
+  gap:1.5rem;
+  align-items:start;
+}
+.freelancer-profile-card,
+.freelancer-details-panel,
+.freelancer-reviews-panel{
+  border:1px solid rgba(91,97,246,.14);
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  box-shadow:var(--shadow-soft);
+}
+.freelancer-profile-card{
+  border-radius:30px;
+  padding:1.5rem;
+  display:flex;
+  flex-direction:column;
+  gap:1.5rem;
+}
+.freelancer-avatar-frame{
+  position:relative;
+  border-radius:28px;
+  background:linear-gradient(180deg, rgba(232,237,252,.96), rgba(241,244,253,.96));
+  border:1px solid rgba(91,97,246,.1);
+  padding:1.35rem;
+}
+.freelancer-avatar-image{
+  width:100%;
+  aspect-ratio:1 / 1;
+  object-fit:cover;
+  border-radius:24px;
+  background:rgba(224,230,247,.9);
+  border:1px solid rgba(91,97,246,.08);
+}
+.freelancer-avatar-badge{
+  position:absolute;
+  top:2rem;
+  right:2rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:3.4rem;
+  height:3.4rem;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid rgba(17,24,39,.08);
+  box-shadow:var(--shadow-soft);
+  font-weight:800;
+  letter-spacing:-.03em;
+}
+.freelancer-profile-card-copy h1{
+  margin:0;
+  font-size:clamp(2rem, 4vw, 3.4rem);
+  line-height:.95;
+  letter-spacing:-.05em;
+}
+.freelancer-location{
+  margin:.8rem 0 0;
+  color:var(--text-soft);
+  font-size:1.18rem;
+  font-weight:600;
+}
+.freelancer-rating-pill{
+  display:inline-flex;
+  align-items:center;
+  margin-top:1rem;
+  padding:.55rem .9rem;
+  border-radius:999px;
+  background:rgba(91,97,246,.1);
+  color:var(--primary-strong);
+  font-weight:700;
+}
+.freelancer-profile-cta{
+  width:100%;
+}
+.freelancer-details-panel{
+  border-radius:30px;
+  padding:1.6rem;
+}
+.freelancer-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:1rem;
+}
+.freelancer-stat-card{
+  padding:1rem 1.2rem;
+  border-radius:24px;
+  border:1px solid rgba(91,97,246,.14);
+  background:rgba(255,255,255,.78);
+}
+.freelancer-stat-card span{
+  display:block;
+  color:var(--text-faint);
+  font-size:.88rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-weight:700;
+}
+.freelancer-stat-card strong{
+  display:block;
+  margin-top:.65rem;
+  font-size:clamp(1.65rem, 2.3vw, 2.25rem);
+  line-height:1.05;
+  letter-spacing:-.05em;
+}
+.freelancer-skills-block,
+.freelancer-copy-block{
+  margin-top:1.6rem;
+}
+.freelancer-skills-block h2,
+.freelancer-copy-block h2,
+.freelancer-reviews-header h2{
+  margin:0 0 .95rem;
+  font-size:clamp(1.8rem, 3vw, 3rem);
+  line-height:1;
+  letter-spacing:-.05em;
+}
+.freelancer-chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.8rem;
+}
+.freelancer-skill-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:3rem;
+  padding:.75rem 1.15rem;
+  border-radius:999px;
+  border:1px solid rgba(91,97,246,.16);
+  background:rgba(255,255,255,.76);
+  font-weight:700;
+  letter-spacing:-.02em;
+  color:var(--text);
+}
+.freelancer-copy-block p,
+.freelancer-reviews-header p,
+.freelancer-review-card p{
+  margin:0;
+  color:var(--text-soft);
+  font-size:1.08rem;
+}
+.freelancer-copy-block p + p,
+.freelancer-review-card p + p{
+  margin-top:1rem;
+}
+.freelancer-reviews-panel{
+  margin-top:1.5rem;
+  border-radius:30px;
+  padding:1.6rem;
+}
+.freelancer-reviews-header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:1.35rem;
+}
+.freelancer-review-stack{
+  display:grid;
+  gap:1rem;
+}
+.freelancer-review-card{
+  padding:1.3rem 1.35rem;
+  border-radius:24px;
+  border:1px solid rgba(91,97,246,.14);
+  background:rgba(255,255,255,.8);
+}
+.freelancer-review-card h3{
+  margin:0;
+  font-size:clamp(1.5rem, 2vw, 2rem);
+  line-height:1.06;
+  letter-spacing:-.04em;
+}
+.freelancer-review-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem;
+  margin:.85rem 0 1rem;
+  color:var(--text-faint);
+  font-weight:700;
+}
+@media (max-width: 1040px){
+  .freelancer-profile-grid{grid-template-columns:1fr}
+}
+@media (max-width: 760px){
+  .freelancer-stat-grid{grid-template-columns:1fr}
+  .freelancer-reviews-header{align-items:stretch;flex-direction:column}
+  .freelancer-profile-card,
+  .freelancer-details-panel,
+  .freelancer-reviews-panel{padding:1.15rem}
+  .freelancer-avatar-badge{top:1.6rem;right:1.6rem}
+}

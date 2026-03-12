@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Freelancer extends Model
@@ -110,7 +111,34 @@ class Freelancer extends Model
 
     public function getAvatarUrlAttribute(): string
     {
-        return asset('workspace-assets/img/' . ($this->avatar ?: 'avatar-jade.svg'));
+        $avatar = trim((string) ($this->avatar ?: ''));
+
+        if ($avatar === '') {
+            return asset('workspace-assets/img/avatar-jade.svg');
+        }
+
+        if (Str::startsWith($avatar, ['http://', 'https://'])) {
+            return $avatar;
+        }
+
+        if (Str::startsWith($avatar, 'storage/')) {
+            return asset($avatar);
+        }
+
+        if (str_contains($avatar, '/')) {
+            return Storage::disk('public')->url($avatar);
+        }
+
+        return asset('workspace-assets/img/' . ltrim($avatar, '/'));
+    }
+
+    public function publicProfileUrl(): string
+    {
+        if (filled($this->slug)) {
+            return route('freelancers.show', ['slug' => $this->slug]);
+        }
+
+        return route('freelancers.show-id', ['freelancer' => $this->getKey()]);
     }
 
     public function getDisplayLocationAttribute(): string

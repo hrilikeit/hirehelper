@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\ClientAuthController;
+use App\Http\Controllers\FreelancerProfileController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\HireRequestController;
 use App\Http\Controllers\Workspace\WorkspaceController;
@@ -42,6 +43,9 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::view('/ecommerce.html', 'site.services.ecommerce')->name('ecommerce');
     Route::view('/ui-ux-design.html', 'site.services.ui-ux-design')->name('ui-ux-design');
 });
+
+Route::get('/freelancer/{freelancer}/index.html', [FreelancerProfileController::class, 'showById'])->whereNumber('freelancer')->name('freelancers.show-id');
+Route::get('/freelancers/{slug}', [FreelancerProfileController::class, 'showBySlug'])->name('freelancers.show');
 
 Route::get('/help', fn () => redirect('/help/index.html'));
 Route::prefix('help')->name('help.')->group(function () {

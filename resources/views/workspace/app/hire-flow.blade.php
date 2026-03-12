@@ -118,6 +118,7 @@
                     </div>
                     <div style="text-align:right">
                         <div class="muted small">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</div>
+                        <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}" style="display:inline-block;margin-top:8px">View profile</a>
                     </div>
                 </div>
                 @if (! $loop->last)

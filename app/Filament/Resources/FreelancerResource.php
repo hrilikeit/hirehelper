@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -59,7 +60,6 @@ class FreelancerResource extends Resource
                 ->schema([
                     Hidden::make('slug'),
                     Hidden::make('status')->default('active'),
-                    Hidden::make('avatar')->default('avatar-jade.svg'),
                     Hidden::make('is_featured')->default(false),
                     Hidden::make('added_by_user_id')->default(fn (): ?int => auth()->id()),
 
@@ -67,6 +67,24 @@ class FreelancerResource extends Resource
                         ->label('Freelancer full name')
                         ->required()
                         ->maxLength(255),
+
+                    TextInput::make('contact_email')
+                        ->label('Freelancer email')
+                        ->email()
+                        ->maxLength(255),
+
+                    FileUpload::make('avatar')
+                        ->label('Freelancer picture')
+                        ->image()
+                        ->disk('public')
+                        ->directory('freelancers')
+                        ->visibility('public')
+                        ->helperText('Optional. Upload a freelancer photo. If left empty, the default avatar is used.')
+                        ->afterStateHydrated(function (FileUpload $component, $state): void {
+                            if (filled($state) && ! str_contains((string) $state, '/')) {
+                                $component->state(null);
+                            }
+                        }),
 
                     TextInput::make('title')
                         ->label('Title')

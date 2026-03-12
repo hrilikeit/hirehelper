@@ -16,7 +16,7 @@ class CreateFreelancer extends CreateRecord
     {
         $data['slug'] = Freelancer::generateUniqueSlug((string) ($data['name'] ?? 'freelancer'));
         $data['status'] = $data['status'] ?? 'active';
-        $data['avatar'] = $data['avatar'] ?? 'avatar-jade.svg';
+        $data['avatar'] = filled($data['avatar'] ?? null) ? $data['avatar'] : 'avatar-jade.svg';
         $data['is_featured'] = (bool) ($data['is_featured'] ?? false);
         $data['added_by_user_id'] = $data['added_by_user_id'] ?? auth()->id();
         $data['overview'] = trim((string) ($data['bio'] ?? ''));

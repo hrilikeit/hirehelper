@@ -25,7 +25,7 @@ class EditFreelancer extends EditRecord
             $this->record->getKey(),
         );
         $data['status'] = $data['status'] ?? $this->record->status ?? 'active';
-        $data['avatar'] = $data['avatar'] ?? $this->record->avatar ?? 'avatar-jade.svg';
+        $data['avatar'] = filled($data['avatar'] ?? null) ? $data['avatar'] : ($this->record->avatar ?: 'avatar-jade.svg');
         $data['is_featured'] = (bool) ($data['is_featured'] ?? $this->record->is_featured ?? false);
         $data['added_by_user_id'] = $data['added_by_user_id'] ?? $this->record->added_by_user_id ?? auth()->id();
         $data['overview'] = trim((string) ($data['bio'] ?? ''));

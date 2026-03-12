@@ -95,6 +95,9 @@
                         <span class="badge">{{ $freelancer->location }}</span>
                         <span class="badge">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</span>
                     </div>
+                    <div style="margin-top:18px">
+                        <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}">View profile</a>
+                    </div>
                 </div>
             @empty
                 <div class="project-card">
