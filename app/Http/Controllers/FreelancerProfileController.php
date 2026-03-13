@@ -32,7 +32,9 @@ class FreelancerProfileController extends Controller
     {
         return view('site.freelancer-profile', [
             'freelancer' => $freelancer,
-            'hireUrl' => auth()->check() ? route('workspace.hire-flow') : route('client.register'),
+            'hireUrl' => auth()->check()
+                ? route('workspace.hire-flow', ['freelancer' => $freelancer->id])
+                : route('client.register', ['freelancer' => $freelancer->id]),
         ]);
     }
 }

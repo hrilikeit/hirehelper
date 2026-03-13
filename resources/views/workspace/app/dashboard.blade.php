@@ -7,7 +7,7 @@
     <div class="page-heading">
         <div>
             <h1>Client dashboard</h1>
-            <p>This is the client dashboard before an offer becomes active. Save a brief, then continue into the freelancer hiring flow.</p>
+            <p>This is the client dashboard before an offer becomes active. Save the project brief and offer details on one combined page, then continue into billing and activation.</p>
         </div>
         <a class="button button-primary" href="{{ route('workspace.hire-flow') }}">New project</a>
     </div>
@@ -84,7 +84,7 @@
                         <div class="muted small">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</div>
                         <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
                             <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}">View profile</a>
-                            <a class="cta-link" href="{{ route('workspace.invite-offer', ['project' => $draftProject?->id]) }}">Hire</a>
+                            <a class="cta-link" href="{{ route('workspace.hire-flow', array_filter(['project' => $draftProject?->id, 'freelancer' => $freelancer->id])) }}">Hire</a>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                     <div class="separator"></div>
                 @endif
             @empty
-                <p class="empty">No freelancer personas added yet. You can still invite a freelancer by email from the offer page.</p>
+                <p class="empty">No freelancer personas added yet. You can still invite a freelancer by email from the combined project and offer page.</p>
             @endforelse
         </section>
 

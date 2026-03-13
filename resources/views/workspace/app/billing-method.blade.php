@@ -5,7 +5,7 @@
     <div class="breadcrumbs">
         <a href="{{ route('workspace.index') }}">Workspace home</a><span>›</span>
         @if ($offer)
-            <a href="{{ route('workspace.invite-offer', ['project' => $offer->project->id]) }}">Create offer</a><span>›</span>
+            <a href="{{ route('workspace.hire-flow', array_filter(['project' => $offer->project->id, 'freelancer' => $offer->freelancer_id])) }}">Project + offer</a><span>›</span>
         @endif
         <span>Billing method</span>
     </div>

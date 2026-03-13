@@ -66,10 +66,17 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
         $project = $this->resolveProject($user, $request->query('project'));
+        $offer = $project->exists ? $project->offers()->with('freelancer')->latest()->first() : null;
+        $selectedFreelancer = $this->resolveSelectedFreelancer(
+            $request->query('freelancer'),
+            $offer?->freelancer_id,
+        );
 
         return view('workspace.app.hire-flow', [
             'user' => $user,
             'project' => $project,
+            'offer' => $offer,
+            'selectedFreelancer' => $selectedFreelancer,
             'freelancers' => Freelancer::featured()->orderBy('name')->take(4)->get(),
             'experienceOptions' => ['Entry', 'Intermediate', 'Expert'],
             'timeframeOptions' => ['Less than 1 week', 'Less than 1 month', '1–3 months', '3–6 months', 'More than 6 months'],
@@ -83,6 +90,7 @@ class WorkspaceController extends Controller
 
         $data = $request->validate([
             'project_id' => ['nullable', 'integer'],
+            'selected_freelancer_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'min:20'],
             'experience_level' => ['required', 'string', 'max:50'],
@@ -110,14 +118,26 @@ class WorkspaceController extends Controller
         $project->save();
 
         if (($data['action'] ?? null) === 'continue') {
+            $offerData = $request->validate([
+                'selected_freelancer_id' => ['nullable', 'integer'],
+                'freelancer_email' => ['required', 'string', 'email', 'max:255'],
+                'hourly_rate' => ['required', 'numeric', 'min:1'],
+                'weekly_limit' => ['required', 'integer', 'min:1'],
+            ]);
+
+            $offer = $this->upsertOfferForProject($user, $project, $offerData);
+
             return redirect()
-                ->route('workspace.invite-offer', ['project' => $project->id])
-                ->with('success', 'Brief saved. Next, add the freelancer email and offer details.');
+                ->route('workspace.billing-method', ['offer' => $offer->id])
+                ->with('success', 'Project brief and offer saved. Add or confirm billing next.');
         }
 
         return redirect()
-            ->route('workspace.hire-flow', ['project' => $project->id])
-            ->with('success', 'Brief saved.');
+            ->route('workspace.hire-flow', array_filter([
+                'project' => $project->id,
+                'freelancer' => $data['selected_freelancer_id'] ?? null,
+            ]))
+            ->with('success', 'Project brief saved.');
     }
 
     public function inviteOffer(Request $request)
@@ -128,15 +148,17 @@ class WorkspaceController extends Controller
         if (! $project->exists) {
             return redirect()
                 ->route('workspace.hire-flow')
-                ->with('info', 'Save a project brief before you create an offer.');
+                ->with('info', 'Project brief and offer are now combined on one page.');
         }
 
         $offer = $project->offers()->latest()->first();
 
-        return view('workspace.app.invite-offer', [
-            'project' => $project,
-            'offer' => $offer,
-        ]);
+        return redirect()
+            ->route('workspace.hire-flow', array_filter([
+                'project' => $project->id,
+                'freelancer' => $offer?->freelancer_id,
+            ]))
+            ->with('info', 'Project brief and offer are now combined on one page.');
     }
 
     public function storeOffer(Request $request)
@@ -145,6 +167,7 @@ class WorkspaceController extends Controller
 
         $data = $request->validate([
             'project_id' => ['required', 'integer'],
+            'selected_freelancer_id' => ['nullable', 'integer'],
             'freelancer_email' => ['required', 'string', 'email', 'max:255'],
             'hourly_rate' => ['required', 'numeric', 'min:1'],
             'weekly_limit' => ['required', 'integer', 'min:1'],
@@ -160,30 +183,11 @@ class WorkspaceController extends Controller
                 ->with('info', 'Save a project brief before you create an offer.');
         }
 
-        $freelancer = $this->findOrCreateFreelancerForEmail(
-            (string) $data['freelancer_email'],
-            $project,
-            (float) $data['hourly_rate'],
-        );
+        $offer = $this->upsertOfferForProject($user, $project, $data);
 
-        $offer = $project->offers()->latest()->first() ?? new ProjectOffer();
-        $offer->project()->associate($project);
-        $offer->freelancer_id = $freelancer->id;
-        $offer->freelancer_email = Str::lower((string) $data['freelancer_email']);
-        $offer->role = $project->specialty ?: 'Freelancer';
-        $offer->hourly_rate = $data['hourly_rate'];
-        $offer->weekly_limit = (int) ($data['weekly_limit'] ?? 40);
-        $offer->manual_time = (bool) ($data['manual_time'] ?? false);
+        $offer->manual_time = (bool) ($data['manual_time'] ?? true);
         $offer->multi_offer = (bool) ($data['multi_offer'] ?? false);
-        $offer->status = 'pending';
-        $offer->sent_at = now();
-        $offer->billing_method = $user->defaultBillingMethod?->display_label ?: $offer->billing_method;
         $offer->save();
-
-        $project->update([
-            'status' => 'pending',
-            'last_saved_at' => now(),
-        ]);
 
         return redirect()
             ->route('workspace.billing-method', ['offer' => $offer->id])
@@ -227,8 +231,8 @@ class WorkspaceController extends Controller
 
             if (! $offer) {
                 return redirect()
-                    ->route('workspace.invite-offer')
-                    ->with('info', 'Create an offer before you add a billing method.');
+                    ->route('workspace.hire-flow')
+                    ->with('info', 'Create the project brief and offer before you add a billing method.');
             }
         }
 
@@ -706,6 +710,70 @@ class WorkspaceController extends Controller
         }
 
         return $query->latest()->first();
+    }
+
+    protected function resolveSelectedFreelancer(mixed $preferredFreelancerId = null, mixed $fallbackFreelancerId = null): ?Freelancer
+    {
+        $freelancerId = $preferredFreelancerId ?: $fallbackFreelancerId;
+
+        if (! $freelancerId) {
+            return null;
+        }
+
+        return Freelancer::withTrashed()->find($freelancerId);
+    }
+
+    protected function upsertOfferForProject(User $user, ClientProject $project, array $data): ProjectOffer
+    {
+        $freelancer = $this->resolveOfferFreelancer(
+            $data['selected_freelancer_id'] ?? null,
+            (string) $data['freelancer_email'],
+            $project,
+            (float) $data['hourly_rate'],
+        );
+
+        $offer = $project->offers()->latest()->first() ?? new ProjectOffer();
+        $offer->project()->associate($project);
+        $offer->freelancer_id = $freelancer->id;
+        $offer->freelancer_email = Str::lower((string) $data['freelancer_email']);
+        $offer->role = $project->specialty ?: 'Freelancer';
+        $offer->hourly_rate = $data['hourly_rate'];
+        $offer->weekly_limit = (int) ($data['weekly_limit'] ?? 40);
+        $offer->manual_time = (bool) ($data['manual_time'] ?? true);
+        $offer->multi_offer = (bool) ($data['multi_offer'] ?? false);
+        $offer->status = 'pending';
+        $offer->sent_at = now();
+        $offer->billing_method = $user->defaultBillingMethod?->display_label ?: $offer->billing_method;
+        $offer->save();
+
+        $project->update([
+            'status' => 'pending',
+            'last_saved_at' => now(),
+        ]);
+
+        return $offer;
+    }
+
+    protected function resolveOfferFreelancer(mixed $selectedFreelancerId, string $email, ClientProject $project, float $hourlyRate): Freelancer
+    {
+        if ($selectedFreelancerId) {
+            $selectedFreelancer = Freelancer::withTrashed()->find($selectedFreelancerId);
+
+            if ($selectedFreelancer) {
+                if (method_exists($selectedFreelancer, 'trashed') && $selectedFreelancer->trashed()) {
+                    $selectedFreelancer->restore();
+                }
+
+                if (! filled($selectedFreelancer->contact_email)) {
+                    $selectedFreelancer->contact_email = Str::lower(trim($email));
+                    $selectedFreelancer->save();
+                }
+
+                return $selectedFreelancer;
+            }
+        }
+
+        return $this->findOrCreateFreelancerForEmail($email, $project, $hourlyRate);
     }
 
     protected function findOrCreateFreelancerForEmail(string $email, ClientProject $project, float $hourlyRate): Freelancer

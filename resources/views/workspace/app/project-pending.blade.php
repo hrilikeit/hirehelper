@@ -40,7 +40,7 @@
 
             <div class="separator"></div>
             <div class="inline-actions">
-                <a class="button button-secondary" href="{{ route('workspace.invite-offer', ['project' => $project->id]) }}">Modify offer</a>
+                <a class="button button-secondary" href="{{ route('workspace.hire-flow', array_filter(['project' => $project->id, 'freelancer' => $offer->freelancer_id])) }}">Modify brief + offer</a>
                 <form method="post" action="{{ route('workspace.project.activate') }}">
                     @csrf
                     <input type="hidden" name="offer_id" value="{{ $offer->id }}">

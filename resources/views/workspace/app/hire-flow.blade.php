@@ -1,30 +1,39 @@
 @extends('workspace.layouts.base', ['activeNav' => 'hire'])
 
 @section('content')
+@php
+    $selectedFreelancerId = old('selected_freelancer_id', $selectedFreelancer?->id);
+    $freelancerEmailValue = old('freelancer_email', $offer?->freelancer_email ?? $selectedFreelancer?->contact_email ?? '');
+    $hourlyRateValue = old('hourly_rate', $offer?->hourly_rate ?? $selectedFreelancer?->hourly_rate ?? 35);
+    $weeklyLimitValue = old('weekly_limit', $offer?->weekly_limit ?? 40);
+@endphp
 <div class="container">
     <div class="breadcrumbs">
-        <a href="{{ route('workspace.index') }}">Workspace home</a><span>›</span><span>Project setup</span>
+        <a href="{{ route('workspace.index') }}">Workspace home</a><span>›</span><span>Project + offer</span>
     </div>
 
     @include('workspace.partials.flash')
 
     <div class="page-heading">
         <div>
-            <span class="badge"><span class="dot"></span> Project setup</span>
-            <h1>Project brief</h1>
-            <p>Capture the work details in one clean page.</p>
+            <span class="badge"><span class="dot"></span> Project + offer</span>
+            <h1>Project brief and offer</h1>
+            <p>Define the work and send the freelancer offer from one combined page.</p>
         </div>
         <a class="button button-secondary" href="{{ route('workspace.dashboard') }}">Back to dashboard</a>
     </div>
 
     <div class="hire-layout">
         <section class="hire-brief-card">
-            <h2>Project brief</h2>
-            <p>Only the fields that help define the project are kept here.</p>
-
-            <form method="post" action="{{ route('workspace.hire-flow.store') }}">
+            <form method="post" action="{{ route('workspace.hire-flow.store') }}" data-invite-form>
                 @csrf
                 <input type="hidden" name="project_id" value="{{ $project->id }}" />
+                @if (filled($selectedFreelancerId))
+                    <input type="hidden" name="selected_freelancer_id" value="{{ $selectedFreelancerId }}" />
+                @endif
+
+                <h2>Project brief</h2>
+                <p>Keep the brief focused, then confirm the freelancer email, rate, and weekly limit below.</p>
 
                 <div class="form-group">
                     <label class="form-label" for="title">Project title</label>
@@ -65,68 +74,160 @@
                     </div>
                 </div>
 
+                <div class="separator"></div>
+
+                <div class="offer-section-header">
+                    <div>
+                        <h2>Create an offer</h2>
+                        <p>Only the freelancer email, hourly rate, and weekly limit are needed here.</p>
+                    </div>
+                </div>
+
+                @if ($selectedFreelancer)
+                    <div class="selected-freelancer-card">
+                        <div class="avatar-line">
+                            <img alt="{{ $selectedFreelancer->name }}" src="{{ $selectedFreelancer->avatar_url }}" />
+                            <div>
+                                <strong>{{ $selectedFreelancer->name }}</strong>
+                                <span>{{ $selectedFreelancer->title ?: 'Freelancer profile' }}</span>
+                            </div>
+                        </div>
+                        <div class="selected-freelancer-copy">
+                            <span class="badge">Selected from Hire Now</span>
+                            <p class="muted small">This freelancer was selected from the public profile page. Confirm the email below and continue.</p>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="form-group">
+                    <label class="form-label" for="freelancer_email">Freelancer email</label>
+                    <input
+                        class="input"
+                        id="freelancer_email"
+                        name="freelancer_email"
+                        type="email"
+                        placeholder="freelancer@example.com"
+                        value="{{ $freelancerEmailValue }}"
+                    />
+                </div>
+
+                <div class="compact-offer-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="hourly_rate">Rate</label>
+                        <div class="compact-money-field">
+                            <input class="input compact-input" id="hourly_rate" min="1" name="hourly_rate" step="1" type="number" value="{{ $hourlyRateValue }}" />
+                            <div class="input compact-addon">$ / hr</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="weekly_limit">Weekly limit</label>
+                        <div class="compact-limit-field">
+                            <input class="input compact-input" id="weekly_limit" min="1" name="weekly_limit" step="1" type="number" value="{{ $weeklyLimitValue }}" />
+                            <div class="input compact-addon">hrs/week</div>
+                            <div class="input compact-total" data-weekly-max>${{ number_format((float) $hourlyRateValue * (int) $weeklyLimitValue, 2) }} max / week</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="muted small compact-help">Weekly limit starts at 40 hours by default, and the client can change it before continuing.</p>
+
                 <div class="form-actions">
                     <a class="link-button" href="{{ route('workspace.dashboard') }}">‹ Back</a>
                     <div style="display:flex;gap:12px;flex-wrap:wrap">
                         <button class="button button-secondary" type="submit" name="action" value="save">Save brief</button>
-                        <button class="button button-primary" type="submit" name="action" value="continue">Save & continue</button>
+                        <button class="button button-primary" type="submit" name="action" value="continue">Save + continue</button>
                     </div>
                 </div>
             </form>
         </section>
 
         <aside class="hire-summary-card">
-            <h2>Current brief</h2>
-            <p>Only the essential project details are shown here.</p>
+            <h2>Current setup</h2>
+            <p>Everything needed before billing is now kept in one place.</p>
 
             <div class="brief-mini">
                 <div class="mini-row">
-                    <span class="mini-label">Current title</span>
-                    <strong>{{ $project->title ?: 'Not set yet' }}</strong>
+                    <span class="mini-label">Project title</span>
+                    <strong>{{ old('title', $project->title ?: 'Not set yet') }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Experience</span>
-                    <strong>{{ $project->experience_level ?: 'Not set yet' }}</strong>
+                    <strong>{{ old('experience_level', $project->experience_level ?: 'Not set yet') }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Timeframe</span>
-                    <strong>{{ $project->timeframe ?: 'Not set yet' }}</strong>
+                    <strong>{{ old('timeframe', $project->timeframe ?: 'Not set yet') }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Specialty</span>
-                    <strong>{{ $project->specialty ?: 'Not set yet' }}</strong>
+                    <strong>{{ old('specialty', $project->specialty ?: 'Not set yet') }}</strong>
+                </div>
+                <div class="mini-row">
+                    <span class="mini-label">Freelancer email</span>
+                    <strong>{{ $freelancerEmailValue ?: 'Add freelancer email in the form' }}</strong>
+                </div>
+                <div class="mini-row">
+                    <span class="mini-label">Offer summary</span>
+                    <strong>${{ number_format((float) $hourlyRateValue, 0) }}/hr · {{ (int) $weeklyLimitValue }} hrs/week</strong>
                 </div>
             </div>
 
-            @if ($project->exists)
-                <div class="inline-actions" style="margin-top:18px">
-                    <a class="button button-primary button-small" href="{{ route('workspace.invite-offer', ['project' => $project->id]) }}">Continue to offer</a>
+            <div class="separator"></div>
+
+            @if ($selectedFreelancer)
+                <div class="selected-freelancer-panel">
+                    <div class="avatar-line" style="margin-bottom:14px">
+                        <img alt="{{ $selectedFreelancer->name }}" src="{{ $selectedFreelancer->avatar_url }}" />
+                        <div>
+                            <strong>{{ $selectedFreelancer->name }}</strong>
+                            <span>{{ $selectedFreelancer->title ?: 'Freelancer profile' }}</span>
+                        </div>
+                    </div>
+                    <div class="muted small">{{ $selectedFreelancer->display_location ?: 'Available remotely' }}</div>
+                    @if ($selectedFreelancer->status === 'active')
+                        <div style="margin-top:12px">
+                            <a class="cta-link" href="{{ $selectedFreelancer->publicProfileUrl() }}">Open public profile</a>
+                        </div>
+                    @endif
                 </div>
+            @else
+                <div class="note-panel">
+                    <strong>No freelancer selected yet.</strong>
+                    <p class="muted small" style="margin:10px 0 0">Paste the freelancer email in the form, or open a public freelancer profile and click Hire Now to preselect a profile here.</p>
+                </div>
+
+                @if ($freelancers->isNotEmpty())
+                    <div class="separator"></div>
+                    <h3 style="font-size:22px;letter-spacing:-.03em;margin:0 0 14px">Featured freelancers</h3>
+                    @foreach ($freelancers as $freelancer)
+                        <div class="offer-row">
+                            <div class="avatar-line">
+                                <img alt="{{ $freelancer->name }}" src="{{ $freelancer->avatar_url }}" />
+                                <div>
+                                    <strong>{{ $freelancer->name }}</strong>
+                                    <span>{{ $freelancer->title }}</span>
+                                </div>
+                            </div>
+                            <div style="text-align:right">
+                                <div class="muted small">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</div>
+                                <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}" style="display:inline-block;margin-top:8px">View profile</a>
+                            </div>
+                        </div>
+                        @if (! $loop->last)
+                            <div class="separator"></div>
+                        @endif
+                    @endforeach
+                @endif
             @endif
 
             <div class="separator"></div>
 
-            <h3 style="font-size:24px;letter-spacing:-.03em;margin:0 0 14px">Freelancer personas</h3>
-            @forelse ($freelancers as $freelancer)
-                <div class="offer-row">
-                    <div class="avatar-line">
-                        <img alt="{{ $freelancer->name }}" src="{{ $freelancer->avatar_url }}" />
-                        <div>
-                            <strong>{{ $freelancer->name }}</strong>
-                            <span>{{ $freelancer->title }}</span>
-                        </div>
-                    </div>
-                    <div style="text-align:right">
-                        <div class="muted small">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</div>
-                        <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}" style="display:inline-block;margin-top:8px">View profile</a>
-                    </div>
-                </div>
-                @if (! $loop->last)
-                    <div class="separator"></div>
-                @endif
-            @empty
-                <p class="empty">No freelancer personas added yet. You can still continue and invite a freelancer by email on the next step.</p>
-            @endforelse
+            <div class="process-list">
+                <div class="process-item"><span class="num">1</span><div><strong>Save brief + offer</strong><div class="muted small">Keep the project scope and freelancer email on the same page.</div></div></div>
+                <div class="process-item"><span class="num">2</span><div><strong>Add billing</strong><div class="muted small">Choose the billing method that will be used for this offer.</div></div></div>
+                <div class="process-item"><span class="num">3</span><div><strong>Activate contract</strong><div class="muted small">Review the pending offer and move it into the active state.</div></div></div>
+            </div>
         </aside>
     </div>
 </div>

@@ -8,15 +8,23 @@
 
     @include('workspace.partials.flash')
 
+    @php
+        $nextUrl = old('next', $next ?? null);
+    @endphp
+
     <div class="wizard-card compact" style="max-width:760px">
         <div class="wizard-header">
             <img src="{{ asset('workspace-assets/img/logo.svg') }}" alt="HireHelper.ai" />
             <h1 class="wizard-title" style="font-size:42px">Sign in to your client workspace</h1>
-            <p class="wizard-subtitle">Open your dashboard, continue a saved project brief, and manage offers, billing, and messages.</p>
+            <p class="wizard-subtitle">Open your dashboard, continue the combined project and offer page, and manage billing, messages, and live work.</p>
         </div>
 
         <form method="post" action="{{ route('client.login') }}">
             @csrf
+
+            @if ($nextUrl)
+                <input type="hidden" name="next" value="{{ $nextUrl }}">
+            @endif
 
             <div class="form-group">
                 <label class="form-label" for="email">Email address</label>
@@ -35,8 +43,8 @@
 
             <div class="form-actions">
                 <a class="link-button" href="{{ route('workspace.index') }}">‹ Back</a>
-                <div style="display:flex;gap:12px;align-items:center">
-                    <a class="button button-secondary" href="{{ route('client.register') }}">Create account</a>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                    <a class="button button-secondary" href="{{ $nextUrl ? route('client.register', ['next' => $nextUrl]) : route('client.register') }}">Create account</a>
                     <button class="button button-primary" type="submit">Sign in</button>
                 </div>
             </div>

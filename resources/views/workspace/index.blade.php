@@ -15,8 +15,8 @@
     <section class="section-card intro-card">
         <div>
             <span class="eyebrow"><span class="dot"></span> HireHelper.ai workspace</span>
-            <h2>From registration to hiring in one clean flow.</h2>
-            <p>Use this workspace to create a client account, post a project brief, invite a freelancer by email, and move a contract into the active state.</p>
+            <h2>From registration to project setup and offer in one clean flow.</h2>
+            <p>Use this workspace to create a client account, fill the project brief and offer on one page, add billing, and move a contract into the active state.</p>
             <div class="inline-actions">
                 @auth
                     <a class="button button-primary" href="{{ route('workspace.dashboard') }}">Open dashboard</a>
@@ -54,7 +54,7 @@
                     ['title' => 'Registration', 'text' => 'Create the client account that unlocks the workspace.', 'url' => route('client.register')],
                     ['title' => 'Dashboard', 'text' => 'See project drafts, live offers, and active work.', 'url' => auth()->check() ? route('workspace.dashboard') : route('client.login')],
                     ['title' => 'Project setup', 'text' => 'Write and save the project brief on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : route('client.login')],
-                    ['title' => 'Offer setup', 'text' => 'Enter freelancer email, set rate, and confirm weekly limit.', 'url' => auth()->check() ? route('workspace.invite-offer') : route('client.login')],
+                    ['title' => 'Project + offer', 'text' => 'Fill the brief, freelancer email, rate, and weekly limit on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : route('client.register')],
                     ['title' => 'Billing setup', 'text' => 'Add billing methods and set a primary option.', 'url' => auth()->check() ? route('workspace.billing-method') : route('client.login')],
                     ['title' => 'Invoice details', 'text' => 'Save company, VAT, and billing address details.', 'url' => auth()->check() ? route('workspace.invoice-details') : route('client.login')],
                 ];

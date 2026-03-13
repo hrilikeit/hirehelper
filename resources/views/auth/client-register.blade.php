@@ -8,15 +8,23 @@
 
     @include('workspace.partials.flash')
 
+    @php
+        $nextUrl = old('next', $next ?? null);
+    @endphp
+
     <div class="wizard-card compact" style="max-width:820px">
         <div class="wizard-header">
             <img src="{{ asset('workspace-assets/img/logo.svg') }}" alt="HireHelper.ai" />
             <h1 class="wizard-title" style="font-size:42px">Create your client account</h1>
-            <p class="wizard-subtitle">Register once, then post projects, invite freelancers, and manage everything from one client dashboard.</p>
+            <p class="wizard-subtitle">Register once, then post projects, add the freelancer email, and send an offer from one combined client page.</p>
         </div>
 
         <form method="post" action="{{ route('client.register') }}">
             @csrf
+
+            @if ($nextUrl)
+                <input type="hidden" name="next" value="{{ $nextUrl }}">
+            @endif
 
             <div class="form-group">
                 <label class="form-label" for="name">Full name</label>
@@ -42,8 +50,8 @@
 
             <div class="form-actions">
                 <a class="link-button" href="{{ route('workspace.index') }}">‹ Back</a>
-                <div style="display:flex;gap:12px;align-items:center">
-                    <a class="button button-secondary" href="{{ route('client.login') }}">Already have an account?</a>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                    <a class="button button-secondary" href="{{ $nextUrl ? route('client.login', ['next' => $nextUrl]) : route('client.login') }}">Already have an account?</a>
                     <button class="button button-primary" type="submit">Create workspace</button>
                 </div>
             </div>

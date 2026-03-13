@@ -4,25 +4,36 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class ClientAuthController extends Controller
 {
-    public function showRegisterForm()
+    public function showRegisterForm(Request $request)
     {
+        $next = $this->rememberNextUrl($request);
+
         if (Auth::check()) {
-            return redirect()->route('workspace.dashboard');
+            return $next
+                ? redirect()->to($next)
+                : redirect()->route('workspace.dashboard');
         }
 
-        return view('auth.client-register');
+        return view('auth.client-register', [
+            'next' => $next,
+        ]);
     }
 
-    public function register(Request $request)
+    public function register(Request $request): RedirectResponse
     {
+        $next = $this->rememberNextUrl($request);
+
         if (Auth::check()) {
-            return redirect()->route('workspace.dashboard');
+            return $next
+                ? redirect()->to($next)
+                : redirect()->route('workspace.dashboard');
         }
 
         $data = $request->validate([
@@ -44,24 +55,38 @@ class ClientAuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        if ($next) {
+            $request->session()->put('url.intended', $next);
+        }
+
         return redirect()
-            ->route('workspace.welcome')
+            ->intended(route('workspace.welcome'))
             ->with('success', 'Your client workspace is ready.');
     }
 
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        $next = $this->rememberNextUrl($request);
+
         if (Auth::check()) {
-            return redirect()->route('workspace.dashboard');
+            return $next
+                ? redirect()->to($next)
+                : redirect()->route('workspace.dashboard');
         }
 
-        return view('auth.client-login');
+        return view('auth.client-login', [
+            'next' => $next,
+        ]);
     }
 
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse
     {
+        $next = $this->rememberNextUrl($request);
+
         if (Auth::check()) {
-            return redirect()->route('workspace.dashboard');
+            return $next
+                ? redirect()->to($next)
+                : redirect()->route('workspace.dashboard');
         }
 
         $data = $request->validate([
@@ -83,12 +108,16 @@ class ClientAuthController extends Controller
 
         $request->session()->regenerate();
 
+        if ($next) {
+            $request->session()->put('url.intended', $next);
+        }
+
         return redirect()
             ->intended(route('workspace.dashboard'))
             ->with('success', 'Welcome back.');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
 
@@ -98,5 +127,31 @@ class ClientAuthController extends Controller
         return redirect()
             ->route('workspace.index')
             ->with('success', 'You have been signed out.');
+    }
+
+    protected function rememberNextUrl(Request $request): ?string
+    {
+        $next = $this->resolveNextUrl($request);
+
+        if ($next) {
+            $request->session()->put('url.intended', $next);
+        }
+
+        return $next;
+    }
+
+    protected function resolveNextUrl(Request $request): ?string
+    {
+        if ($request->filled('freelancer') && is_numeric($request->input('freelancer'))) {
+            return route('workspace.hire-flow', ['freelancer' => (int) $request->input('freelancer')], false);
+        }
+
+        $next = trim((string) $request->input('next', ''));
+
+        if ($next !== '' && str_starts_with($next, '/') && ! str_starts_with($next, '//')) {
+            return $next;
+        }
+
+        return null;
     }
 }

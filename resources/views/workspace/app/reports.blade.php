@@ -53,7 +53,7 @@
                         <strong>Review weekly caps</strong>
                         <span>Make sure each freelancer has the right weekly hour limit before activation.</span>
                     </div>
-                    <a class="cta-link" href="{{ route('workspace.invite-offer') }}">Edit</a>
+                    <a class="cta-link" href="{{ route('workspace.hire-flow', array_filter(['project' => $primaryProject?->id, 'freelancer' => $primaryOffer?->freelancer_id])) }}">Edit</a>
                 </div>
             </div>
         </section>
