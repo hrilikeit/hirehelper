@@ -132,6 +132,11 @@ class Freelancer extends Model
         return asset('workspace-assets/img/' . ltrim($avatar, '/'));
     }
 
+    public function getPublicProfileUrlAttribute(): string
+    {
+        return $this->publicProfileUrl();
+    }
+
     public function publicProfileUrl(): string
     {
         if (filled($this->slug)) {

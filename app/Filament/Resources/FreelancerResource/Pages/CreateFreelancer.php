@@ -31,6 +31,6 @@ class CreateFreelancer extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return static::getResource()::getUrl('index');
+        return static::getResource()::getUrl('view', ['record' => $this->getRecord()]);
     }
 }

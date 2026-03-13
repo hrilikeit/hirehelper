@@ -205,6 +205,9 @@ class FreelancerResource extends Resource
                     TextEntry::make('bio')->label('Description')->columnSpanFull(),
                     TextEntry::make('addedBy.name')->label('Added by'),
                     TextEntry::make('status')->badge(),
+                    TextEntry::make('public_profile_url')
+                        ->label('Copy freelancer link')
+                        ->copyable(),
                 ])
                 ->columns(3),
         ]);
