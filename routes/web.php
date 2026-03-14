@@ -29,9 +29,9 @@ Route::redirect('/contact', '/contact.html');
 Route::get('/contact.html', [ContactMessageController::class, 'create'])->name('contact.show');
 Route::post('/contact.html', [ContactMessageController::class, 'store'])->name('contact.store');
 
-Route::redirect('/start-hiring', '/start-hiring.html');
-Route::get('/start-hiring.html', [HireRequestController::class, 'create'])->name('hire.start');
-Route::post('/start-hiring.html', [HireRequestController::class, 'store'])->name('hire.store');
+Route::redirect('/start-hiring', '/client/register', 302);
+Route::get('/start-hiring.html', fn () => redirect('/client/register'))->name('hire.start');
+Route::post('/start-hiring.html', fn () => redirect('/client/register'))->name('hire.store');
 Route::get('/request-received.html', [HireRequestController::class, 'thankYou'])->name('hire.received');
 
 Route::prefix('services')->name('services.')->group(function () {

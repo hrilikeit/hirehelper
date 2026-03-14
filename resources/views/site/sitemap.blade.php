@@ -29,7 +29,7 @@
         </nav>
         <div class="header-actions">
           <a class="button button-secondary button-compact desktop-only" href="help/index.html">Help Center</a>
-          <a class="button button-primary button-compact" href="start-hiring.html">Start Hiring</a>
+          <a class="button button-primary button-compact" href="{{ route('client.register') }}">Start Hiring</a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
             <span></span><span></span>
             <span class="sr-only">Toggle navigation</span>
@@ -40,7 +40,7 @@
         <div class="container mobile-menu-inner">
           <nav class="mobile-nav" aria-label="Mobile">
             <a class="mobile-link" href="categories.html">Categories</a><a class="mobile-link" href="how-it-works.html">How It Works</a><a class="mobile-link" href="our-priorities.html">Our Priorities</a><a class="mobile-link" href="help/index.html">Help</a><a class="mobile-link" href="contact.html">Contact</a>
-            <a class="mobile-link button button-primary" href="start-hiring.html">Start Hiring</a>
+            <a class="mobile-link button button-primary" href="{{ route('client.register') }}">Start Hiring</a>
           </nav>
         </div>
       </div>
@@ -63,7 +63,7 @@
           <section class="sitemap-card" data-reveal>
             <h2>Core pages</h2>
             <ul class="sitemap-list">
-              <li><a href="index.html">Home</a></li><li><a href="start-hiring.html">Start Hiring</a></li><li><a href="request-received.html">Request Received</a></li><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="categories.html">Categories</a></li><li><a href="contact.html">Contact</a></li>
+              <li><a href="index.html">Home</a></li><li><a href="{{ route('client.register') }}">Start Hiring</a></li><li><a href="request-received.html">Request Received</a></li><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="categories.html">Categories</a></li><li><a href="contact.html">Contact</a></li>
             </ul>
           </section>
         
@@ -112,7 +112,7 @@
         </div>
         <div>
           <h3>Guidance</h3>
-          <ul><li><a href="help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="start-hiring.html">Start Hiring</a></li></ul>
+          <ul><li><a href="help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="{{ route('client.register') }}">Start Hiring</a></li></ul>
         </div>
       </div>
       <div class="container footer-meta">
