@@ -19,6 +19,11 @@ class StoreContactMessageRequest extends FormRequest
             'company' => ['nullable', 'string', 'max:255'],
             'topic' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:20'],
+            'attachment' => ['nullable', 'file', 'max:10240'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['file', 'max:10240'],
+            'files' => ['nullable', 'array'],
+            'files.*' => ['file', 'max:10240'],
         ];
     }
 }

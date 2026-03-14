@@ -32,8 +32,8 @@
                     </div>
                 </a>
             @else
-                <a class="button button-secondary button-compact" href="{{ route('client.login') }}">Login</a>
-                <a class="button button-primary button-compact" href="{{ route('client.register') }}">Register</a>
+                <a class="button button-secondary button-compact" href="/client/login">Login</a>
+                <a class="button button-primary button-compact" href="/client/register">Register</a>
             @endauth
         </div>
     </div>
@@ -49,8 +49,8 @@
             <a href="{{ route('workspace.index') }}">Workspace</a>
             <a href="{{ route('home') }}">Website</a>
             <a href="{{ route('help.index') }}">Help</a>
-            <a href="{{ route('client.login') }}">Login</a>
-            <a href="{{ route('client.register') }}">Register</a>
+            <a href="/client/login">Login</a>
+            <a href="/client/register">Register</a>
         @endauth
     </div>
 </header>

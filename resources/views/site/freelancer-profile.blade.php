@@ -15,9 +15,9 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}" />
 </head>
-<body class="page-freelancer-profile" data-page="freelancer-profile">
+<body class="page-freelancer page-freelancer-profile" data-page="freelancer-profile">
 @php
-    $locationLabel = $freelancer->country ?: $freelancer->display_location ?: $freelancer->location ?: 'Available remotely';
+    $locationLabel = $freelancer->display_location ?: $freelancer->country ?: $freelancer->location ?: 'Available remotely';
     $skillItems = collect(is_array($freelancer->skills ?? null) ? $freelancer->skills : preg_split('/\s*,\s*/', (string) ($freelancer->skills ?? ''), -1, PREG_SPLIT_NO_EMPTY))
         ->merge(is_array($freelancer->tools ?? null) ? $freelancer->tools : preg_split('/\s*,\s*/', (string) ($freelancer->tools ?? ''), -1, PREG_SPLIT_NO_EMPTY))
         ->filter(fn ($item) => filled($item))
@@ -25,16 +25,13 @@
         ->unique()
         ->take(8)
         ->values();
-    $bioSource = trim((string) ($freelancer->bio ?: $freelancer->overview ?: '')); 
-    $bioParagraphs = $bioSource !== '' ? preg_split('/
-\s*
-/', $bioSource) : [];
-    $initials = collect(preg_split('/\s+/', trim((string) $freelancer->name), -1, PREG_SPLIT_NO_EMPTY))
-        ->take(2)
-        ->map(fn ($part) => strtoupper(mb_substr($part, 0, 1)))
-        ->implode('');
+    $bioSource = trim((string) ($freelancer->bio ?: $freelancer->overview ?: ''));
+    $bioParagraphs = $bioSource !== '' ? preg_split('/\n\s*\n/', $bioSource) : [];
     $years = (float) $freelancer->years_experience;
     $yearsLabel = $years > 0 ? (rtrim(rtrim(number_format($years, 1), '0'), '.') . ' ' . ($years == 1.0 ? 'Year' : 'Years')) : 'Not set';
+    $ratingValue = filled($freelancer->average_rating)
+        ? rtrim(rtrim(number_format((float) $freelancer->average_rating, 1), '0'), '.') . '/5 stars'
+        : null;
 @endphp
 <div class="page-shell">
     <header class="site-header">
@@ -51,7 +48,7 @@
             </nav>
             <div class="header-actions">
                 <a class="button button-secondary button-compact desktop-only" href="{{ route('help.index') }}">Help Center</a>
-                <a class="button button-primary button-compact" href="{{ route('client.register') }}">Start Hiring</a>
+                <a class="button button-primary button-compact" href="{{ $hireUrl }}">Start Hiring</a>
                 <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
                     <span></span><span></span>
                     <span class="sr-only">Toggle navigation</span>
@@ -66,105 +63,94 @@
                     <a class="mobile-link" href="{{ route('our-priorities') }}">Our Priorities</a>
                     <a class="mobile-link" href="{{ route('help.index') }}">Help</a>
                     <a class="mobile-link" href="{{ route('contact.show') }}">Contact</a>
-                    <a class="mobile-link button button-primary" href="{{ route('client.register') }}">Start Hiring</a>
+                    <a class="mobile-link button button-primary" href="{{ $hireUrl }}">Start Hiring</a>
                 </nav>
             </div>
         </div>
     </header>
 
     <main>
-        <section class="section freelancer-profile-section">
+        <section class="freelancer-profile-section">
             <div class="container">
-                <div class="freelancer-profile-grid" data-reveal>
-                    <aside class="freelancer-profile-card">
-                        <div class="freelancer-avatar-frame">
-                            <img src="{{ $freelancer->avatar_url }}" alt="{{ $freelancer->name }}" class="freelancer-avatar-image" />
-                            <span class="freelancer-avatar-badge">{{ $initials }}</span>
+                <div class="freelancer-layout" data-reveal>
+                    <aside class="freelancer-card freelancer-sidebar">
+                        <div class="freelancer-photo-shell">
+                            <img src="{{ $freelancer->avatar_url }}" alt="{{ $freelancer->name }}" class="freelancer-photo" />
                         </div>
-
-                        <div class="freelancer-profile-card-copy">
-                            <h1>{{ $freelancer->name }}</h1>
-                            <p class="freelancer-location">{{ $locationLabel }}</p>
-                            @if (filled($freelancer->average_rating))
-                                <div class="freelancer-rating-pill">{{ rtrim(rtrim(number_format((float) $freelancer->average_rating, 1), '0'), '.') }}/5 stars</div>
-                            @endif
-                        </div>
-
-                        <a class="button button-primary freelancer-profile-cta" href="{{ $hireUrl }}">Hire Now</a>
+                        <h1 class="freelancer-name">{{ $freelancer->name }}</h1>
+                        <p class="freelancer-country">{{ $locationLabel }}</p>
+                        @if ($ratingValue)
+                            <div class="freelancer-rating-line">{{ $ratingValue }}</div>
+                        @endif
+                        <a class="button button-primary button-large freelancer-hire" href="{{ $hireUrl }}">Hire Now</a>
                     </aside>
 
-                    <section class="freelancer-details-panel">
-                        <div class="freelancer-stat-grid">
-                            <article class="freelancer-stat-card">
-                                <span>Hourly rate</span>
-                                <strong>${{ number_format((float) $freelancer->hourly_rate, ((float) $freelancer->hourly_rate) == floor((float) $freelancer->hourly_rate) ? 0 : 2) }}/Hr</strong>
-                            </article>
-                            <article class="freelancer-stat-card">
-                                <span>Total earned</span>
-                                <strong>${{ number_format((float) $freelancer->total_earned, ((float) $freelancer->total_earned) == floor((float) $freelancer->total_earned) ? 0 : 2) }}</strong>
-                            </article>
-                            <article class="freelancer-stat-card">
-                                <span>Experience</span>
-                                <strong>{{ $yearsLabel }}</strong>
-                            </article>
-                        </div>
-
-                        @if ($skillItems->isNotEmpty())
-                            <div class="freelancer-skills-block">
-                                <h2>Skills</h2>
-                                <div class="freelancer-chip-row">
-                                    @foreach ($skillItems as $skill)
-                                        <span class="freelancer-skill-chip">{{ $skill }}</span>
-                                    @endforeach
+                    <div class="freelancer-main-column">
+                        <section class="freelancer-card freelancer-overview" data-reveal>
+                            <div class="freelancer-stats" aria-label="Freelancer profile statistics">
+                                <div class="freelancer-stat">
+                                    <span class="freelancer-stat-label">Hourly Rate</span>
+                                    <strong class="freelancer-stat-value">${{ number_format((float) $freelancer->hourly_rate, ((float) $freelancer->hourly_rate) == floor((float) $freelancer->hourly_rate) ? 0 : 2) }} / Hr</strong>
+                                </div>
+                                <div class="freelancer-stat">
+                                    <span class="freelancer-stat-label">Total Earned</span>
+                                    <strong class="freelancer-stat-value">${{ number_format((float) $freelancer->total_earned, ((float) $freelancer->total_earned) == floor((float) $freelancer->total_earned) ? 0 : 2) }}</strong>
+                                </div>
+                                <div class="freelancer-stat">
+                                    <span class="freelancer-stat-label">Experience</span>
+                                    <strong class="freelancer-stat-value">{{ $yearsLabel }}</strong>
                                 </div>
                             </div>
-                        @endif
 
-                        <div class="freelancer-copy-block">
-                            <h2>{{ $freelancer->title ?: 'Freelancer profile' }}</h2>
-                            @forelse ($bioParagraphs as $paragraph)
-                                <p>{{ trim($paragraph) }}</p>
-                            @empty
-                                <p>This freelancer profile will be updated with more details soon.</p>
-                            @endforelse
-                        </div>
-                    </section>
-                </div>
+                            @if ($skillItems->isNotEmpty())
+                                <h2 class="freelancer-section-title">Skills</h2>
+                                <ul class="freelancer-skills" aria-label="Freelancer skills">
+                                    @foreach ($skillItems as $skill)
+                                        <li>{{ $skill }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
 
-                <section class="freelancer-reviews-panel" data-reveal>
-                    <div class="freelancer-reviews-header">
-                        <div>
-                            <h2>Reviews</h2>
-                            <p>{{ $freelancer->review_count ?: $freelancer->reviews->count() }} reviews on file.</p>
-                        </div>
-                        <a class="button button-secondary button-compact" href="{{ $hireUrl }}">Hire Now</a>
-                    </div>
+                            <h2 class="freelancer-role">{{ $freelancer->title ?: 'Freelancer profile' }}</h2>
+                            <div class="freelancer-summary-block">
+                                @forelse ($bioParagraphs as $paragraph)
+                                    <p class="freelancer-summary">{{ trim($paragraph) }}</p>
+                                @empty
+                                    <p class="freelancer-summary">This freelancer profile will be updated with more details soon.</p>
+                                @endforelse
+                            </div>
+                        </section>
 
-                    <div class="freelancer-review-stack">
-                        @forelse ($freelancer->reviews as $review)
-                            <article class="freelancer-review-card">
-                                <h3>{{ $review->review_title }}</h3>
-                                <div class="freelancer-review-meta">
-                                    <span>{{ optional($review->date_from)->format('F j, Y') ?: 'Start date not set' }}</span>
-                                    <span>–</span>
-                                    <span>{{ optional($review->date_to)->format('F j, Y') ?: 'End date not set' }}</span>
-                                    <span>·</span>
-                                    <span>{{ number_format((int) $review->hours) }} Hours</span>
-                                    <span>·</span>
-                                    <span>${{ number_format((float) $review->rate, ((float) $review->rate) == floor((float) $review->rate) ? 0 : 2) }} / hr</span>
-                                    <span>·</span>
-                                    <span>{{ (int) $review->stars }}/5 stars</span>
+                        <section class="freelancer-card freelancer-reviews" data-reveal>
+                            <div class="freelancer-reviews-head">
+                                <div>
+                                    <h2 class="freelancer-reviews-title">Reviews</h2>
+                                    <p class="freelancer-reviews-copy">{{ $freelancer->review_count ?: $freelancer->reviews->count() }} reviews on file.</p>
                                 </div>
-                                <p>{{ $review->review_text }}</p>
-                            </article>
-                        @empty
-                            <article class="freelancer-review-card">
-                                <h3>Reviews will appear here</h3>
-                                <p>This freelancer does not have public reviews yet. You can still continue to the client registration flow and start the hiring process.</p>
-                            </article>
-                        @endforelse
+                                <a class="button button-secondary button-compact" href="{{ $hireUrl }}">Hire Now</a>
+                            </div>
+                            <div class="freelancer-review-list">
+                                @forelse ($freelancer->reviews as $review)
+                                    <article class="freelancer-review-card">
+                                        <h3>{{ $review->review_title }}</h3>
+                                        <div class="freelancer-review-meta">
+                                            <span>{{ optional($review->date_from)->format('F j, Y') ?: 'Start date not set' }} - {{ optional($review->date_to)->format('F j, Y') ?: 'End date not set' }}</span>
+                                            <span>{{ number_format((int) $review->hours) }} Hours</span>
+                                            <span>${{ number_format((float) $review->rate, ((float) $review->rate) == floor((float) $review->rate) ? 0 : 2) }} / hr</span>
+                                            <span>{{ (int) $review->stars }}/5 stars</span>
+                                        </div>
+                                        <p>{{ $review->review_text }}</p>
+                                    </article>
+                                @empty
+                                    <article class="freelancer-review-card">
+                                        <h3>Reviews will appear here</h3>
+                                        <p>This freelancer does not have public reviews yet. You can still continue to the client registration flow and start the hiring process.</p>
+                                    </article>
+                                @endforelse
+                            </div>
+                        </section>
                     </div>
-                </section>
+                </div>
             </div>
         </section>
     </main>
@@ -206,7 +192,7 @@
                     <li><a href="{{ route('help.how-to-write-a-strong-project-brief') }}">How to Write a Strong Project Brief</a></li>
                     <li><a href="{{ route('help.how-to-review-fit-and-compare-specialists') }}">How to Review Fit and Compare Specialists</a></li>
                     <li><a href="{{ route('help.making-an-offer-and-starting-work') }}">Making an Offer and Starting Work</a></li>
-                    <li><a href="{{ route('client.register') }}">Start Hiring</a></li>
+                    <li><a href="/client/register">Start Hiring</a></li>
                 </ul>
             </div>
         </div>

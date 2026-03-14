@@ -1,103 +1,110 @@
-<!DOCTYPE html>
+@extends('workspace.layouts.base')
 
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Client workspace · HireHelper.ai</title>
-<meta content="Signed-in client workspace for HireHelper.ai" name="description"/>
-<link href="{{ asset('workspace-assets/css/styles.css') }}" rel="stylesheet"/>
-</head>
-<body>
-<div class="app-shell">
-<header class="topbar">
-<div class="container topbar-inner">
-<a aria-label="HireHelper.ai home" class="brand" href="app/dashboard.html">
-<img alt="HireHelper.ai" src="{{ asset('workspace-assets/img/logo.svg') }}"/>
-</a>
-<nav aria-label="Primary" class="primary-nav">
-<a class="active" href="app/dashboard.html">Projects</a>
-<a href="app/messages.html">Messages</a>
-<a href="app/reports.html">Reports</a>
-<a href="app/hire-flow.html">Hire</a>
-</nav>
-<div class="account-nav">
-<button aria-label="Open menu" class="icon-button menu-toggle" data-menu-toggle="" type="button">☰</button>
-<button aria-label="Notifications" class="icon-button" type="button">🔔</button>
-<button aria-label="Support" class="icon-button" type="button">?</button>
-<a class="account-pill" href="app/settings.html">
-<img alt="Account avatar" src="{{ asset('workspace-assets/img/avatar-jade.svg') }}"/>
-<div class="meta">
-<strong>My Account</strong>
-<span>Client workspace</span>
-</div>
-</a>
-</div>
-</div>
-<div class="mobile-menu" data-mobile-menu="">
-<a href="app/dashboard.html">Projects</a>
-<a href="app/messages.html">Messages</a>
-<a href="app/reports.html">Reports</a>
-<a href="app/hire-flow.html">Hire</a>
-<a href="app/settings.html">Settings</a>
-</div>
-</header>
-<main class="page-main">
+@section('content')
 <div class="container">
-<section class="section-card intro-card">
-<div>
-<span class="eyebrow"><span class="dot"></span> Client workspace</span>
-<h1>Client workspace with a streamlined project setup flow.</h1>
-<p>This build focuses on the signed-in client experience. Footer links are removed, extra public pages are removed, and project setup lives on one clean page.</p>
-<div class="inline-actions">
-<a class="button button-primary" href="app/welcome.html">After registration</a>
-<a class="button button-secondary" href="app/dashboard.html">After login</a>
-<a class="button button-ghost" href="app/hire-flow.html">Open project setup</a>
+    <div class="page-heading">
+        <div>
+            <span class="badge"><span class="dot"></span> Client workspace</span>
+            <h1>Client workspace with a streamlined project setup flow.</h1>
+            <p>This workspace now runs inside Laravel. Clients can register, sign in, save project briefs, send offers to freelancers by email, and manage everything from one dashboard.</p>
+        </div>
+    </div>
+
+    @include('workspace.partials.flash')
+
+    <section class="section-card intro-card">
+        <div>
+            <span class="eyebrow"><span class="dot"></span> HireHelper.ai workspace</span>
+            <h2>From registration to project setup and offer in one clean flow.</h2>
+            <p>Use this workspace to create a client account, fill the project brief and offer on one page, add billing, and move a contract into the active state.</p>
+            <div class="inline-actions">
+                @auth
+                    <a class="button button-primary" href="{{ route('workspace.dashboard') }}">Open dashboard</a>
+                    <a class="button button-secondary" href="{{ route('workspace.hire-flow') }}">Create project</a>
+                @else
+                    <a class="button button-primary" href="/client/register">Create account</a>
+                    <a class="button button-secondary" href="/client/login">Sign in</a>
+                @endauth
+                <a class="button button-ghost" href="{{ route('hire.start') }}">Start Hiring from public site</a>
+            </div>
+            <ul class="checklist">
+                <li><span class="tick">✓</span><span>Client registration and login.</span></li>
+                <li><span class="tick">✓</span><span>Database-backed project brief and hiring flow.</span></li>
+                <li><span class="tick">✓</span><span>Admin management for clients, freelancers, projects, and offers.</span></li>
+            </ul>
+        </div>
+        <div>
+            <img alt="HireHelper.ai dashboard illustration" src="{{ asset('workspace-assets/img/hero.svg') }}" />
+        </div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <section>
+        <div class="page-heading">
+            <div>
+                <h2>Workspace pages</h2>
+                <p>These pages are now connected to Laravel routes and real database records.</p>
+            </div>
+        </div>
+
+        <div class="grid-auto">
+            @php
+                $cards = [
+                    ['title' => 'Registration', 'text' => 'Create the client account that unlocks the workspace.', 'url' => '/client/register'],
+                    ['title' => 'Dashboard', 'text' => 'See project drafts, live offers, and active work.', 'url' => auth()->check() ? route('workspace.dashboard') : '/client/login'],
+                    ['title' => 'Project setup', 'text' => 'Write and save the project brief on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : '/client/login'],
+                    ['title' => 'Project + offer', 'text' => 'Fill the brief, freelancer email, rate, and weekly limit on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : '/client/register'],
+                    ['title' => 'Billing setup', 'text' => 'Add billing methods and set a primary option.', 'url' => auth()->check() ? route('workspace.billing-method') : '/client/login'],
+                    ['title' => 'Invoice details', 'text' => 'Save company, VAT, and billing address details.', 'url' => auth()->check() ? route('workspace.invoice-details') : '/client/login'],
+                ];
+            @endphp
+
+            @foreach ($cards as $card)
+                <a class="nav-card" href="{{ $card['url'] }}">
+                    <h3>{{ $card['title'] }}</h3>
+                    <p>{{ $card['text'] }}</p>
+                    <span class="cta-link">Open</span>
+                </a>
+            @endforeach
+        </div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <section>
+        <div class="page-heading">
+            <div>
+                <h2>Featured freelancers</h2>
+                <p>Freelancer personas added by the admin team can appear here. The offer page can still work with email-only invites even if this list is empty.</p>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            @forelse ($featuredFreelancers as $freelancer)
+                <div class="project-card">
+                    <div class="avatar-line" style="margin-bottom:16px">
+                        <img src="{{ $freelancer->avatar_url }}" alt="{{ $freelancer->name }}">
+                        <div>
+                            <strong>{{ $freelancer->name }}</strong>
+                            <span>{{ $freelancer->title }}</span>
+                        </div>
+                    </div>
+                    <p class="muted">{{ $freelancer->overview }}</p>
+                    <div class="inline-actions" style="margin-top:18px">
+                        <span class="badge">{{ $freelancer->location }}</span>
+                        <span class="badge">${{ number_format((float) $freelancer->hourly_rate, 0) }}/hr</span>
+                    </div>
+                    <div style="margin-top:18px">
+                        <a class="cta-link" href="{{ $freelancer->publicProfileUrl() }}">View profile</a>
+                    </div>
+                </div>
+            @empty
+                <div class="project-card">
+                    <p class="empty">No freelancer personas are available yet. Add them from the admin panel when you are ready.</p>
+                </div>
+            @endforelse
+        </div>
+    </section>
 </div>
-<ul class="checklist">
-<li><span class="tick">✓</span><span>Plain HTML, CSS, and JavaScript.</span></li>
-<li><span class="tick">✓</span><span>Minimal footer without links.</span></li>
-<li><span class="tick">✓</span><span>Single page for project brief.</span></li>
-</ul>
-</div>
-<div>
-<img alt="HireHelper.ai dashboard illustration" src="{{ asset('workspace-assets/img/hero.svg') }}"/>
-</div>
-</section>
-<div class="spacer"></div>
-<section>
-<div class="page-heading">
-<div>
-<h2>Workspace pages</h2>
-<p>Only the essential client-side screens remain.</p>
-</div>
-</div>
-<div class="grid-auto">
-<a class="nav-card" href="app/welcome.html"><h3>After registration</h3><p>Welcome screen with the next action to create a project.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/dashboard.html"><h3>Dashboard</h3><p>Clean signed-in dashboard before anything is hired.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/hire-flow.html"><h3>Project setup</h3><p>Write and save the brief on one page.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/invite-offer.html"><h3>Offer setup</h3><p>Set rate, weekly limit, and manual time preferences.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/billing-method.html"><h3>Billing setup</h3><p>Select a payment method before the contract starts.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/dashboard-live.html"><h3>Dashboard with live project</h3><p>State after a brief is saved and an offer is sent.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/project-pending.html"><h3>Pending contract</h3><p>Review terms and settings before activation.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/project-active.html"><h3>Active contract</h3><p>Time, payments, and contract actions.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/messages.html"><h3>Messages</h3><p>Simple project communication layout.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/reports.html"><h3>Reports</h3><p>Hours, billing, and workspace health.</p><span class="cta-link">Open</span></a>
-<a class="nav-card" href="app/settings.html"><h3>Settings</h3><p>Notifications, reminders, and workspace preferences.</p><span class="cta-link">Open</span></a>
-</div>
-</section>
-</div>
-</main>
-<footer class="app-footer app-footer-minimal">
-<div class="container footer-minimal">
-<img alt="HireHelper.ai" src="{{ asset('workspace-assets/img/logo.svg') }}"/>
-<div>
-<strong>HireHelper.ai</strong>
-<small>Client workspace</small>
-</div>
-</div>
-</footer>
-</div>
-<script src="{{ asset('workspace-assets/js/app.js') }}"></script>
-</body>
-</html>
+@endsection

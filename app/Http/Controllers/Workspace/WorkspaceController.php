@@ -662,6 +662,7 @@ class WorkspaceController extends Controller
             'pendingOffer' => $pendingOffer,
             'activeOffer' => $activeOffer,
             'billingMethod' => $user->defaultBillingMethod,
+            'invoiceDetail' => $user->invoiceDetail,
             'featuredFreelancers' => Freelancer::featured()->orderBy('name')->take(4)->get(),
             'projectCount' => $projects->count(),
             'pendingCount' => ProjectOffer::query()

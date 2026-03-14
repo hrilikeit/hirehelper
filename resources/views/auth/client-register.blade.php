@@ -19,7 +19,7 @@
             <p class="wizard-subtitle">Register once, then post projects, add the freelancer email, and send an offer from one combined client page.</p>
         </div>
 
-        <form method="post" action="{{ route('client.register') }}">
+        <form method="post" action="/client/register">
             @csrf
 
             @if ($nextUrl)
@@ -51,7 +51,7 @@
             <div class="form-actions">
                 <a class="link-button" href="{{ route('workspace.index') }}">‹ Back</a>
                 <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-                    <a class="button button-secondary" href="{{ $nextUrl ? route('client.login', ['next' => $nextUrl]) : route('client.login') }}">Already have an account?</a>
+                    <a class="button button-secondary" href="{{ $nextUrl ? '/client/login?next=' . urlencode($nextUrl) : '/client/login' }}">Already have an account?</a>
                     <button class="button button-primary" type="submit">Create workspace</button>
                 </div>
             </div>

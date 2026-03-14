@@ -19,7 +19,7 @@
             <p class="wizard-subtitle">Open your dashboard, continue the combined project and offer page, and manage billing, messages, and live work.</p>
         </div>
 
-        <form method="post" action="{{ route('client.login') }}">
+        <form method="post" action="/client/login">
             @csrf
 
             @if ($nextUrl)
@@ -44,7 +44,7 @@
             <div class="form-actions">
                 <a class="link-button" href="{{ route('workspace.index') }}">‹ Back</a>
                 <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-                    <a class="button button-secondary" href="{{ $nextUrl ? route('client.register', ['next' => $nextUrl]) : route('client.register') }}">Create account</a>
+                    <a class="button button-secondary" href="{{ $nextUrl ? '/client/register?next=' . urlencode($nextUrl) : '/client/register' }}">Create account</a>
                     <button class="button button-primary" type="submit">Sign in</button>
                 </div>
             </div>

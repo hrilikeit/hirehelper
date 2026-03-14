@@ -29,7 +29,7 @@
         </nav>
         <div class="header-actions">
           <a class="button button-secondary button-compact desktop-only" href="help/index.html">Help Center</a>
-          <a class="button button-primary button-compact" href="{{ route('client.register') }}">Start Hiring</a>
+          <a class="button button-primary button-compact" href="/client/register">Start Hiring</a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
             <span></span><span></span>
             <span class="sr-only">Toggle navigation</span>
@@ -40,7 +40,7 @@
         <div class="container mobile-menu-inner">
           <nav class="mobile-nav" aria-label="Mobile">
             <a class="mobile-link" href="categories.html">Categories</a><a class="mobile-link" href="how-it-works.html">How It Works</a><a class="mobile-link" href="our-priorities.html">Our Priorities</a><a class="mobile-link" href="help/index.html">Help</a><a class="mobile-link" href="contact.html">Contact</a>
-            <a class="mobile-link button button-primary" href="{{ route('client.register') }}">Start Hiring</a>
+            <a class="mobile-link button button-primary" href="/client/register">Start Hiring</a>
           </nav>
         </div>
       </div>
@@ -83,7 +83,7 @@
             </ul>
           </div>
           @endif
-          <form class="site-form inquiry-form" data-inquiry-form novalidate method="POST" action="{{ route('hire.store') }}">
+          <form class="site-form inquiry-form" data-inquiry-form novalidate method="POST" action="{{ route('hire.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="form-section-title">Project request</div>
             <div class="grid grid-form">
@@ -205,11 +205,17 @@
               </select>
             </div>
 
+            <div class="field">
+              <label for="hire-attachments">Optional files</label>
+              <p class="field-help">Attach documents like a scope, screenshots, deck, or brief. Files from website forms are sent to <strong>support@hirehelper.ai</strong>.</p>
+              <input id="hire-attachments" name="attachments[]" type="file" multiple />
+            </div>
+
             <div class="form-actions">
               <button class="button button-primary button-large" type="submit">Submit Project Request <span class="button-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></button>
               <a class="button button-secondary button-large" href="contact.html">Need to talk first? Contact Us</a>
             </div>
-            <p class="form-note">We read every request carefully. If the project is a fit, the next step is a focused conversation about scope, priorities, and the right type of support.</p>
+            <p class="form-note">We read every request carefully. If the project is a fit, the next step is a focused conversation about scope, priorities, and the right type of support. Files from this form are sent to support@hirehelper.ai.</p>
           </form>
         </div>
       </div>
@@ -228,7 +234,7 @@
         </div>
         <div>
           <h3>Company</h3>
-          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms of Service</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
+          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms and Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
         </div>
         <div>
           <h3>Categories</h3>
@@ -236,7 +242,7 @@
         </div>
         <div>
           <h3>Guidance</h3>
-          <ul><li><a href="help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="{{ route('client.register') }}">Start Hiring</a></li></ul>
+          <ul><li><a href="help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="/client/register">Start Hiring</a></li></ul>
         </div>
       </div>
       <div class="container footer-meta">

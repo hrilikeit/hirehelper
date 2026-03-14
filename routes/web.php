@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\ClientAuthController;
+use App\Http\Controllers\FreelancerProfileController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\HireRequestController;
+use App\Http\Controllers\Workspace\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'site.index')->name('home');
@@ -30,17 +32,8 @@ Route::redirect('/contact', '/contact.html');
 Route::get('/contact.html', [ContactMessageController::class, 'create'])->name('contact.show');
 Route::post('/contact.html', [ContactMessageController::class, 'store'])->name('contact.store');
 
-Route::middleware('guest')->group(function () {
-    Route::get('/client/register', [ClientAuthController::class, 'showRegisterForm'])->name('client.register');
-    Route::post('/client/register', [ClientAuthController::class, 'register'])->name('client.register.store');
-    Route::get('/client/login', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
-    Route::post('/client/login', [ClientAuthController::class, 'login'])->name('client.login.store');
-});
-
-Route::post('/client/logout', [ClientAuthController::class, 'logout'])->name('client.logout');
-
-Route::redirect('/start-hiring', '/client/register', 302);
-Route::get('/start-hiring.html', fn () => redirect('/client/register'))->name('hire.start');
+Route::redirect('/start-hiring', '/client/register');
+Route::redirect('/start-hiring.html', '/client/register')->name('hire.start');
 Route::post('/start-hiring.html', fn () => redirect('/client/register'))->name('hire.store');
 Route::get('/request-received.html', [HireRequestController::class, 'thankYou'])->name('hire.received');
 
@@ -50,6 +43,9 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::view('/ecommerce.html', 'site.services.ecommerce')->name('ecommerce');
     Route::view('/ui-ux-design.html', 'site.services.ui-ux-design')->name('ui-ux-design');
 });
+
+Route::get('/freelancer/{freelancer}/index.html', [FreelancerProfileController::class, 'showById'])->whereNumber('freelancer')->name('freelancers.show-id');
+Route::get('/freelancers/{slug}', [FreelancerProfileController::class, 'showBySlug'])->name('freelancers.show');
 
 Route::get('/help', fn () => redirect('/help/index.html'));
 Route::prefix('help')->name('help.')->group(function () {
@@ -64,42 +60,51 @@ Route::prefix('help')->name('help.')->group(function () {
 });
 
 Route::redirect('/workspace', '/client-workspace.html');
-Route::view('/client-workspace.html', 'workspace.index')->name('workspace.index');
+Route::get('/client-workspace.html', [WorkspaceController::class, 'landing'])->name('workspace.index');
+
+Route::prefix('client')->name('client.')->group(function () {
+    Route::get('/register', [ClientAuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [ClientAuthController::class, 'register']);
+
+    Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [ClientAuthController::class, 'login']);
+});
+
+Route::post('/client/logout', [ClientAuthController::class, 'logout'])->name('client.logout')->middleware('auth');
+
 Route::redirect('/app', '/app/dashboard.html');
-Route::prefix('app')->name('workspace.')->group(function () {
-    Route::view('/welcome.html', 'workspace.app.welcome')->name('welcome');
-    Route::view('/dashboard.html', 'workspace.app.dashboard')->name('dashboard');
-    Route::view('/dashboard-live.html', 'workspace.app.dashboard-live')->name('dashboard-live');
-    Route::view('/invite-offer.html', 'workspace.app.invite-offer')->name('invite-offer');
-    Route::view('/billing-method.html', 'workspace.app.billing-method')->name('billing-method');
-    Route::get('/invoice-details.html', function () {
-        $invoiceDetail = (object) session('invoice_details', []);
+Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () {
+    Route::get('/welcome.html', [WorkspaceController::class, 'welcome'])->name('welcome');
+    Route::get('/dashboard.html', [WorkspaceController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard-live.html', [WorkspaceController::class, 'dashboardLive'])->name('dashboard-live');
 
-        return view('workspace.app.invoice-details', compact('invoiceDetail'));
-    })->name('invoice-details');
-    Route::post('/invoice-details.html', function (\Illuminate\Http\Request $request) {
-        $data = $request->validate([
-            'company_name' => ['required', 'string', 'max:255'],
-            'vat_number' => ['nullable', 'string', 'max:255'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'billing_email' => ['required', 'email', 'max:255'],
-            'address_line_1' => ['nullable', 'string', 'max:255'],
-            'address_line_2' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:255'],
-            'country' => ['nullable', 'string', 'max:255'],
-        ]);
+    Route::get('/hire-flow.html', [WorkspaceController::class, 'hireFlow'])->name('hire-flow');
+    Route::post('/hire-flow.html', [WorkspaceController::class, 'storeBrief'])->name('hire-flow.store');
 
-        session(['invoice_details' => $data]);
+    Route::get('/invite-offer.html', [WorkspaceController::class, 'inviteOffer'])->name('invite-offer');
+    Route::post('/invite-offer.html', [WorkspaceController::class, 'storeOffer'])->name('invite-offer.store');
 
-        return redirect()->route('workspace.invoice-details')->with('success', 'Invoice details saved.');
-    })->name('invoice-details.store');
-    Route::view('/project-pending.html', 'workspace.app.project-pending')->name('project-pending');
-    Route::view('/project-active.html', 'workspace.app.project-active')->name('project-active');
-    Route::view('/messages.html', 'workspace.app.messages')->name('messages');
-    Route::view('/reports.html', 'workspace.app.reports')->name('reports');
-    Route::view('/settings.html', 'workspace.app.settings')->name('settings');
-    Route::view('/hire-flow.html', 'workspace.app.hire-flow')->name('hire-flow');
+    Route::get('/billing-method.html', [WorkspaceController::class, 'billingMethod'])->name('billing-method');
+    Route::post('/billing-method.html', [WorkspaceController::class, 'storeBillingMethod'])->name('billing-method.store');
+    Route::post('/billing-method/set-primary', [WorkspaceController::class, 'setPrimaryBillingMethod'])->name('billing-method.primary');
+    Route::post('/billing-method/remove', [WorkspaceController::class, 'destroyBillingMethod'])->name('billing-method.destroy');
+
+    Route::get('/invoice-details.html', [WorkspaceController::class, 'invoiceDetails'])->name('invoice-details');
+    Route::post('/invoice-details.html', [WorkspaceController::class, 'storeInvoiceDetails'])->name('invoice-details.store');
+
+    Route::get('/project-pending.html', [WorkspaceController::class, 'projectPending'])->name('project-pending');
+    Route::post('/project-pending/activate', [WorkspaceController::class, 'activateProject'])->name('project.activate');
+
+    Route::get('/project-active.html', [WorkspaceController::class, 'projectActive'])->name('project-active');
+    Route::post('/project-active/close', [WorkspaceController::class, 'closeProject'])->name('project.close');
+
+    Route::get('/messages.html', [WorkspaceController::class, 'messages'])->name('messages');
+    Route::post('/messages.html', [WorkspaceController::class, 'storeMessage'])->name('messages.store');
+
+    Route::get('/reports.html', [WorkspaceController::class, 'reports'])->name('reports');
+
+    Route::get('/settings.html', [WorkspaceController::class, 'settings'])->name('settings');
+    Route::post('/settings.html', [WorkspaceController::class, 'updateSettings'])->name('settings.update');
 });
 
 Route::view('/404.html', 'errors.404')->name('preview.404');

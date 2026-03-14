@@ -29,7 +29,7 @@
         </nav>
         <div class="header-actions">
           <a class="button button-secondary button-compact desktop-only" href="../help/index.html">Help Center</a>
-          <a class="button button-primary button-compact" href="../client/register">Start Hiring</a>
+          <a class="button button-primary button-compact" href="/client/register">Start Hiring</a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
             <span></span><span></span>
             <span class="sr-only">Toggle navigation</span>
@@ -40,7 +40,7 @@
         <div class="container mobile-menu-inner">
           <nav class="mobile-nav" aria-label="Mobile">
             <a class="mobile-link" href="../categories.html">Categories</a><a class="mobile-link" href="../how-it-works.html">How It Works</a><a class="mobile-link" href="../our-priorities.html">Our Priorities</a><a class="mobile-link" href="../help/index.html">Help</a><a class="mobile-link" href="../contact.html">Contact</a>
-            <a class="mobile-link button button-primary" href="../client/register">Start Hiring</a>
+            <a class="mobile-link button button-primary" href="/client/register">Start Hiring</a>
           </nav>
         </div>
       </div>
@@ -54,7 +54,7 @@
           <span class="eyebrow">E-Commerce</span>
           <h1>Hire e-commerce specialists who understand both experience and revenue impact</h1>
           <p class="lead">E-commerce work sits at the intersection of product, operations, and growth. The right support helps you improve storefront quality, remove friction, and move commercial priorities forward without disrupting the business.</p>
-          <div class="button-row"><a class="button button-primary button-large" href="../client/register">Tell Us About Your Project<span class="button-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a><a class="button button-secondary button-large" href="../categories.html">Explore Categories</a></div>
+          <div class="button-row"><a class="button button-primary button-large" href="/client/register">Tell Us About Your Project<span class="button-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a><a class="button button-secondary button-large" href="../categories.html">Explore Categories</a></div>
           
           
         </div>
@@ -129,7 +129,7 @@
             <span class="eyebrow">Next step</span>
             <h2>Need support for your store, platform, or conversion roadmap?</h2>
             <p>Tell us where the delivery work is stuck, what outcome matters, and what kind of support will move the project forward.</p>
-            <div class="button-row"><a class="button button-primary" href="../client/register">Tell Us About Your Project</a></div>
+            <div class="button-row"><a class="button button-primary" href="/client/register">Tell Us About Your Project</a></div>
           </div>
           <div class="cta-visual">
             <img src="../assets/img/cta-orbit.svg" alt="" />
@@ -151,7 +151,7 @@
         </div>
         <div>
           <h3>Company</h3>
-          <ul><li><a href="../how-it-works.html">How It Works</a></li><li><a href="../our-priorities.html">Our Priorities</a></li><li><a href="../contact.html">Contact</a></li><li><a href="../help/index.html">Help Center</a></li><li><a href="../terms.html">Terms of Service</a></li><li><a href="../privacy.html">Privacy Policy</a></li><li><a href="../sitemap.html">Sitemap</a></li></ul>
+          <ul><li><a href="../how-it-works.html">How It Works</a></li><li><a href="../our-priorities.html">Our Priorities</a></li><li><a href="../contact.html">Contact</a></li><li><a href="../help/index.html">Help Center</a></li><li><a href="../terms.html">Terms and Conditions</a></li><li><a href="../privacy.html">Privacy Policy</a></li><li><a href="../sitemap.html">Sitemap</a></li></ul>
         </div>
         <div>
           <h3>Categories</h3>
@@ -159,7 +159,7 @@
         </div>
         <div>
           <h3>Guidance</h3>
-          <ul><li><a href="../help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="../help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="../help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="../help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="../client/register">Start Hiring</a></li></ul>
+          <ul><li><a href="../help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="../help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="../help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="../help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="/client/register">Start Hiring</a></li></ul>
         </div>
       </div>
       <div class="container footer-meta">
