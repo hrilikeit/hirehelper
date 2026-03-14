@@ -27,11 +27,6 @@ class StoreHireRequestRequest extends FormRequest
             'company' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],
             'source' => ['nullable', 'string', 'max:255'],
-            'attachment' => ['nullable', 'file', 'max:10240'],
-            'attachments' => ['nullable', 'array'],
-            'attachments.*' => ['file', 'max:10240'],
-            'files' => ['nullable', 'array'],
-            'files.*' => ['file', 'max:10240'],
         ];
     }
 }

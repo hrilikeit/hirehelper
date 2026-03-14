@@ -368,7 +368,7 @@
         </div>
         <div>
           <h3>Company</h3>
-          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms and Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
+          <ul><li><a href="how-it-works.html">How It Works</a></li><li><a href="our-priorities.html">Our Priorities</a></li><li><a href="contact.html">Contact</a></li><li><a href="help/index.html">Help Center</a></li><li><a href="terms.html">Terms of Service</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="sitemap.html">Sitemap</a></li></ul>
         </div>
         <div>
           <h3>Categories</h3>
