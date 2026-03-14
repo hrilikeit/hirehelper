@@ -47,7 +47,7 @@
 <h1>Client dashboard</h1>
 <p>This is the signed-in dashboard state. It gives clients one place to manage project drafts, live projects, co-workers, and recent activity after login.</p>
 </div>
-<a class="button button-primary" href="hire-flow.html">New project</a>
+<div class="button-row"><a class="button button-primary" href="hire-flow.html">New project</a><a class="button button-secondary" href="invoice-details.html">Invoice details</a></div>
 </div>
 <div class="dashboard-grid">
 <section class="panel tall">

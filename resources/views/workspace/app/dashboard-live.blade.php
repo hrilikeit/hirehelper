@@ -51,7 +51,7 @@
 <h1>Client dashboard</h1>
 <p>This state reflects the dashboard after the client saves a brief and reaches the pending or verification stage.</p>
 </div>
-<a class="button button-primary" href="hire-flow.html">New project</a>
+<div class="button-row"><a class="button button-primary" href="hire-flow.html">New project</a><a class="button button-secondary" href="invoice-details.html">Invoice details</a></div>
 </div>
 <div class="dashboard-grid">
 <section class="panel tall">

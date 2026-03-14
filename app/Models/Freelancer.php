@@ -140,10 +140,18 @@ class Freelancer extends Model
     public function publicProfileUrl(): string
     {
         if (filled($this->slug)) {
-            return route('freelancers.show', ['slug' => $this->slug]);
+            if (\Illuminate\Support\Facades\Route::has('freelancers.show')) {
+                return route('freelancers.show', ['slug' => $this->slug]);
+            }
+
+            return url('/freelancers/' . $this->slug);
         }
 
-        return route('freelancers.show-id', ['freelancer' => $this->getKey()]);
+        if (\Illuminate\Support\Facades\Route::has('freelancers.show-id')) {
+            return route('freelancers.show-id', ['freelancer' => $this->getKey()]);
+        }
+
+        return url('/freelancers/' . $this->getKey());
     }
 
     public function getDisplayLocationAttribute(): string

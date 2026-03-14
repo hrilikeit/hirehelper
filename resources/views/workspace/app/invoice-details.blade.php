@@ -36,7 +36,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="billing_email">Billing email</label>
-                    <input class="input" id="billing_email" name="billing_email" type="email" value="{{ old('billing_email', $invoiceDetail?->billing_email ?? auth()->user()->email) }}" required />
+                    <input class="input" id="billing_email" name="billing_email" type="email" value="{{ old('billing_email', $invoiceDetail?->billing_email ?? auth()->user()?->email) }}" required />
                 </div>
             </div>
 

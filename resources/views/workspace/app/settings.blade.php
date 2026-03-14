@@ -100,6 +100,13 @@
         </div>
         <div class="setting-row">
           <div>
+            <strong>Invoice details</strong>
+            <span>Save company name, VAT number, billing email, and invoice address.</span>
+          </div>
+          <a class="cta-link" href="invoice-details.html">Manage</a>
+        </div>
+        <div class="setting-row">
+          <div>
             <strong>Workspace reset</strong>
             <span>Clear saved project data and return to a clean workspace state.</span>
           </div>
