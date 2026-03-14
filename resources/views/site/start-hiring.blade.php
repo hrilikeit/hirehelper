@@ -7,11 +7,11 @@
   <meta name="description" content="Tell HireHelper.ai what you need to build, improve, or redesign. Share your goals, timeline, and priorities to begin a structured hiring process." />
   <meta name="theme-color" content="#f6f8fc" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
-  <link rel="canonical" href="https://hirehelper.ai/start-hiring.html" />
+  <link rel="canonical" href="https://hirehelper.ai/client/register" />
   <meta property="og:title" content="Start Hiring | HireHelper.ai" />
   <meta property="og:description" content="Tell HireHelper.ai what you need to build, improve, or redesign. Share your goals, timeline, and priorities to begin a structured hiring process." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://hirehelper.ai/start-hiring.html" />
+  <meta property="og:url" content="https://hirehelper.ai/client/register" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
