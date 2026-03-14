@@ -1,0 +1,49 @@
+STEP 1 - DOWNLOAD AND UNZIP THE PATCH
+
+If the zip is in your Downloads folder, run:
+
+cd ~/Downloads
+rm -rf hirehelper-client-offer-billing-update-temp
+unzip hirehelper-client-offer-billing-update.zip -d hirehelper-client-offer-billing-update-temp
+
+
+STEP 2 - COPY THE PATCH INTO YOUR LOCAL LARAVEL PROJECT
+
+Replace /FULL/PATH/TO/YOUR/LOCAL/LARAVEL/PROJECT with your real local project path, then run:
+
+cd /FULL/PATH/TO/YOUR/LOCAL/LARAVEL/PROJECT
+rsync -av ~/Downloads/hirehelper-client-offer-billing-update-temp/hirehelper-client-offer-billing-update/ ./
+
+
+STEP 3 - RUN LARAVEL UPDATE COMMANDS LOCALLY
+
+composer dump-autoload
+php artisan optimize:clear
+php artisan migrate
+php artisan serve
+
+
+STEP 4 - TEST THESE PAGES IN LOCAL
+
+http://127.0.0.1:8000/client/register
+http://127.0.0.1:8000/app/hire-flow.html   (after client login)
+http://127.0.0.1:8000/app/invite-offer.html   (after client login)
+http://127.0.0.1:8000/app/billing-method.html   (after client login)
+http://127.0.0.1:8000/app/invoice-details.html   (after client login)
+http://127.0.0.1:8000/app/settings.html   (after client login)
+http://127.0.0.1:8000/admin/freelancers   (after admin login)
+
+
+CHECKLIST BEFORE GIT PUSH
+
+- Start Hiring opens /client/register
+- Registration page has no Company field
+- Registration page has no Phone field
+- Project brief page is blank by default
+- Offer page asks for freelancer email, rate, weekly limit
+- Weekly limit defaults to 40
+- Signed in badge is removed
+- Settings page no longer shows the extra password/access block
+- Invoice details page opens and saves
+- Billing method page can add, set primary, and remove methods
+- Admin freelancers page shows delete action

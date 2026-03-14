@@ -1,0 +1,41 @@
+RUN THESE COMMANDS FROM YOUR LOCAL LARAVEL PROJECT ROOT
+
+cd /FULL/PATH/TO/YOUR/LOCAL/LARAVEL/PROJECT
+
+BRANCH=$(git branch --show-current)
+echo "$BRANCH"
+
+git status
+
+git add routes/web.php \
+app/Http/Controllers/Auth/ClientAuthController.php \
+app/Http/Controllers/Workspace/WorkspaceController.php \
+app/Models/User.php \
+app/Models/ProjectOffer.php \
+app/Models/ClientBillingMethod.php \
+app/Models/Freelancer.php \
+app/Models/ClientInvoiceDetail.php \
+app/Filament/Resources/FreelancerResource.php \
+app/Filament/Resources/FreelancerResource/Pages/ViewFreelancer.php \
+app/Filament/Resources/FreelancerResource/Pages/EditFreelancer.php \
+database/migrations/2026_03_12_000007_add_contact_email_and_soft_deletes_to_freelancers_table.php \
+database/migrations/2026_03_12_000008_add_freelancer_email_to_project_offers_table.php \
+database/migrations/2026_03_12_000009_create_client_invoice_details_table.php \
+resources/views/auth/client-register.blade.php \
+resources/views/workspace/app/hire-flow.blade.php \
+resources/views/workspace/app/invite-offer.blade.php \
+resources/views/workspace/app/dashboard.blade.php \
+resources/views/workspace/app/dashboard-live.blade.php \
+resources/views/workspace/app/project-pending.blade.php \
+resources/views/workspace/app/project-active.blade.php \
+resources/views/workspace/app/messages.blade.php \
+resources/views/workspace/app/reports.blade.php \
+resources/views/workspace/app/settings.blade.php \
+resources/views/workspace/app/billing-method.blade.php \
+resources/views/workspace/app/invoice-details.blade.php \
+resources/views/workspace/index.blade.php \
+public/workspace-assets/js/app.js \
+public/workspace-assets/css/styles.css
+
+git commit -m "Update client offer flow, billing methods, invoice details, and freelancer admin delete"
+git push origin "$BRANCH"

@@ -1,0 +1,67 @@
+SSH TO THE SERVER
+
+ssh root@37.27.63.146
+
+
+RUN EVERYTHING BELOW ON THE SERVER
+
+cd /home/trustreview/web/hirehelper.ai/public_html/laravel_app
+
+BRANCH=$(git branch --show-current)
+echo "$BRANCH"
+
+git rev-parse HEAD > /root/hirehelper_before_update_commit.txt
+
+runuser -u trustreview -- /usr/bin/php8.4 artisan down || true
+
+git pull origin "$BRANCH"
+
+mkdir -p bootstrap/cache
+mkdir -p storage/app/public
+mkdir -p storage/framework/cache/data
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/views
+mkdir -p storage/logs
+
+chown -R trustreview:www-data storage bootstrap/cache
+find storage bootstrap/cache -type d -exec chmod 775 {} \;
+find storage bootstrap/cache -type f -exec chmod 664 {} \;
+
+rm -f /home/trustreview/web/hirehelper.ai/public_html/storage
+ln -s /home/trustreview/web/hirehelper.ai/public_html/laravel_app/storage/app/public /home/trustreview/web/hirehelper.ai/public_html/storage
+chown -h trustreview:www-data /home/trustreview/web/hirehelper.ai/public_html/storage
+
+runuser -u trustreview -- /usr/bin/php8.4 artisan optimize:clear
+runuser -u trustreview -- /usr/bin/php8.4 artisan migrate --force
+runuser -u trustreview -- /usr/bin/php8.4 artisan config:cache
+runuser -u trustreview -- /usr/bin/php8.4 artisan route:cache
+runuser -u trustreview -- /usr/bin/php8.4 artisan view:cache
+
+systemctl restart php8.4-fpm
+systemctl reload nginx
+
+runuser -u trustreview -- /usr/bin/php8.4 artisan up
+
+
+AFTER DEPLOY, CHECK THESE PAGES
+
+https://hirehelper.ai/client/register
+https://hirehelper.ai/app/hire-flow.html
+https://hirehelper.ai/app/invite-offer.html
+https://hirehelper.ai/app/billing-method.html
+https://hirehelper.ai/app/invoice-details.html
+https://hirehelper.ai/app/settings.html
+https://hirehelper.ai/admin/freelancers
+
+
+IF YOU NEED ROLLBACK
+
+cd /home/trustreview/web/hirehelper.ai/public_html/laravel_app
+git reset --hard "$(cat /root/hirehelper_before_update_commit.txt)"
+runuser -u trustreview -- /usr/bin/php8.4 artisan optimize:clear
+runuser -u trustreview -- /usr/bin/php8.4 artisan config:cache
+runuser -u trustreview -- /usr/bin/php8.4 artisan route:cache
+runuser -u trustreview -- /usr/bin/php8.4 artisan view:cache
+systemctl restart php8.4-fpm
+systemctl reload nginx
+runuser -u trustreview -- /usr/bin/php8.4 artisan up
