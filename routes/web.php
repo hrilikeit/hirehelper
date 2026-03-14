@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\HireRequestController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,15 @@ Route::view('/sitemap.html', 'site.sitemap')->name('sitemap');
 Route::redirect('/contact', '/contact.html');
 Route::get('/contact.html', [ContactMessageController::class, 'create'])->name('contact.show');
 Route::post('/contact.html', [ContactMessageController::class, 'store'])->name('contact.store');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/client/register', [ClientAuthController::class, 'showRegisterForm'])->name('client.register');
+    Route::post('/client/register', [ClientAuthController::class, 'register'])->name('client.register.store');
+    Route::get('/client/login', [ClientAuthController::class, 'showLoginForm'])->name('client.login');
+    Route::post('/client/login', [ClientAuthController::class, 'login'])->name('client.login.store');
+});
+
+Route::post('/client/logout', [ClientAuthController::class, 'logout'])->name('client.logout');
 
 Route::redirect('/start-hiring', '/client/register', 302);
 Route::get('/start-hiring.html', fn () => redirect('/client/register'))->name('hire.start');
