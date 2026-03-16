@@ -13,7 +13,7 @@
     <meta property="og:type" content="profile" />
     <meta property="og:url" content="{{ filled($freelancer->slug) ? route('freelancers.show', ['slug' => $freelancer->slug]) : route('freelancers.show-id', ['freelancer' => $freelancer->id]) }}" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/styles.css?v=freelancer-redesign-20260314') }}" />
 </head>
 <body class="page-freelancer page-freelancer-profile" data-page="freelancer-profile">
 @php
@@ -192,7 +192,7 @@
                     <li><a href="{{ route('help.how-to-write-a-strong-project-brief') }}">How to Write a Strong Project Brief</a></li>
                     <li><a href="{{ route('help.how-to-review-fit-and-compare-specialists') }}">How to Review Fit and Compare Specialists</a></li>
                     <li><a href="{{ route('help.making-an-offer-and-starting-work') }}">Making an Offer and Starting Work</a></li>
-                    <li><a href="/client/register">Start Hiring</a></li>
+                    <li><a href="{{ route('client.register') }}">Start Hiring</a></li>
                 </ul>
             </div>
         </div>
