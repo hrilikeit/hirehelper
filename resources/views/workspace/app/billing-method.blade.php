@@ -17,7 +17,7 @@
             <div class="page-heading" style="margin-bottom:18px">
                 <div>
                     <h1 style="font-size:38px">Billing methods</h1>
-                    <p>Save PayPal, Visa, or Mastercard methods. Set one as primary or remove it any time.</p>
+                    <p>Save a real PayPal billing method or add a manual Visa / Mastercard fallback. Set one as primary or remove it any time.</p>
                 </div>
             </div>
 
@@ -35,7 +35,11 @@
                             <strong>{{ $method->display_label }}</strong>
                             <span>
                                 {{ $method->is_default ? 'Primary billing method.' : 'Saved billing method.' }}
-                                Added {{ $method->created_at?->diffForHumans() ?: 'recently' }}.
+                                @if ($method->method_type === 'PayPal' && $method->verified_at)
+                                    Verified with PayPal {{ $method->verified_at->diffForHumans() }}.
+                                @else
+                                    Added {{ $method->created_at?->diffForHumans() ?: 'recently' }}.
+                                @endif
                             </span>
                         </div>
                         <div class="method-action-stack">
@@ -68,44 +72,72 @@
             </div>
         </section>
 
-        <section class="project-card">
-            <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 16px">Add new billing method</h3>
-            <form method="post" action="{{ route('workspace.billing-method.store') }}">
-                @csrf
-                @if ($offer)
-                    <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+        <div class="billing-stack">
+            <section class="project-card paypal-connect-card">
+                <div class="paypal-title-row">
+                    <div>
+                        <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 10px">Connect PayPal</h3>
+                        <p class="muted" style="margin:0">Use the saved PayPal approval flow so the client adds a real PayPal billing method instead of typing it manually.</p>
+                    </div>
+                    <span class="badge">PayPal</span>
+                </div>
+
+                @if ($paypalConfigured)
+                    <form method="post" action="{{ route('workspace.billing-method.paypal.start') }}">
+                        @csrf
+                        @if ($offer)
+                            <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+                        @endif
+                        <button class="button button-primary" type="submit">Connect PayPal</button>
+                    </form>
+                    <p class="muted small" style="margin:14px 0 0">HireHelper will redirect to PayPal, ask the client to approve the billing agreement, then return here and save the PayPal billing token automatically.</p>
+                @else
+                    <div class="note-panel">
+                        <strong>PayPal is not configured yet.</strong>
+                        <p class="muted small" style="margin:8px 0 0">Ask the admin team to open the PayPal settings in the admin panel and add the PayPal API credentials first.</p>
+                    </div>
                 @endif
+            </section>
 
-                <div class="form-group">
-                    <label class="form-label" for="method_type">Billing method</label>
-                    <select class="select" id="method_type" name="method_type" required>
-                        @foreach (['PayPal', 'Visa', 'Mastercard'] as $methodType)
-                            <option value="{{ $methodType }}" @selected(old('method_type') === $methodType)>{{ $methodType }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <section class="project-card">
+                <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 16px">Add manual card method</h3>
+                <form method="post" action="{{ route('workspace.billing-method.store') }}">
+                    @csrf
+                    @if ($offer)
+                        <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+                    @endif
 
-                <div class="form-group">
-                    <label class="form-label" for="label">Label</label>
-                    <input class="input" id="label" name="label" type="text" value="{{ old('label') }}" placeholder="PayPal email or card label" required />
-                </div>
+                    <div class="form-group">
+                        <label class="form-label" for="method_type">Billing method</label>
+                        <select class="select" id="method_type" name="method_type" required>
+                            @foreach (['Visa', 'Mastercard'] as $methodType)
+                                <option value="{{ $methodType }}" @selected(old('method_type') === $methodType)>{{ $methodType }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="last_four">Last 4 digits <span class="muted small">(cards only)</span></label>
-                    <input class="input" id="last_four" name="last_four" type="text" maxlength="4" value="{{ old('last_four') }}" placeholder="4242" />
-                </div>
+                    <div class="form-group">
+                        <label class="form-label" for="label">Label</label>
+                        <input class="input" id="label" name="label" type="text" value="{{ old('label') }}" placeholder="Company card" required />
+                    </div>
 
-                <label class="checkbox-line">
-                    <input name="set_default" type="checkbox" value="1" {{ old('set_default', true) ? 'checked' : '' }} />
-                    <span><strong>Make this the primary billing method</strong><br /><span class="muted">Primary billing is used first for new offers and billing checks.</span></span>
-                </label>
+                    <div class="form-group">
+                        <label class="form-label" for="last_four">Last 4 digits</label>
+                        <input class="input" id="last_four" name="last_four" type="text" maxlength="4" value="{{ old('last_four') }}" placeholder="4242" required />
+                    </div>
 
-                <div class="form-actions">
-                    <a class="link-button" href="{{ $offer ? route('workspace.project-pending') : route('workspace.settings') }}">‹ Back</a>
-                    <button class="button button-primary" type="submit">{{ $offer ? 'Save and continue' : 'Add billing method' }}</button>
-                </div>
-            </form>
-        </section>
+                    <label class="checkbox-line">
+                        <input name="set_default" type="checkbox" value="1" {{ old('set_default', true) ? 'checked' : '' }} />
+                        <span><strong>Make this the primary billing method</strong><br /><span class="muted">Primary billing is used first for new offers and billing checks.</span></span>
+                    </label>
+
+                    <div class="form-actions">
+                        <a class="link-button" href="{{ $offer ? route('workspace.project-pending') : route('workspace.settings') }}">‹ Back</a>
+                        <button class="button button-primary" type="submit">{{ $offer ? 'Save and continue' : 'Add billing method' }}</button>
+                    </div>
+                </form>
+            </section>
+        </div>
     </div>
 </div>
 @endsection

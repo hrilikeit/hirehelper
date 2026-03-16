@@ -8,7 +8,9 @@ use App\Models\ClientInvoiceDetail;
 use App\Models\ClientProject;
 use App\Models\Freelancer;
 use App\Models\ProjectOffer;
+use App\Models\PaypalSetting;
 use App\Models\User;
+use App\Services\PayPalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -203,6 +205,7 @@ class WorkspaceController extends Controller
             'offer' => $offer,
             'billingMethods' => $user->billingMethods()->orderByDesc('is_default')->latest()->get(),
             'defaultBillingMethod' => $user->defaultBillingMethod,
+            'paypalConfigured' => PaypalSetting::active()?->isConfigured() ?? false,
         ]);
     }
 
@@ -212,14 +215,13 @@ class WorkspaceController extends Controller
 
         $data = $request->validate([
             'offer_id' => ['nullable', 'integer'],
-            'method_type' => ['required', Rule::in(['PayPal', 'Visa', 'Mastercard'])],
+            'method_type' => ['required', Rule::in(['Visa', 'Mastercard'])],
             'label' => ['required', 'string', 'max:255'],
             'last_four' => [
-                'nullable',
+                'required',
                 'string',
                 'max:4',
                 'regex:/^[0-9]{4}$/',
-                Rule::requiredIf(fn (): bool => $request->input('method_type') !== 'PayPal'),
             ],
             'set_default' => ['nullable', 'boolean'],
         ]);
@@ -248,8 +250,10 @@ class WorkspaceController extends Controller
             $billing = $user->billingMethods()->create([
                 'method_type' => $data['method_type'],
                 'label' => $data['label'],
-                'last_four' => $data['method_type'] === 'PayPal' ? null : $data['last_four'],
+                'last_four' => $data['last_four'],
                 'is_default' => $setDefault,
+                'provider' => 'manual',
+                'verified_at' => now(),
             ]);
 
             if ($offer) {
@@ -316,7 +320,7 @@ class WorkspaceController extends Controller
             ->with('success', 'Primary billing method updated.');
     }
 
-    public function destroyBillingMethod(Request $request)
+    public function destroyBillingMethod(Request $request, PayPalService $payPalService)
     {
         $user = $request->user();
 
@@ -331,6 +335,16 @@ class WorkspaceController extends Controller
             return redirect()
                 ->route('workspace.billing-method')
                 ->with('info', 'That billing method could not be found.');
+        }
+
+        if ($billingMethod->provider === 'paypal' && filled($billingMethod->provider_payment_token_id) && $payPalService->isConfigured()) {
+            try {
+                $payPalService->deletePaymentToken((string) $billingMethod->provider_payment_token_id);
+            } catch (\Throwable $exception) {
+                return redirect()
+                    ->route('workspace.billing-method', array_filter(['offer' => $data['offer_id'] ?? null]))
+                    ->with('info', 'The PayPal billing method could not be removed from PayPal. Please try again.');
+            }
         }
 
         $deletedLabel = $billingMethod->display_label;

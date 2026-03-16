@@ -899,3 +899,22 @@ button,input,select,textarea{font:inherit}
     border-radius:0 0 16px 16px;
   }
 }
+
+/* paypal billing integration */
+.billing-stack{
+  display:grid;
+  gap:24px;
+}
+.paypal-connect-card{
+  background:linear-gradient(180deg,#fbfcff 0%,#f6f8ff 100%);
+}
+.paypal-title-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+.paypal-title-row .badge{
+  white-space:nowrap;
+}

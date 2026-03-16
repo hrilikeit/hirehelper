@@ -15,6 +15,14 @@ class ClientBillingMethod extends Model
         'label',
         'last_four',
         'is_default',
+        'provider',
+        'provider_customer_id',
+        'provider_payer_id',
+        'provider_email',
+        'provider_setup_token_id',
+        'provider_payment_token_id',
+        'provider_payload',
+        'verified_at',
     ];
 
     protected $appends = [
@@ -25,6 +33,8 @@ class ClientBillingMethod extends Model
     {
         return [
             'is_default' => 'boolean',
+            'provider_payload' => 'array',
+            'verified_at' => 'datetime',
         ];
     }
 
@@ -36,8 +46,10 @@ class ClientBillingMethod extends Model
     public function getDisplayLabelAttribute(): string
     {
         if ($this->method_type === 'PayPal') {
-            return filled($this->label)
-                ? 'PayPal · ' . $this->label
+            $label = $this->provider_email ?: $this->label;
+
+            return filled($label)
+                ? 'PayPal · ' . $label
                 : 'PayPal';
         }
 
