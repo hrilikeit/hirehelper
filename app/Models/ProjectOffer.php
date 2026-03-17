@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ProjectOffer extends Model
 {
@@ -81,15 +82,31 @@ class ProjectOffer extends Model
 
     public function getFreelancerDisplayNameAttribute(): string
     {
-        return $this->freelancer_email
-            ?: $this->freelancer?->contact_email
-            ?: $this->freelancer?->name
-            ?: 'Freelancer';
+        if (filled($this->freelancer?->name)) {
+            return (string) $this->freelancer->name;
+        }
+
+        if (filled($this->freelancer_email)) {
+            $localPart = Str::before((string) $this->freelancer_email, '@');
+            $localPart = str_replace(['.', '_', '-'], ' ', $localPart);
+            $derivedName = trim(Str::headline($localPart));
+
+            if ($derivedName !== '') {
+                return $derivedName;
+            }
+        }
+
+        return 'Freelancer';
+    }
+
+    public function getFreelancerDisplayTitleAttribute(): string
+    {
+        return (string) ($this->freelancer?->title ?: $this->role ?: 'Freelancer profile');
     }
 
     public function getFreelancerDisplayLocationAttribute(): string
     {
-        return $this->freelancer?->display_location ?: 'Email invite';
+        return (string) ($this->freelancer?->display_location ?: 'Available remotely');
     }
 
     public function getFreelancerDisplayAvatarUrlAttribute(): string

@@ -918,3 +918,67 @@ button,input,select,textarea{font:inherit}
 .paypal-title-row .badge{
   white-space:nowrap;
 }
+
+
+/* final patch: footer payments, billing chooser, compact freelancer presentation */
+.footer-minimal-rich{display:flex;align-items:flex-start;justify-content:center;gap:16px}
+.footer-minimal-copy{display:grid;gap:6px}
+.footer-minimal .footer-payment-badges{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+.footer-minimal .payment-badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(132,149,255,.22);background:#fff;color:#2c3150;font-size:12px;font-weight:800;letter-spacing:.01em}
+.footer-minimal .payment-badge-paypal{color:#3b67ff}
+.footer-minimal .payment-badge-visa{font-style:italic;letter-spacing:.06em}
+.footer-minimal .payment-badge-mastercard .mc-dots{display:inline-flex;align-items:center}
+.footer-minimal .payment-badge-mastercard .mc-dots span{display:block;width:.85rem;height:.85rem;border-radius:50%}
+.footer-minimal .payment-badge-mastercard .mc-dots span:first-child{background:#ff5f00;margin-right:-.28rem;opacity:.92}
+.footer-minimal .payment-badge-mastercard .mc-dots span:last-child{background:#eb001b;mix-blend-mode:multiply;opacity:.92}
+.side-profile img{object-fit:cover;object-position:center top}
+.selected-freelancer-avatar{width:52px;height:52px;flex-basis:52px}
+.selected-freelancer-card-compact{padding:14px 16px}
+.compact-offer-shell{max-width:680px;grid-template-columns:180px minmax(260px, 430px);gap:12px 14px}
+.compact-inline-rate{grid-template-columns:96px 78px}
+.compact-inline-limit{grid-template-columns:74px 106px minmax(140px, 1fr)}
+.compact-inline-input,.compact-inline-addon,.compact-inline-total{min-height:44px;font-size:14px}
+.compact-help{margin:8px 0 0;max-width:640px}
+.billing-choice-card{max-width:920px;margin:0 auto;padding:36px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:36px;box-shadow:var(--shadow)}
+.billing-choice-header{text-align:center;max-width:760px;margin:0 auto 28px}
+.billing-choice-header h1{margin:0;font-size:56px;line-height:1.02;letter-spacing:-.05em}
+.billing-choice-header p{margin:14px auto 0;color:var(--muted);line-height:1.65;max-width:58ch}
+.billing-choice-form{display:grid;gap:18px}
+.billing-choice-option{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:24px 22px;border:1px solid var(--line);border-radius:28px;background:#fff;cursor:pointer;transition:border-color .18s ease, box-shadow .18s ease, background .18s ease}
+.billing-choice-option:hover{border-color:#bacdff;box-shadow:0 18px 30px rgba(91,97,246,.08)}
+.billing-choice-option input{position:absolute;opacity:0;pointer-events:none}
+.billing-choice-indicator{width:34px;height:34px;border-radius:50%;border:2px solid #c8d4ee;background:#fff;display:block;box-shadow:inset 0 0 0 8px #fff;transition:border-color .18s ease, box-shadow .18s ease, background .18s ease}
+.billing-choice-option input:checked + .billing-choice-indicator{border-color:#4b4ff5;background:#4b4ff5;box-shadow:inset 0 0 0 8px #fff}
+.billing-choice-option:has(input:checked){border-color:#7f8fff;background:#f7f9ff;box-shadow:0 20px 34px rgba(91,97,246,.10)}
+.billing-choice-copy strong{display:block;font-size:28px;line-height:1.08;letter-spacing:-.04em}
+.billing-choice-copy span{display:block;margin-top:10px;color:#4f5973;font-size:19px;line-height:1.35;max-width:46ch}
+.billing-choice-brand{display:inline-flex;align-items:center;justify-content:center;min-width:116px;min-height:54px;padding:0 18px;border-radius:18px;border:1px solid #d8e2fb;background:#f7f9ff;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.billing-choice-brand-paypal{color:#2456d8}
+.billing-choice-brand-card{color:#4b4ff5}
+.billing-choice-actions{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:10px}
+.billing-choice-action-buttons{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.billing-saved-card{margin-top:24px}
+@media (max-width: 920px){
+  .billing-choice-card{padding:26px 18px}
+  .billing-choice-header h1{font-size:42px}
+  .billing-choice-option{grid-template-columns:auto 1fr;align-items:flex-start}
+  .billing-choice-brand{grid-column:2;justify-self:start}
+}
+@media (max-width: 760px){
+  .footer-minimal-rich{flex-direction:column;align-items:center;text-align:center}
+  .footer-minimal .footer-payment-badges{justify-content:center}
+  .billing-choice-copy strong{font-size:24px}
+  .billing-choice-copy span{font-size:17px}
+  .billing-choice-actions{flex-direction:column;align-items:stretch}
+  .billing-choice-action-buttons{justify-content:stretch}
+  .billing-choice-action-buttons .button{width:100%}
+}
+
+
+.billing-choice-disabled{opacity:.58;cursor:not-allowed}
+.billing-choice-disabled .billing-choice-brand{opacity:.78}
+.billing-manual-step{max-width:920px;margin:24px auto 0;padding:26px 28px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+.billing-saved-methods{max-width:920px;margin-left:auto;margin-right:auto}
+@media (max-width: 720px){
+  .billing-manual-step{padding:20px 16px}
+}

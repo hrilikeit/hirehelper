@@ -980,6 +980,15 @@ select:focus{
 .site-footer a{color:rgba(255,255,255,.78)}
 .site-footer a:hover{color:#fff}.footer-brand p{max-width:28rem;color:rgba(255,255,255,.72)}
 .footer-closing{margin-top:1rem;font-weight:700;color:#fff!important}
+.footer-payment-badges{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.4rem}
+.payment-badge{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.5rem;padding:0 1rem;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;font-weight:800;letter-spacing:.01em}
+.payment-badge-visa{font-style:italic;letter-spacing:.08em}
+.payment-badge-mastercard .mc-dots{display:inline-flex;align-items:center}
+.payment-badge-mastercard .mc-dots span{display:block;width:1rem;height:1rem;border-radius:50%}
+.payment-badge-mastercard .mc-dots span:first-child{background:#ff5f00;margin-right:-.35rem;opacity:.92}
+.payment-badge-mastercard .mc-dots span:last-child{background:#eb001b;mix-blend-mode:screen;opacity:.92}
+.payment-badge-apple{font-weight:700;letter-spacing:0}
+.payment-badge-paypal{color:#9fc6ff}
 .site-footer h3{
   margin:.15rem 0 1rem;
   font-size:.95rem;

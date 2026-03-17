@@ -99,9 +99,6 @@
                                 <span>{{ $selectedFreelancer->title ?: 'Freelancer profile' }}</span>
                                 <div class="selected-freelancer-meta-row">
                                     <span class="badge">Selected from Hire Now</span>
-                                    @if (filled($freelancerEmailValue))
-                                        <span class="selected-freelancer-email">{{ $freelancerEmailValue }}</span>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -115,7 +112,7 @@
                     <input type="hidden" name="freelancer_email" value="{{ $freelancerEmailValue }}" />
                 @else
                     <div class="form-group">
-                        <label class="form-label" for="freelancer_email">Freelancer email</label>
+                        <label class="form-label" for="freelancer_email">Freelancer contact email</label>
                         <input
                             class="input"
                             id="freelancer_email"
@@ -181,8 +178,8 @@
                     <strong>{{ old('specialty', $project->specialty ?: 'Not set yet') }}</strong>
                 </div>
                 <div class="mini-row">
-                    <span class="mini-label">Freelancer email</span>
-                    <strong>{{ $freelancerEmailValue ?: 'Add freelancer email in the form' }}</strong>
+                    <span class="mini-label">Freelancer</span>
+                    <strong>{{ $selectedFreelancer?->name ?: ($offer?->freelancer_display_name ?? 'Invite freelancer in the form') }}</strong>
                 </div>
                 <div class="mini-row">
                     <span class="mini-label">Offer summary</span>
@@ -211,7 +208,7 @@
             @else
                 <div class="note-panel">
                     <strong>No freelancer selected yet.</strong>
-                    <p class="muted small" style="margin:10px 0 0">Paste the freelancer email in the form, or open a public freelancer profile and click Hire Now to preselect a profile here.</p>
+                    <p class="muted small" style="margin:10px 0 0">Select a public freelancer profile with Hire Now, or invite a freelancer directly in the form.</p>
                 </div>
 
                 @if ($freelancers->isNotEmpty())

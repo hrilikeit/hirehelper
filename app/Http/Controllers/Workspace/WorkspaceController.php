@@ -456,10 +456,19 @@ class WorkspaceController extends Controller
                 ->with('info', 'We could not find that offer.');
         }
 
-        DB::transaction(function () use ($offer) {
+        $billingMethod = $offer->billing_method ?: $user->defaultBillingMethod?->display_label;
+
+        if (! filled($billingMethod)) {
+            return redirect()
+                ->route('workspace.billing-method', ['offer' => $offer->id])
+                ->with('info', 'Add billing before activating the contract.');
+        }
+
+        DB::transaction(function () use ($offer, $billingMethod) {
             $offer->update([
                 'status' => 'active',
                 'activated_at' => now(),
+                'billing_method' => $billingMethod,
             ]);
 
             $offer->project->update([
@@ -506,10 +515,13 @@ class WorkspaceController extends Controller
             return redirect()->route('workspace.project-pending');
         }
 
+        $billingMethod = $offer->billing_method ?: $request->user()->defaultBillingMethod?->display_label;
+
         return view('workspace.app.project-active', [
             'offer' => $offer,
             'project' => $offer->project,
-            'billingMethod' => $offer->billing_method ?: $request->user()->defaultBillingMethod?->display_label,
+            'billingMethod' => $billingMethod,
+            'billingVerified' => filled($billingMethod),
         ]);
     }
 

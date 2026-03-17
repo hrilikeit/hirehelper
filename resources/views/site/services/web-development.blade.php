@@ -140,33 +140,7 @@
     
     </main>
     
-    <footer class="site-footer">
-      <div class="container footer-grid">
-        <div class="footer-brand">
-          <a class="brand brand-footer" href="../index.html" aria-label="HireHelper.ai home">
-            <img src="../assets/img/logo-footer.svg" alt="HireHelper.ai" class="brand-logo" />
-          </a>
-          <p>HireHelper.ai helps companies hire specialized freelance developers and designers, structure delivery, and keep communication and payments organized in one place.</p>
-          <p class="footer-closing">Built for teams that want clarity from the first brief to the final handoff.</p>
-        </div>
-        <div>
-          <h3>Company</h3>
-          <ul><li><a href="../how-it-works.html">How It Works</a></li><li><a href="../our-priorities.html">Our Priorities</a></li><li><a href="../contact.html">Contact</a></li><li><a href="../help/index.html">Help Center</a></li><li><a href="../terms.html">Terms and Conditions</a></li><li><a href="../privacy.html">Privacy Policy</a></li><li><a href="../sitemap.html">Sitemap</a></li></ul>
-        </div>
-        <div>
-          <h3>Categories</h3>
-          <ul><li><a href="../services/web-development.html">Web Development</a></li><li><a href="../services/mobile-development.html">Mobile Development</a></li><li><a href="../services/ecommerce.html">E-Commerce</a></li><li><a href="../services/ui-ux-design.html">UI/UX Design</a></li></ul>
-        </div>
-        <div>
-          <h3>Guidance</h3>
-          <ul><li><a href="../help/getting-started-as-a-client.html">Getting Started as a Client</a></li><li><a href="../help/how-to-write-a-strong-project-brief.html">How to Write a Strong Project Brief</a></li><li><a href="../help/how-to-review-fit-and-compare-specialists.html">How to Review Fit and Compare Specialists</a></li><li><a href="../help/making-an-offer-and-starting-work.html">Making an Offer and Starting Work</a></li><li><a href="/client/register">Start Hiring</a></li></ul>
-        </div>
-      </div>
-      <div class="container footer-meta">
-        <span>HireHelper.ai</span>
-        <span>&copy; <span data-current-year></span> HireHelper.ai</span>
-      </div>
-    </footer>
+    @include('site.partials.footer')
     
   </div>
   <div class="toast" data-toast data-flash-toast="{{ session('success') }}" aria-live="polite" aria-atomic="true"></div>

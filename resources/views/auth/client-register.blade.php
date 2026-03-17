@@ -16,7 +16,7 @@
         <div class="wizard-header">
             <img src="{{ asset('workspace-assets/img/logo.svg') }}" alt="HireHelper.ai" />
             <h1 class="wizard-title" style="font-size:42px">Create your client account</h1>
-            <p class="wizard-subtitle">Register once, then post projects, add the freelancer email, and send an offer from one combined client page.</p>
+            <p class="wizard-subtitle">Register once, then post projects, choose the freelancer, and send an offer from one combined client page.</p>
         </div>
 
         <form method="post" action="/client/register">

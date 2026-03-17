@@ -41,18 +41,22 @@
             <div class="separator"></div>
             <div class="inline-actions">
                 <a class="button button-secondary" href="{{ route('workspace.hire-flow', array_filter(['project' => $project->id, 'freelancer' => $offer->freelancer_id])) }}">Modify brief + offer</a>
-                <form method="post" action="{{ route('workspace.project.activate') }}">
-                    @csrf
-                    <input type="hidden" name="offer_id" value="{{ $offer->id }}">
-                    <button class="button button-primary" type="submit">Open active contract</button>
-                </form>
+                @if ($billingVerified)
+                    <form method="post" action="{{ route('workspace.project.activate') }}">
+                        @csrf
+                        <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+                        <button class="button button-primary" type="submit">Open active contract</button>
+                    </form>
+                @else
+                    <a class="button button-primary" href="{{ route('workspace.billing-method', ['offer' => $offer->id]) }}">Add billing first</a>
+                @endif
             </div>
         </section>
 
         <aside class="sidebar-card side-profile">
             <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
             <h3>{{ $offer->freelancer_display_name }}</h3>
-            <div class="place">{{ $offer->freelancer_display_location }}</div>
+            <div class="place">{{ $offer->freelancer_display_title }}</div>
             <a class="cta-link" href="{{ route('workspace.messages') }}">Send a message</a>
             <div class="status-block">
                 <div>Offer date: <strong>{{ optional($offer->sent_at)->format('M j, Y') ?: now()->format('M j, Y') }}</strong></div>

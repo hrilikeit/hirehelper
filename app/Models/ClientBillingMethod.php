@@ -46,11 +46,7 @@ class ClientBillingMethod extends Model
     public function getDisplayLabelAttribute(): string
     {
         if ($this->method_type === 'PayPal') {
-            $label = $this->provider_email ?: $this->label;
-
-            return filled($label)
-                ? 'PayPal · ' . $label
-                : 'PayPal';
+            return 'PayPal';
         }
 
         if (filled($this->last_four)) {

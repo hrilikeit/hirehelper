@@ -6,7 +6,7 @@
         <div>
             <span class="badge"><span class="dot"></span> Client workspace</span>
             <h1>Client workspace with a streamlined project setup flow.</h1>
-            <p>This workspace now runs inside Laravel. Clients can register, sign in, save project briefs, send offers to freelancers by email, and manage everything from one dashboard.</p>
+            <p>This workspace now runs inside Laravel. Clients can register, sign in, save project briefs, send offers, add billing, and manage everything from one dashboard.</p>
         </div>
     </div>
 
@@ -54,7 +54,7 @@
                     ['title' => 'Registration', 'text' => 'Create the client account that unlocks the workspace.', 'url' => '/client/register'],
                     ['title' => 'Dashboard', 'text' => 'See project drafts, live offers, and active work.', 'url' => auth()->check() ? route('workspace.dashboard') : '/client/login'],
                     ['title' => 'Project setup', 'text' => 'Write and save the project brief on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : '/client/login'],
-                    ['title' => 'Project + offer', 'text' => 'Fill the brief, freelancer email, rate, and weekly limit on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : '/client/register'],
+                    ['title' => 'Project + offer', 'text' => 'Fill the brief, choose the freelancer, and set the rate and weekly limit on one page.', 'url' => auth()->check() ? route('workspace.hire-flow') : '/client/register'],
                     ['title' => 'Billing setup', 'text' => 'Add billing methods and set a primary option.', 'url' => auth()->check() ? route('workspace.billing-method') : '/client/login'],
                     ['title' => 'Invoice details', 'text' => 'Save company, VAT, and billing address details.', 'url' => auth()->check() ? route('workspace.invoice-details') : '/client/login'],
                 ];
@@ -76,7 +76,7 @@
         <div class="page-heading">
             <div>
                 <h2>Featured freelancers</h2>
-                <p>Freelancer personas added by the admin team can appear here. The offer page can still work with email-only invites even if this list is empty.</p>
+                <p>Freelancer personas added by the admin team can appear here. The offer page can still work with direct freelancer invites even if this list is empty.</p>
             </div>
         </div>
 

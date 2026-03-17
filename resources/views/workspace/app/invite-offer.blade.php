@@ -14,7 +14,7 @@
         <div class="wizard-header" style="margin-bottom:8px">
             <img alt="HireHelper.ai" src="{{ asset('workspace-assets/img/logo.svg') }}" />
             <h1 class="wizard-title" style="font-size:42px">Create an offer</h1>
-            <p class="wizard-subtitle">Add the freelancer email, set the rate, and confirm the weekly limit before billing.</p>
+            <p class="wizard-subtitle">Add the freelancer, set the rate, and confirm the weekly limit before billing.</p>
         </div>
 
         <form method="post" action="{{ route('workspace.invite-offer.store') }}" data-invite-form>
@@ -22,7 +22,7 @@
             <input type="hidden" name="project_id" value="{{ $project->id }}" />
 
             <div class="form-group">
-                <label class="form-label" for="freelancer_email">Freelancer email</label>
+                <label class="form-label" for="freelancer_email">Freelancer contact email</label>
                 <input
                     class="input"
                     id="freelancer_email"

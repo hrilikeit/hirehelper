@@ -4,10 +4,12 @@
 <div class="container">
     @include('workspace.partials.flash')
 
-    <div class="notice-banner" data-dismissible-notice>
-        <div style="display:flex;align-items:center;gap:12px"><span class="notice-icon">⚠</span><span><strong>Critical notice:</strong> billing should be verified to keep contract payments running smoothly.</span></div>
-        <div style="display:flex;align-items:center;gap:18px"><a href="{{ route('workspace.billing-method', ['offer' => $offer->id]) }}">Verify billing method</a><button class="link-button" type="button" data-dismiss-notice>Dismiss</button></div>
-    </div>
+    @if (! $billingVerified)
+        <div class="notice-banner" data-dismissible-notice>
+            <div style="display:flex;align-items:center;gap:12px"><span class="notice-icon">⚠</span><span><strong>Critical notice:</strong> billing should be verified to keep contract payments running smoothly.</span></div>
+            <div style="display:flex;align-items:center;gap:18px"><a href="{{ route('workspace.billing-method', ['offer' => $offer->id]) }}">Verify billing method</a><button class="link-button" type="button" data-dismiss-notice>Dismiss</button></div>
+        </div>
+    @endif
 
     <div class="breadcrumbs">
         <a href="{{ route('workspace.dashboard-live') }}">Dashboard</a><span>›</span><span>Project</span>
@@ -59,7 +61,7 @@
         <aside class="sidebar-card side-profile">
             <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
             <h3>{{ $offer->freelancer_display_name }}</h3>
-            <div class="place">{{ $offer->freelancer_display_location }}</div>
+            <div class="place">{{ $offer->freelancer_display_title }}</div>
             <a class="cta-link" href="{{ route('workspace.messages') }}">Send a message</a>
             <div class="status-block">
                 <div>Start date: <strong>{{ optional($offer->activated_at)->format('M j, Y') ?: now()->format('M j, Y') }}</strong></div>

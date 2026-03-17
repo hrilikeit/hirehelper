@@ -1,6 +1,12 @@
 @extends('workspace.layouts.base', ['activeNav' => 'projects'])
 
 @section('content')
+@php
+    $mode = request()->query('mode');
+    $cardStep = $mode === 'card';
+    $backUrl = $offer ? route('workspace.project-pending') : route('workspace.dashboard');
+    $skipUrl = $offer ? route('workspace.project-pending') : route('workspace.dashboard');
+@endphp
 <div class="container">
     <div class="breadcrumbs">
         <a href="{{ route('workspace.index') }}">Workspace home</a><span>›</span>
@@ -12,24 +18,108 @@
 
     @include('workspace.partials.flash')
 
-    <div class="grid-2">
-        <section class="project-card">
-            <div class="page-heading" style="margin-bottom:18px">
-                <div>
-                    <h1 style="font-size:38px">Billing methods</h1>
-                    <p>Save a real PayPal billing method or add a manual Visa / Mastercard fallback. Set one as primary or remove it any time.</p>
-                </div>
+    @if (! $cardStep)
+        <section class="billing-choice-card">
+            <div class="billing-choice-header">
+                <h1>Add Billing Method</h1>
+                <p>Choose how you want to add billing for this offer. You can continue with PayPal now, or open the manual card step. You can also skip this step and come back later.</p>
             </div>
 
             @if ($offer)
-                <div class="chat-card" style="background:#f8fbff;border-style:dashed;margin-bottom:18px">
+                <div class="note-panel" style="margin:0 auto 22px;max-width:760px">
                     <strong>Current offer</strong>
-                    <p class="muted" style="margin:8px 0 0">This offer will use the billing method you save or set as primary here.</p>
+                    <p class="muted small" style="margin:8px 0 0">{{ $offer->project->title }} · {{ $offer->freelancer_display_name }}</p>
                 </div>
             @endif
 
+            <div class="billing-choice-form" data-billing-choice-shell>
+                <label class="billing-choice-option">
+                    <input checked name="billing_choice" type="radio" value="card" />
+                    <span class="billing-choice-indicator"></span>
+                    <span class="billing-choice-copy">
+                        <strong>Credit or Debit Card</strong>
+                        <span>In order to verify your card, we may make a temporary charge of $0.01. Card gateway will be finished in the next step, and for now you can use the manual card fallback.</span>
+                    </span>
+                    <span class="billing-choice-brand billing-choice-brand-card">Card</span>
+                </label>
+
+                <label class="billing-choice-option {{ $paypalConfigured ? '' : 'billing-choice-disabled' }}">
+                    <input name="billing_choice" type="radio" value="paypal" {{ $paypalConfigured ? '' : 'disabled' }} />
+                    <span class="billing-choice-indicator"></span>
+                    <span class="billing-choice-copy">
+                        <strong>PayPal</strong>
+                        <span>{{ $paypalConfigured ? 'Use the saved PayPal approval flow so the client connects PayPal securely.' : 'PayPal is not configured yet in the admin panel. Add the PayPal API credentials first.' }}</span>
+                    </span>
+                    <span class="billing-choice-brand billing-choice-brand-paypal">PayPal</span>
+                </label>
+            </div>
+
+            <div class="billing-choice-actions">
+                <a class="link-button" href="{{ $backUrl }}">‹ Back</a>
+                <div class="billing-choice-action-buttons">
+                    <a class="button button-secondary" href="{{ $skipUrl }}">Skip for now</a>
+                    <button class="button button-primary" type="button" data-billing-choice-submit>Add</button>
+                </div>
+            </div>
+
+            <form id="paypal-start-form" method="post" action="{{ route('workspace.billing-method.paypal.start') }}" style="display:none">
+                @csrf
+                @if ($offer)
+                    <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+                @endif
+            </form>
+        </section>
+    @else
+        <section class="billing-choice-card">
+            <div class="billing-choice-header">
+                <h1>Add Billing Method</h1>
+                <p>Enter the manual billing details now. Later you can replace this with the full card gateway or a PayPal billing method.</p>
+            </div>
+
+            <div class="billing-manual-step">
+                <form method="post" action="{{ route('workspace.billing-method.store') }}">
+                    @csrf
+                    @if ($offer)
+                        <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+                    @endif
+                    <input type="hidden" name="set_default" value="1">
+
+                    <div class="form-group">
+                        <label class="form-label" for="method_type">Card type</label>
+                        <select class="select" id="method_type" name="method_type" required>
+                            @foreach (['Visa', 'Mastercard'] as $methodType)
+                                <option value="{{ $methodType }}" @selected(old('method_type', 'Visa') === $methodType)>{{ $methodType }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="label">Card label</label>
+                        <input class="input" id="label" name="label" type="text" value="{{ old('label') }}" placeholder="Company card" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="last_four">Last 4 digits</label>
+                        <input class="input" id="last_four" name="last_four" type="text" maxlength="4" value="{{ old('last_four') }}" placeholder="4242" required />
+                    </div>
+
+                    <div class="form-actions">
+                        <a class="link-button" href="{{ route('workspace.billing-method', array_filter(['offer' => $offer?->id])) }}">‹ Back</a>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap">
+                            <a class="button button-secondary" href="{{ $skipUrl }}">Skip for now</a>
+                            <button class="button button-primary" type="submit">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    @endif
+
+    @if ($billingMethods->isNotEmpty())
+        <section class="project-card billing-saved-methods" style="margin-top:24px">
+            <h2 style="font-size:30px;letter-spacing:-.04em;margin:0 0 16px">Saved billing methods</h2>
             <div class="setting-list">
-                @forelse ($billingMethods as $method)
+                @foreach ($billingMethods as $method)
                     <div class="setting-row" style="align-items:flex-start">
                         <div>
                             <strong>{{ $method->display_label }}</strong>
@@ -66,78 +156,36 @@
                             </form>
                         </div>
                     </div>
-                @empty
-                    <p class="empty">No billing methods saved yet. Add the first one on the right.</p>
-                @endforelse
+                @endforeach
             </div>
         </section>
-
-        <div class="billing-stack">
-            <section class="project-card paypal-connect-card">
-                <div class="paypal-title-row">
-                    <div>
-                        <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 10px">Connect PayPal</h3>
-                        <p class="muted" style="margin:0">Use the saved PayPal approval flow so the client adds a real PayPal billing method instead of typing it manually.</p>
-                    </div>
-                    <span class="badge">PayPal</span>
-                </div>
-
-                @if ($paypalConfigured)
-                    <form method="post" action="{{ route('workspace.billing-method.paypal.start') }}">
-                        @csrf
-                        @if ($offer)
-                            <input type="hidden" name="offer_id" value="{{ $offer->id }}">
-                        @endif
-                        <button class="button button-primary" type="submit">Connect PayPal</button>
-                    </form>
-                    <p class="muted small" style="margin:14px 0 0">HireHelper will redirect to PayPal, ask the client to approve the billing agreement, then return here and save the PayPal billing token automatically.</p>
-                @else
-                    <div class="note-panel">
-                        <strong>PayPal is not configured yet.</strong>
-                        <p class="muted small" style="margin:8px 0 0">Ask the admin team to open the PayPal settings in the admin panel and add the PayPal API credentials first.</p>
-                    </div>
-                @endif
-            </section>
-
-            <section class="project-card">
-                <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 16px">Add manual card method</h3>
-                <form method="post" action="{{ route('workspace.billing-method.store') }}">
-                    @csrf
-                    @if ($offer)
-                        <input type="hidden" name="offer_id" value="{{ $offer->id }}">
-                    @endif
-
-                    <div class="form-group">
-                        <label class="form-label" for="method_type">Billing method</label>
-                        <select class="select" id="method_type" name="method_type" required>
-                            @foreach (['Visa', 'Mastercard'] as $methodType)
-                                <option value="{{ $methodType }}" @selected(old('method_type') === $methodType)>{{ $methodType }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="label">Label</label>
-                        <input class="input" id="label" name="label" type="text" value="{{ old('label') }}" placeholder="Company card" required />
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="last_four">Last 4 digits</label>
-                        <input class="input" id="last_four" name="last_four" type="text" maxlength="4" value="{{ old('last_four') }}" placeholder="4242" required />
-                    </div>
-
-                    <label class="checkbox-line">
-                        <input name="set_default" type="checkbox" value="1" {{ old('set_default', true) ? 'checked' : '' }} />
-                        <span><strong>Make this the primary billing method</strong><br /><span class="muted">Primary billing is used first for new offers and billing checks.</span></span>
-                    </label>
-
-                    <div class="form-actions">
-                        <a class="link-button" href="{{ $offer ? route('workspace.project-pending') : route('workspace.settings') }}">‹ Back</a>
-                        <button class="button button-primary" type="submit">{{ $offer ? 'Save and continue' : 'Add billing method' }}</button>
-                    </div>
-                </form>
-            </section>
-        </div>
-    </div>
+    @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const shell = document.querySelector('[data-billing-choice-shell]');
+        const button = document.querySelector('[data-billing-choice-submit]');
+        const paypalForm = document.getElementById('paypal-start-form');
+
+        if (!shell || !button) {
+            return;
+        }
+
+        button.addEventListener('click', function () {
+            const selected = shell.querySelector('input[name="billing_choice"]:checked');
+            const value = selected ? selected.value : 'card';
+            const base = @json(route('workspace.billing-method', array_filter(['offer' => $offer?->id])));
+
+            if (value === 'paypal') {
+                if (paypalForm) {
+                    paypalForm.submit();
+                }
+                return;
+            }
+
+            window.location.href = base + (base.includes('?') ? '&' : '?') + 'mode=card';
+        });
+    });
+</script>
 @endsection

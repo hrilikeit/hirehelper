@@ -92,7 +92,7 @@
                     <div class="separator"></div>
                 @endif
             @empty
-                <p class="empty">No freelancer personas added yet. You can still invite a freelancer by email from the combined project and offer page.</p>
+                <p class="empty">No freelancer personas added yet. You can still invite a freelancer from the combined project and offer page.</p>
             @endforelse
         </section>
 
@@ -126,40 +126,5 @@
             @endif
         </section>
     </div>
-
-    <div class="dashboard-grid">
-        <section class="panel">
-            <h3>Billing and invoicing</h3>
-            <hr />
-            <div class="project-row">
-                <div>
-                    <div class="project-title">Billing method</div>
-                    <div class="project-sub">{{ $billingMethod?->display_label ?: 'No primary billing method saved yet.' }}</div>
-                </div>
-                <a class="cta-link" href="{{ route('workspace.billing-method', array_filter(['offer' => $primaryOffer?->id])) }}">Manage</a>
-            </div>
-            <div class="separator"></div>
-            <div class="project-row">
-                <div>
-                    <div class="project-title">Invoice details</div>
-                    <div class="project-sub">{{ $invoiceDetail?->company_name ?: 'No invoice details saved yet.' }}</div>
-                </div>
-                <a class="cta-link" href="{{ route('workspace.invoice-details') }}">Open</a>
-            </div>
-            <div class="separator"></div>
-            <p class="muted small">Save company, VAT, billing email, and address details here before the contract goes live.</p>
-        </section>
-
-        <section class="panel">
-            <h3>Need next?</h3>
-            <hr />
-            <div class="inline-actions">
-                <a class="cta-link" href="{{ route('workspace.hire-flow', array_filter(['project' => $draftProject?->id, 'freelancer' => $primaryOffer?->freelancer_id])) }}">Open project + offer</a>
-                <a class="cta-link" href="{{ route('workspace.settings') }}">Open settings</a>
-                <a class="cta-link" href="{{ route('workspace.reports') }}">Open reports</a>
-            </div>
-        </section>
-    </div>
-
 </div>
 @endsection
