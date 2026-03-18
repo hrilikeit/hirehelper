@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\FreelancerProfileController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\HireRequestController;
+use App\Http\Controllers\Workspace\AcbaBillingController;
 use App\Http\Controllers\Workspace\PayPalBillingController;
 use App\Http\Controllers\Workspace\WorkspaceController;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +90,8 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
     Route::post('/billing-method.html', [WorkspaceController::class, 'storeBillingMethod'])->name('billing-method.store');
     Route::post('/billing-method/set-primary', [WorkspaceController::class, 'setPrimaryBillingMethod'])->name('billing-method.primary');
     Route::post('/billing-method/remove', [WorkspaceController::class, 'destroyBillingMethod'])->name('billing-method.destroy');
+    Route::post('/billing-method/acba/start', [AcbaBillingController::class, 'start'])->name('billing-method.acba.start');
+    Route::get('/billing-method/acba/return', [AcbaBillingController::class, 'handleReturn'])->name('billing-method.acba.return');
     Route::post('/billing-method/paypal/start', [PayPalBillingController::class, 'start'])->name('billing-method.paypal.start');
     Route::get('/billing-method/paypal/return', [PayPalBillingController::class, 'handleReturn'])->name('billing-method.paypal.return');
     Route::get('/billing-method/paypal/cancel', [PayPalBillingController::class, 'cancel'])->name('billing-method.paypal.cancel');

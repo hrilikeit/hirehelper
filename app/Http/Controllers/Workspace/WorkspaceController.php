@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Workspace;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcbaSetting;
 use App\Models\ClientBillingMethod;
 use App\Models\ClientInvoiceDetail;
 use App\Models\ClientProject;
@@ -205,6 +206,7 @@ class WorkspaceController extends Controller
             'offer' => $offer,
             'billingMethods' => $user->billingMethods()->orderByDesc('is_default')->latest()->get(),
             'defaultBillingMethod' => $user->defaultBillingMethod,
+            'acbaConfigured' => AcbaSetting::active()?->isConfigured() ?? false,
             'paypalConfigured' => PaypalSetting::active()?->isConfigured() ?? false,
         ]);
     }

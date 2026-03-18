@@ -45,8 +45,12 @@ class ClientBillingMethod extends Model
 
     public function getDisplayLabelAttribute(): string
     {
-        if ($this->method_type === 'PayPal') {
+        if ($this->provider === 'paypal' || $this->method_type === 'PayPal') {
             return 'PayPal';
+        }
+
+        if ($this->provider === 'acba_arca') {
+            return 'ACBA / ArCa card';
         }
 
         if (filled($this->last_four)) {
