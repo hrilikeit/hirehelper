@@ -33,16 +33,29 @@ class PaypalSetting extends Model
         ];
     }
 
+    /**
+     * Safe computed attribute for Filament tables / infolists.
+     * Using a real accessor avoids Eloquent trying to treat environmentLabel()
+     * as a relationship when the admin list page renders saved records.
+     */
+    public function getEnvironmentLabelAttribute(): string
+    {
+        return $this->is_live ? 'Live' : 'Sandbox';
+    }
+
+    /**
+     * Keep the old method for existing service calls.
+     */
+    public function environmentLabel(): string
+    {
+        return $this->environment_label;
+    }
+
     public function baseUrl(): string
     {
         return $this->is_live
             ? 'https://api-m.paypal.com'
             : 'https://api-m.sandbox.paypal.com';
-    }
-
-    public function environmentLabel(): string
-    {
-        return $this->is_live ? 'Live' : 'Sandbox';
     }
 
     public function isConfigured(): bool

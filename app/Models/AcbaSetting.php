@@ -36,9 +36,20 @@ class AcbaSetting extends Model
         ];
     }
 
-    public function environmentLabel(): string
+    /**
+     * Safe computed attribute for Filament table / infolist rendering.
+     */
+    public function getEnvironmentLabelAttribute(): string
     {
         return $this->is_live ? 'Live' : 'Test';
+    }
+
+    /**
+     * Keep the old method for existing service calls.
+     */
+    public function environmentLabel(): string
+    {
+        return $this->environment_label;
     }
 
     public function baseUrl(): string

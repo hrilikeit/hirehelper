@@ -47,6 +47,8 @@ class PayPalBillingController extends Controller
                 $offer,
             );
         } catch (\Throwable $exception) {
+            report($exception);
+
             return redirect()
                 ->route('workspace.billing-method', array_filter(['offer' => $offer?->id]))
                 ->with('info', 'PayPal could not start the approval flow. Please check the admin PayPal credentials and try again.');
@@ -82,6 +84,7 @@ class PayPalBillingController extends Controller
         try {
             $tokenData = $payPalService->createPaymentToken((string) $context['setup_token_id']);
         } catch (\Throwable $exception) {
+            report($exception);
             session()->forget('paypal_billing_setup');
 
             return redirect()
@@ -89,40 +92,49 @@ class PayPalBillingController extends Controller
                 ->with('info', 'PayPal returned to HireHelper but the billing method could not be saved. Please try again.');
         }
 
-        $billing = null;
+        try {
+            $billing = null;
 
-        DB::transaction(function () use ($user, $offer, $tokenData, $context, &$billing) {
-            $user->billingMethods()->update(['is_default' => false]);
+            DB::transaction(function () use ($user, $offer, $tokenData, $context, &$billing) {
+                $user->billingMethods()->update(['is_default' => false]);
 
-            $billing = ClientBillingMethod::query()->updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'provider' => 'paypal',
-                    'provider_payment_token_id' => data_get($tokenData, 'id'),
-                ],
-                [
-                    'method_type' => 'PayPal',
-                    'label' => data_get($tokenData, 'payment_source.paypal.email_address'),
-                    'last_four' => null,
-                    'is_default' => true,
-                    'provider' => 'paypal',
-                    'provider_customer_id' => data_get($tokenData, 'customer.id'),
-                    'provider_payer_id' => data_get($tokenData, 'payment_source.paypal.payer_id'),
-                    'provider_email' => data_get($tokenData, 'payment_source.paypal.email_address'),
-                    'provider_setup_token_id' => $context['setup_token_id'],
-                    'provider_payment_token_id' => data_get($tokenData, 'id'),
-                    'provider_payload' => $tokenData,
-                    'verified_at' => now(),
-                ],
-            );
+                $billing = ClientBillingMethod::query()->updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'provider' => 'paypal',
+                        'provider_payment_token_id' => data_get($tokenData, 'id'),
+                    ],
+                    [
+                        'method_type' => 'PayPal',
+                        'label' => data_get($tokenData, 'payment_source.paypal.email_address'),
+                        'last_four' => null,
+                        'is_default' => true,
+                        'provider' => 'paypal',
+                        'provider_customer_id' => data_get($tokenData, 'customer.id'),
+                        'provider_payer_id' => data_get($tokenData, 'payment_source.paypal.payer_id'),
+                        'provider_email' => data_get($tokenData, 'payment_source.paypal.email_address'),
+                        'provider_setup_token_id' => $context['setup_token_id'],
+                        'provider_payment_token_id' => data_get($tokenData, 'id'),
+                        'provider_payload' => $tokenData,
+                        'verified_at' => now(),
+                    ],
+                );
 
-            if ($offer) {
-                $offer->update([
-                    'billing_method' => $billing->display_label,
-                    'status' => 'pending',
-                ]);
-            }
-        });
+                if ($offer) {
+                    $offer->update([
+                        'billing_method' => $billing->display_label,
+                        'status' => 'pending',
+                    ]);
+                }
+            });
+        } catch (\Throwable $exception) {
+            report($exception);
+            session()->forget('paypal_billing_setup');
+
+            return redirect()
+                ->route('workspace.billing-method', array_filter(['offer' => $offer?->id]))
+                ->with('info', 'PayPal returned successfully, but HireHelper could not save the billing method. Run the latest database migrations on the server, then try again.');
+        }
 
         session()->forget('paypal_billing_setup');
 

@@ -7,13 +7,13 @@ use App\Filament\Resources\PaypalSettingResource\Pages\EditPaypalSetting;
 use App\Filament\Resources\PaypalSettingResource\Pages\ListPaypalSettings;
 use App\Models\PaypalSetting;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -101,7 +101,7 @@ class PaypalSettingResource extends Resource
             Section::make('PayPal configuration')
                 ->schema([
                     TextEntry::make('name'),
-                    TextEntry::make('environmentLabel')->label('Environment'),
+                    TextEntry::make('environment_label')->label('Environment'),
                     TextEntry::make('is_active')->label('Active')->badge(),
                     TextEntry::make('api_username')->label('API Username')->placeholder('—'),
                     TextEntry::make('client_id')->label('Client ID')->placeholder('—'),
@@ -116,7 +116,7 @@ class PaypalSettingResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('environmentLabel')->label('Environment')->sortable(),
+                TextColumn::make('environment_label')->label('Environment'),
                 IconColumn::make('is_active')->label('Active')->boolean(),
                 TextColumn::make('updated_at')->label('Updated')->since()->sortable(),
             ])

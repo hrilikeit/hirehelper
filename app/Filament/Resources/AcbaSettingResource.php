@@ -7,6 +7,7 @@ use App\Filament\Resources\AcbaSettingResource\Pages\EditAcbaSetting;
 use App\Filament\Resources\AcbaSettingResource\Pages\ListAcbaSettings;
 use App\Models\AcbaSetting;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -14,7 +15,6 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -125,7 +125,7 @@ class AcbaSettingResource extends Resource
             Section::make('ACBA / ArCa configuration')
                 ->schema([
                     TextEntry::make('name'),
-                    TextEntry::make('environmentLabel')->label('Environment'),
+                    TextEntry::make('environment_label')->label('Environment'),
                     TextEntry::make('is_active')->label('Active')->badge(),
                     TextEntry::make('test_username')->label('Test username')->placeholder('—'),
                     TextEntry::make('live_username')->label('Live username')->placeholder('—'),
@@ -141,9 +141,11 @@ class AcbaSettingResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('environmentLabel')->label('Environment')->sortable(),
+                TextColumn::make('environment_label')->label('Environment'),
                 IconColumn::make('is_active')->label('Active')->boolean(),
-                TextColumn::make('verification_amount')->label('Verification')->formatStateUsing(fn ($state, $record) => number_format((float) $state, 2) . ' ' . $record->verification_currency),
+                TextColumn::make('verification_amount')
+                    ->label('Verification')
+                    ->formatStateUsing(fn ($state, $record) => number_format((float) $state, 2) . ' ' . $record->verification_currency),
                 TextColumn::make('updated_at')->label('Updated')->since()->sortable(),
             ])
             ->actions([
