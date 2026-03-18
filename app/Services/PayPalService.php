@@ -72,23 +72,10 @@ class PayPalService
             ],
         ];
 
-        if (filled($user->name)) {
-            $payload['payment_source']['paypal']['shipping'] = [
-                'name' => [
-                    'full_name' => $user->name,
-                ],
-            ];
-        }
+                // Do not send PayPal shipping fields in the setup-token flow.
+        // This is a billing approval flow, not a physical-shipping checkout.
 
-        if ($user->invoiceDetail?->country) {
-            $payload['payment_source']['paypal']['shipping']['address'] = array_filter([
-                'address_line_1' => $user->invoiceDetail->address_line_1,
-                'address_line_2' => $user->invoiceDetail->address_line_2,
-                'admin_area_2' => $user->invoiceDetail->city,
-                'postal_code' => $user->invoiceDetail->postal_code,
-                'country_code' => $this->countryCode($user->invoiceDetail->country),
-            ]);
-        }
+
 
         $response = Http::baseUrl($setting->baseUrl())
             ->withToken($this->accessToken())
