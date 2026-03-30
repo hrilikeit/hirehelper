@@ -64,7 +64,7 @@ class PayPalCheckoutService
 
     public function captureOrFetchOrder(string $orderId): array
     {
-        $response = $this->client()->post($this->baseUrl() . '/v2/checkout/orders/' . $orderId . '/capture', []);
+        $response = $this->client()->post($this->baseUrl() . '/v2/checkout/orders/' . $orderId . '/capture', (object) []);
 
         if ($response->successful()) {
             return $response->json();
