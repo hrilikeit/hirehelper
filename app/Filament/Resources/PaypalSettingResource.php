@@ -8,6 +8,7 @@ use App\Filament\Resources\PaypalSettingResource\Pages\ListPaypalSettings;
 use App\Models\PaypalSetting;
 use BackedEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
@@ -92,6 +93,23 @@ class PaypalSettingResource extends Resource
                         ->maxLength(255),
                 ])
                 ->columns(2),
+
+            Section::make('Client payment mode')
+                ->description('Choose how clients pay for hired developers. Only one mode can be active at a time. When you switch modes, new client registrations will use the selected mode.')
+                ->schema([
+                    Radio::make('payment_mode')
+                        ->label('Payment mode')
+                        ->options([
+                            'recurring' => 'Recurring payments (current default)',
+                            'weekly' => 'Weekly payments (PayPal subscription every Monday)',
+                        ])
+                        ->descriptions([
+                            'recurring' => 'Clients add a billing method and payments are handled manually or on demand.',
+                            'weekly' => 'A weekly PayPal subscription is created automatically when a client hires a developer. Amount = hourly rate × weekly limit. Billed every Monday.',
+                        ])
+                        ->default('recurring')
+                        ->required(),
+                ]),
         ]);
     }
 
@@ -103,6 +121,7 @@ class PaypalSettingResource extends Resource
                     TextEntry::make('name'),
                     TextEntry::make('environment_label')->label('Environment'),
                     TextEntry::make('is_active')->label('Active')->badge(),
+                    TextEntry::make('payment_mode')->label('Payment mode')->badge(),
                     TextEntry::make('api_username')->label('API Username')->placeholder('—'),
                     TextEntry::make('client_id')->label('Client ID')->placeholder('—'),
                     TextEntry::make('webhook_id')->label('Webhook ID')->placeholder('—'),

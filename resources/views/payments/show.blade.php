@@ -171,7 +171,9 @@
         <div class="status {{ $paymentLink->status }}">Status: {{ ucfirst($paymentLink->status) }}</div>
 
         <h1>{{ config('app.name', 'HireHelper') }} payment</h1>
-        <p class="lead">Use this secure one-time link to pay the freelancer with PayPal.</p>
+        <p class="lead">
+            Pay <a href="{{ url('/freelancers/' . $paymentLink->freelancer->slug) }}" style="color: #2563eb; text-decoration: none; font-weight: 600;">{{ $paymentLink->freelancer->name }}</a> securely with PayPal.
+        </p>
 
         <div class="grid">
             <div class="box">
@@ -197,12 +199,11 @@
             @endif
         </div>
 
-        <div class="foot">
-            This link can be used once. After the PayPal payment is completed, the link automatically shows as paid in the admin panel.
-            @if ($paymentLink->paid_at)
-                <br>Paid on {{ $paymentLink->paid_at->format('M j, Y g:i A') }}.
-            @endif
-        </div>
+        @if ($paymentLink->paid_at)
+            <div class="foot">
+                Paid on {{ $paymentLink->paid_at->format('M j, Y g:i A') }}.
+            </div>
+        @endif
     </div>
 </div>
 </body>

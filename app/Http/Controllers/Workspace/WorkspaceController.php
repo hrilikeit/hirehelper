@@ -201,13 +201,15 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
         $offer = $this->resolveOffer($user, $request->query('offer'));
+        $paypalSetting = PaypalSetting::active();
 
         return view('workspace.app.billing-method', [
             'offer' => $offer,
             'billingMethods' => $user->billingMethods()->orderByDesc('is_default')->latest()->get(),
             'defaultBillingMethod' => $user->defaultBillingMethod,
             'acbaConfigured' => AcbaSetting::active()?->isConfigured() ?? false,
-            'paypalConfigured' => PaypalSetting::active()?->isConfigured() ?? false,
+            'paypalConfigured' => $paypalSetting?->isConfigured() ?? false,
+            'paymentMode' => $paypalSetting?->payment_mode ?? 'recurring',
         ]);
     }
 

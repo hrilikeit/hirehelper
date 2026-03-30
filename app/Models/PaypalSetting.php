@@ -18,6 +18,7 @@ class PaypalSetting extends Model
         'client_id',
         'client_secret',
         'webhook_id',
+        'payment_mode',
     ];
 
     protected function casts(): array
@@ -71,5 +72,20 @@ class PaypalSetting extends Model
             ->where('is_active', true)
             ->latest()
             ->first();
+    }
+
+    public function isWeeklyMode(): bool
+    {
+        return $this->payment_mode === 'weekly';
+    }
+
+    public function isRecurringMode(): bool
+    {
+        return $this->payment_mode !== 'weekly';
+    }
+
+    public static function currentPaymentMode(): string
+    {
+        return static::active()?->payment_mode ?? 'recurring';
     }
 }

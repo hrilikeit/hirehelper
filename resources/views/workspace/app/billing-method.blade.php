@@ -4,7 +4,8 @@
 @php
     $backUrl = $offer ? route('workspace.project-pending') : route('workspace.dashboard');
     $skipUrl = $offer ? route('workspace.project-pending') : route('workspace.dashboard');
-    $defaultBillingChoice = $acbaConfigured ? 'acba' : ($paypalConfigured ? 'paypal' : 'acba');
+    $isWeeklyMode = ($paymentMode ?? 'recurring') === 'weekly';
+    $defaultBillingChoice = $isWeeklyMode ? 'weekly' : ($acbaConfigured ? 'acba' : ($paypalConfigured ? 'paypal' : 'acba'));
 @endphp
 <div class="container">
     <div class="breadcrumbs">
@@ -31,25 +32,44 @@
         @endif
 
         <div class="billing-choice-form" data-billing-choice-shell>
-            <label class="billing-choice-option {{ $acbaConfigured ? '' : 'billing-choice-disabled' }}">
-                <input name="billing_choice" type="radio" value="acba" @checked($defaultBillingChoice === 'acba') {{ $acbaConfigured ? '' : 'disabled' }} />
-                <span class="billing-choice-indicator"></span>
-                <span class="billing-choice-copy">
-                    <strong>Credit or Debit Card</strong>
-                    <span>{{ $acbaConfigured ? 'Use the ACBA / ArCa hosted checkout page. The client is sent to the secure card payment form, then returned to HireHelper after the bank confirms the billing setup.' : 'ACBA / ArCa card gateway is not configured yet in the admin panel. Add the live or test gateway credentials first.' }}</span>
-                </span>
-                <span class="billing-choice-brand billing-choice-brand-card">ACBA / ArCa</span>
-            </label>
+            @if ($isWeeklyMode && $offer && $paypalConfigured)
+                <label class="billing-choice-option">
+                    <input name="billing_choice" type="radio" value="weekly" @checked($defaultBillingChoice === 'weekly') />
+                    <span class="billing-choice-indicator"></span>
+                    <span class="billing-choice-copy">
+                        <strong>Weekly PayPal Subscription</strong>
+                        <span>
+                            Set up automatic weekly payments via PayPal.
+                            You will be charged <strong>${{ number_format((float)$offer->hourly_rate * (int)$offer->weekly_limit, 2) }}/week</strong>
+                            ({{ $offer->freelancer_display_name }} · ${{ number_format((float)$offer->hourly_rate, 2) }}/hr × {{ $offer->weekly_limit }}h).
+                            First charge starts immediately, then every week on Monday.
+                        </span>
+                    </span>
+                    <span class="billing-choice-brand billing-choice-brand-paypal">PayPal</span>
+                </label>
+            @endif
 
-            <label class="billing-choice-option {{ $paypalConfigured ? '' : 'billing-choice-disabled' }}">
-                <input name="billing_choice" type="radio" value="paypal" @checked($defaultBillingChoice === 'paypal') {{ $paypalConfigured ? '' : 'disabled' }} />
-                <span class="billing-choice-indicator"></span>
-                <span class="billing-choice-copy">
-                    <strong>PayPal</strong>
-                    <span>{{ $paypalConfigured ? 'Use the saved PayPal approval flow so the client connects PayPal securely.' : 'PayPal is not configured yet in the admin panel. Add the PayPal API credentials first.' }}</span>
-                </span>
-                <span class="billing-choice-brand billing-choice-brand-paypal">PayPal</span>
-            </label>
+            @if (! $isWeeklyMode)
+                <label class="billing-choice-option {{ $acbaConfigured ? '' : 'billing-choice-disabled' }}">
+                    <input name="billing_choice" type="radio" value="acba" @checked($defaultBillingChoice === 'acba') {{ $acbaConfigured ? '' : 'disabled' }} />
+                    <span class="billing-choice-indicator"></span>
+                    <span class="billing-choice-copy">
+                        <strong>Credit or Debit Card</strong>
+                        <span>{{ $acbaConfigured ? 'Use the ACBA / ArCa hosted checkout page. The client is sent to the secure card payment form, then returned to HireHelper after the bank confirms the billing setup.' : 'ACBA / ArCa card gateway is not configured yet in the admin panel. Add the live or test gateway credentials first.' }}</span>
+                    </span>
+                    <span class="billing-choice-brand billing-choice-brand-card">ACBA / ArCa</span>
+                </label>
+
+                <label class="billing-choice-option {{ $paypalConfigured ? '' : 'billing-choice-disabled' }}">
+                    <input name="billing_choice" type="radio" value="paypal" @checked($defaultBillingChoice === 'paypal') {{ $paypalConfigured ? '' : 'disabled' }} />
+                    <span class="billing-choice-indicator"></span>
+                    <span class="billing-choice-copy">
+                        <strong>PayPal</strong>
+                        <span>{{ $paypalConfigured ? 'Use the saved PayPal approval flow so the client connects PayPal securely.' : 'PayPal is not configured yet in the admin panel. Add the PayPal API credentials first.' }}</span>
+                    </span>
+                    <span class="billing-choice-brand billing-choice-brand-paypal">PayPal</span>
+                </label>
+            @endif
         </div>
 
         <div class="billing-choice-actions">
@@ -73,6 +93,13 @@
                 <input type="hidden" name="offer_id" value="{{ $offer->id }}">
             @endif
         </form>
+
+        @if ($offer)
+            <form id="weekly-start-form" method="post" action="{{ route('workspace.weekly-subscription.start') }}" style="display:none">
+                @csrf
+                <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+            </form>
+        @endif
     </section>
 
     @if ($billingMethods->isNotEmpty())
@@ -135,9 +162,18 @@
             return;
         }
 
+        const weeklyForm = document.getElementById('weekly-start-form');
+
         button.addEventListener('click', function () {
             const selected = shell.querySelector('input[name="billing_choice"]:checked');
             const value = selected ? selected.value : 'acba';
+
+            if (value === 'weekly') {
+                if (weeklyForm) {
+                    weeklyForm.submit();
+                }
+                return;
+            }
 
             if (value === 'paypal') {
                 if (paypalForm) {
