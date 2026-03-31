@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\ClientAuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\FreelancerProfileController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\HireRequestController;
@@ -72,6 +74,11 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [ClientAuthController::class, 'login']);
 });
+
+Route::get('/client/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
+Route::post('/client/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+Route::get('/client/reset-password/{token}', [ResetPasswordController::class, 'showForm'])->name('password.reset');
+Route::post('/client/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 Route::post('/client/logout', [ClientAuthController::class, 'logout'])->name('client.logout')->middleware('auth');
 

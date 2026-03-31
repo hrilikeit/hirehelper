@@ -34,6 +34,7 @@
             <div class="form-group">
                 <label class="form-label" for="password">Password</label>
                 <input class="input" id="password" name="password" type="password" required />
+                <a href="{{ route('password.request') }}" style="display:inline-block;margin-top:8px;font-size:14px;color:#6366f1;text-decoration:none">Forgot your password?</a>
             </div>
 
             <label class="checkbox-line" style="margin:20px 0">
