@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Workspace;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PaymentMethodAddedMail;
 use App\Models\ClientBillingMethod;
 use App\Models\ProjectOffer;
 use App\Services\PayPalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PayPalBillingController extends Controller
 {
@@ -137,6 +139,18 @@ class PayPalBillingController extends Controller
         }
 
         session()->forget('paypal_billing_setup');
+
+        if ($billing) {
+            try {
+                Mail::to($user->email)->send(new PaymentMethodAddedMail(
+                    billingMethod: $billing,
+                    userName: $user->name,
+                    dashboardUrl: route('workspace.dashboard'),
+                ));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
         return redirect()
             ->route($offer ? 'workspace.project-pending' : 'workspace.billing-method')

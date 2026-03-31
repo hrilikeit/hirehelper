@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Workspace;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UnreadMessageMail;
 use App\Models\AcbaSetting;
 use App\Models\ClientBillingMethod;
 use App\Models\ClientInvoiceDetail;
@@ -14,6 +15,7 @@ use App\Models\User;
 use App\Services\PayPalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 

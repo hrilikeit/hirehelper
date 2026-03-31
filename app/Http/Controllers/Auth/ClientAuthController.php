@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\GetStartedMail;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ClientAuthController extends Controller
 {
@@ -54,6 +56,15 @@ class ClientAuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+
+        try {
+            Mail::to($user->email)->send(new GetStartedMail(
+                user: $user,
+                dashboardUrl: route('workspace.dashboard'),
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         if ($next) {
             $request->session()->put('url.intended', $next);
