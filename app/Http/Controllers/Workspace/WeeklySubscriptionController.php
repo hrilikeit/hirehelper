@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Workspace;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientBillingMethod;
 use App\Models\PaypalSetting;
 use App\Models\ProjectOffer;
 use App\Models\WeeklySubscription;
@@ -103,6 +104,26 @@ class WeeklySubscriptionController extends Controller
 
                 $offer->project?->update(['status' => 'active']);
             }
+
+            // Create or update billing method so it shows in admin and client billing page
+            ClientBillingMethod::query()
+                ->where('user_id', $user->id)
+                ->update(['is_default' => false]);
+
+            ClientBillingMethod::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'provider' => 'paypal',
+                    'provider_customer_id' => $subscription->paypal_subscription_id,
+                ],
+                [
+                    'method_type' => 'PayPal',
+                    'label' => 'Weekly Subscription',
+                    'is_default' => true,
+                    'provider_email' => $subscription->paypal_payer_email,
+                    'verified_at' => now(),
+                ],
+            );
 
             return redirect()
                 ->route('workspace.project-active')
