@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClientProjectResource\Pages\CreateClientProject;
 use App\Filament\Resources\ClientProjectResource\Pages\EditClientProject;
 use App\Filament\Resources\ClientProjectResource\Pages\ListClientProjects;
+use App\Filament\Resources\ClientProjectResource\RelationManagers\TimesheetsRelationManager;
 use App\Models\ClientBillingMethod;
 use App\Models\ClientProject;
 use App\Models\User;
@@ -152,6 +153,13 @@ class ClientProjectResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            TimesheetsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
