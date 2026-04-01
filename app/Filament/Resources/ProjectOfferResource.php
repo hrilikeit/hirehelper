@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
 use UnitEnum;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -152,6 +153,9 @@ class ProjectOfferResource extends Resource
             ->defaultSort('sent_at', 'desc')
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
     }
 

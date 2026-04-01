@@ -8,6 +8,7 @@ use App\Services\PayPalSubscriptionService;
 use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -106,6 +107,9 @@ class WeeklySubscriptionResource extends Resource
                         }
                     })
                     ->visible(fn (WeeklySubscription $record) => in_array($record->status, ['active', 'pending_approval'])),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
     }
 

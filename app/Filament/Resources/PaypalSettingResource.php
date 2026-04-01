@@ -8,6 +8,7 @@ use App\Filament\Resources\PaypalSettingResource\Pages\ListPaypalSettings;
 use App\Models\PaypalSetting;
 use App\Support\AdminAccess;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
@@ -147,6 +148,9 @@ class PaypalSettingResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ])
             ->bulkActions([]);
     }

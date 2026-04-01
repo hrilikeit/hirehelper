@@ -7,6 +7,7 @@ use App\Filament\Resources\ContactMessageResource\Pages\ListContactMessages;
 use App\Models\ContactMessage;
 use App\Support\AdminAccess;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -94,6 +95,9 @@ class ContactMessageResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
     }
 

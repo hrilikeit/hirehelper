@@ -8,6 +8,7 @@ use App\Filament\Resources\AcbaSettingResource\Pages\ListAcbaSettings;
 use App\Models\AcbaSetting;
 use App\Support\AdminAccess;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -156,6 +157,9 @@ class AcbaSettingResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ])
             ->bulkActions([]);
     }

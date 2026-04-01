@@ -7,6 +7,7 @@ use App\Filament\Resources\HireRequestResource\Pages\ListHireRequests;
 use App\Models\HireRequest;
 use App\Support\AdminAccess;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -107,6 +108,9 @@ class HireRequestResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
     }
 

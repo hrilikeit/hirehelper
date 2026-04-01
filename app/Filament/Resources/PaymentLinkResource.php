@@ -11,6 +11,7 @@ use App\Services\PayPalCheckoutService;
 use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -120,6 +121,9 @@ class PaymentLinkResource extends Resource
                     ->label('Sync PayPal')
                     ->action(fn (PaymentLink $record) => static::syncPayPalStatus($record)),
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
     }
 

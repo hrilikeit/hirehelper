@@ -8,6 +8,7 @@ use App\Filament\Resources\FreelancerResource\Pages\ListFreelancers;
 use App\Filament\Resources\FreelancerResource\Pages\ViewFreelancer;
 use App\Models\Freelancer;
 use BackedEnum;
+use App\Support\AdminAccess;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -241,7 +242,9 @@ class FreelancerResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
     }
 
