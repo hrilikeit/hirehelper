@@ -28,7 +28,7 @@ class PayPalSubscriptionService
         string $cancelUrl,
     ): array {
         $setting = $this->requireSetting();
-        $weeklyAmount = number_format((float) $offer->hourly_rate * (int) $offer->weekly_limit, 2, '.', '');
+        $weeklyAmount = '1.00';
         $freelancerName = $offer->freelancer_display_name;
         $projectTitle = $offer->project?->title ?: 'Development project';
 
@@ -293,12 +293,12 @@ class PayPalSubscriptionService
     // ─── Helpers ────────────────────────────────────────────────
 
     /**
-     * Calculate the next start time: immediately now, then PayPal bills every WEEK.
-     * We set start_time to now so the first charge happens right away.
+     * Calculate the next start time: next Monday at 00:00 UTC.
+     * First charge happens on the next Monday, then every Monday after.
      */
     protected function nextStartTime(): string
     {
-        return now()->addMinutes(5)->toIso8601String();
+        return now()->next(Carbon::MONDAY)->startOfDay()->toIso8601String();
     }
 
     protected function mapStatus(string $paypalStatus): string
