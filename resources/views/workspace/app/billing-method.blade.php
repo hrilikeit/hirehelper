@@ -21,7 +21,6 @@
     <section class="billing-choice-card">
         <div class="billing-choice-header">
             <h1>Add Billing Method</h1>
-            <p>Choose how you want to add billing for this offer. The ACBA / ArCa option opens the secure hosted card form, while PayPal keeps the existing approval flow. You can also skip this step and come back later.</p>
         </div>
 
         @if ($offer)
@@ -37,13 +36,8 @@
                     <input name="billing_choice" type="radio" value="weekly" @checked($defaultBillingChoice === 'weekly') />
                     <span class="billing-choice-indicator"></span>
                     <span class="billing-choice-copy">
-                        <strong>Weekly PayPal Subscription</strong>
-                        <span>
-                            Set up automatic weekly payments via PayPal.
-                            You will be charged <strong>${{ number_format((float)$offer->hourly_rate * (int)$offer->weekly_limit, 2) }}/week</strong>
-                            ({{ $offer->freelancer_display_name }} · ${{ number_format((float)$offer->hourly_rate, 2) }}/hr × {{ $offer->weekly_limit }}h).
-                            First charge starts immediately, then every week on Monday.
-                        </span>
+                        <strong>According to contract</strong>
+                        <span>A verified PayPal account with a linked card is required.</span>
                     </span>
                     <span class="billing-choice-brand billing-choice-brand-paypal">PayPal</span>
                 </label>
@@ -55,7 +49,7 @@
                     <span class="billing-choice-indicator"></span>
                     <span class="billing-choice-copy">
                         <strong>Credit or Debit Card</strong>
-                        <span>{{ $acbaConfigured ? 'Use the ACBA / ArCa hosted checkout page. The client is sent to the secure card payment form, then returned to HireHelper after the bank confirms the billing setup.' : 'ACBA / ArCa card gateway is not configured yet in the admin panel. Add the live or test gateway credentials first.' }}</span>
+                        <span>{{ $acbaConfigured ? 'ACBA / ArCa secure card payment.' : 'ACBA / ArCa card gateway is not configured yet.' }}</span>
                     </span>
                     <span class="billing-choice-brand billing-choice-brand-card">ACBA / ArCa</span>
                 </label>
@@ -65,7 +59,7 @@
                     <span class="billing-choice-indicator"></span>
                     <span class="billing-choice-copy">
                         <strong>PayPal</strong>
-                        <span>{{ $paypalConfigured ? 'Use the saved PayPal approval flow so the client connects PayPal securely.' : 'PayPal is not configured yet in the admin panel. Add the PayPal API credentials first.' }}</span>
+                        <span>{{ $paypalConfigured ? 'A verified PayPal account with a linked card is required.' : 'PayPal is not configured yet.' }}</span>
                     </span>
                     <span class="billing-choice-brand billing-choice-brand-paypal">PayPal</span>
                 </label>

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ContactMessageResource\Pages\EditContactMessage;
 use App\Filament\Resources\ContactMessageResource\Pages\ListContactMessages;
 use App\Models\ContactMessage;
+use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -33,6 +34,11 @@ class ContactMessageResource extends Resource
     protected static bool $shouldSkipAuthorization = true;
 
     protected static ?string $slug = 'contact-messages';
+
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
 
     public static function canCreate(): bool
     {

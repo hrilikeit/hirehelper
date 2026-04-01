@@ -4,7 +4,7 @@
 @php
     $offer = $primaryOffer;
     $project = $primaryProject;
-    $isActive = $offer && $offer->status === 'active';
+    $isActive = $offer && in_array($offer->status, ['active', 'accepted'], true);
     $needsBilling = $offer && ! ($offer->billing_method ?: ($billingMethod?->display_label));
 @endphp
 
@@ -26,106 +26,52 @@
 
     <div class="page-heading">
         <div>
-            <h1>Client dashboard</h1>
-            <p>This state reflects the dashboard after a brief is saved and the freelancer hiring flow has started.</p>
+            <h1>Projects</h1>
         </div>
         <a class="button button-primary" href="{{ route('workspace.hire-flow') }}">New project</a>
     </div>
 
-    <div class="dashboard-grid">
-        <section class="panel tall">
-            <div class="float-action"><a class="button button-primary button-small" href="{{ route('workspace.hire-flow') }}">New project</a></div>
-            <h3>Project drafts</h3>
-            <hr />
-            @if ($project)
-                <div class="project-row">
-                    <div>
-                        <div class="project-title">{{ $project->title }}</div>
-                        <div class="project-sub">Latest brief saved from the client-side flow.</div>
-                    </div>
-                    <span class="status-pill status-neutral">{{ ucfirst($project->status) }}</span>
-                </div>
-                <div class="separator"></div>
-                <div class="inline-actions">
-                    <a class="cta-link" href="{{ route('workspace.hire-flow', ['project' => $project->id]) }}">Open project setup</a>
-                    @if ($offer)
-                        <a class="cta-link" href="{{ $isActive ? route('workspace.project-active') : route('workspace.project-pending') }}">{{ $isActive ? 'Open active contract' : 'Open pending offer' }}</a>
-                    @endif
-                </div>
-            @else
-                <p class="empty">Save a brief to create your first project.</p>
-            @endif
-        </section>
-
-        <section class="panel tall">
-            <h3>Projects</h3>
-            <hr />
-            @if ($offer && $project)
-                <div class="project-row">
-                    <div style="display:flex;gap:14px">
-                        <span class="project-bullet"></span>
-                        <div>
-                            <div class="project-title">{{ $project->title }}</div>
-                            <div class="project-sub">Freelancer: {{ $offer->freelancer_display_name }}</div>
-                        </div>
-                    </div>
-                    <span class="status-pill {{ $isActive ? 'status-active' : 'status-pending' }}">{{ $isActive ? 'Active' : 'Pending' }}</span>
-                </div>
-                <div class="separator"></div>
-                <a class="cta-link" href="{{ $isActive ? route('workspace.project-active') : route('workspace.project-pending') }}">{{ $isActive ? 'Open active project' : 'Open project terms and settings' }}</a>
-            @else
-                <p class="empty">No live project found yet.</p>
-            @endif
-        </section>
-    </div>
-
-    <div class="dashboard-grid">
-        <section class="panel">
-            <h3>My offers</h3>
-            <hr />
-            @if ($offer)
-                <div class="offer-row">
-                    <div class="avatar-line">
-                        <img alt="{{ $offer->freelancer_display_name }}" src="{{ $offer->freelancer_display_avatar_url }}" />
-                        <div>
-                            <strong>{{ $offer->freelancer_display_name }}</strong>
-                            <span>{{ $offer->freelancer_display_title }}</span>
-                        </div>
-                    </div>
-                    <div style="text-align:right">
-                        <div class="muted small">{{ optional($offer->sent_at)->diffForHumans() ?: 'just now' }}</div>
-                        <a class="cta-link" href="{{ $isActive ? route('workspace.project-active') : route('workspace.project-pending') }}">View offer</a>
+    <section class="panel" style="margin-bottom:24px">
+        @foreach ($projects as $p)
+            @php
+                $pOffer = $p->offers->first();
+                $statusClass = match($p->status) {
+                    'active', 'accepted' => 'status-active',
+                    'pending' => 'status-pending',
+                    'completed' => 'status-active',
+                    'cancelled' => 'status-neutral',
+                    default => 'status-neutral',
+                };
+                $linkRoute = match(true) {
+                    $p->status === 'draft' => route('workspace.hire-flow', ['project' => $p->id]),
+                    $pOffer && in_array($pOffer->status, ['active'], true) => route('workspace.project-active'),
+                    $pOffer && $pOffer->status === 'pending' => route('workspace.project-pending'),
+                    default => route('workspace.hire-flow', ['project' => $p->id]),
+                };
+            @endphp
+            <div class="project-row">
+                <div>
+                    <div class="project-title">{{ $p->title }}</div>
+                    <div class="project-sub">
+                        {{ $p->specialty }} · {{ $p->timeframe }}
+                        @if ($pOffer)
+                            · {{ $pOffer->freelancer_display_name }}
+                        @endif
                     </div>
                 </div>
-            @else
-                <p class="empty">Offers will appear here once you continue from the brief into the hiring flow.</p>
-            @endif
-        </section>
-
-        <section class="panel">
-            <h3>Co-workers</h3>
-            <hr />
-            <div class="illustration-wrap">
-                <img alt="Co-workers" src="{{ asset('workspace-assets/img/megaphone.svg') }}" style="width:140px" />
-                <div class="muted small" style="margin-top:8px">Invite team members when the project is ready.</div>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <span class="status-pill {{ $statusClass }}">{{ ucfirst($p->status) }}</span>
+                    <a class="cta-link" href="{{ $linkRoute }}">Open</a>
+                </div>
             </div>
-        </section>
-
-        <section class="panel">
-            <h3>Activity</h3>
-            <hr />
-            @if ($offer)
-                <div class="activity-row">
-                    <div>
-                        <div class="project-title">{{ $isActive ? 'Contract active' : 'Offer sent' }}</div>
-                        <div class="project-sub">{{ $isActive ? 'The contract is active with' : 'A new offer was created for' }} {{ $offer->freelancer_display_name }}.</div>
-                    </div>
-                    <span class="status-pill status-neutral">{{ optional($offer->updated_at)->diffForHumans() }}</span>
-                </div>
-            @else
-                <p class="empty">Activity appears after the first offer is sent.</p>
+            @if (! $loop->last)
+                <div class="separator"></div>
             @endif
-        </section>
-    </div>
+        @endforeach
+
+        @if ($projects->isEmpty())
+            <p class="empty">No projects yet. Create one to get started.</p>
+        @endif
+    </section>
 </div>
 @endsection

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\ClientAuthController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\FreelancerProfileController;
@@ -81,6 +82,11 @@ Route::get('/client/reset-password/{token}', [ResetPasswordController::class, 's
 Route::post('/client/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 Route::post('/client/logout', [ClientAuthController::class, 'logout'])->name('client.logout')->middleware('auth');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/email/verification-send', [EmailVerificationController::class, 'send'])->name('verification.send');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('signed');
+});
 
 Route::redirect('/app', '/app/dashboard.html');
 Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () {

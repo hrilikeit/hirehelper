@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\GetStartedMail;
+use App\Mail\VerifyEmailMail;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -61,6 +63,17 @@ class ClientAuthController extends Controller
             Mail::to($user->email)->send(new GetStartedMail(
                 user: $user,
                 dashboardUrl: route('workspace.dashboard'),
+            ));
+
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addHours(24),
+                ['id' => $user->id, 'hash' => sha1($user->email)],
+            );
+
+            Mail::to($user->email)->send(new VerifyEmailMail(
+                user: $user,
+                verificationUrl: $verificationUrl,
             ));
         } catch (\Throwable $e) {
             report($e);

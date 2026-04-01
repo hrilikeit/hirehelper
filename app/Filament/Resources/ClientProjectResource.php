@@ -5,12 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClientProjectResource\Pages\CreateClientProject;
 use App\Filament\Resources\ClientProjectResource\Pages\EditClientProject;
 use App\Filament\Resources\ClientProjectResource\Pages\ListClientProjects;
+use App\Models\ClientBillingMethod;
 use App\Models\ClientProject;
 use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
 use UnitEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -50,46 +52,61 @@ class ClientProjectResource extends Resource
         return $schema->components([
             Section::make('Project details')
                 ->schema([
-                    Select::make('user_id')
+                    Placeholder::make('client_name')
                         ->label('Client')
-                        ->options(fn () => User::query()->where('role', 'client')->orderBy('name')->pluck('name', 'id'))
-                        ->searchable()
-                        ->required(),
-                    TextInput::make('title')->required()->columnSpanFull(),
-                    Textarea::make('description')->rows(8)->required()->columnSpanFull(),
-                    Select::make('experience_level')
-                        ->options([
-                            'Entry' => 'Entry',
-                            'Intermediate' => 'Intermediate',
-                            'Expert' => 'Expert',
-                        ])
-                        ->required(),
-                    TextInput::make('timeframe')->required(),
-                    TextInput::make('specialty')->required(),
-                    TextInput::make('external_reference')->label('External reference'),
+                        ->content(fn (?ClientProject $record) => $record?->user?->name ?? '—'),
+                    Placeholder::make('title_display')
+                        ->label('Title')
+                        ->content(fn (?ClientProject $record) => $record?->title ?? '—')
+                        ->columnSpanFull(),
+                    Placeholder::make('description_display')
+                        ->label('Description')
+                        ->content(fn (?ClientProject $record) => $record?->description ?? '—')
+                        ->columnSpanFull(),
+                    Placeholder::make('experience_display')
+                        ->label('Experience level')
+                        ->content(fn (?ClientProject $record) => $record?->experience_level ?? '—'),
+                    Placeholder::make('timeframe_display')
+                        ->label('Timeframe')
+                        ->content(fn (?ClientProject $record) => $record?->timeframe ?? '—'),
+                    Placeholder::make('specialty_display')
+                        ->label('Specialty')
+                        ->content(fn (?ClientProject $record) => $record?->specialty ?? '—'),
+                    Placeholder::make('external_ref_display')
+                        ->label('External reference')
+                        ->content(fn (?ClientProject $record) => $record?->external_reference ?: '—'),
+                    Placeholder::make('payment_method_display')
+                        ->label('Payment method')
+                        ->content(function (?ClientProject $record) {
+                            if (! $record?->user_id) {
+                                return '—';
+                            }
+                            $method = ClientBillingMethod::where('user_id', $record->user_id)
+                                ->where('is_default', true)
+                                ->first();
+                            return $method ? $method->display_label . ($method->verified_at ? ' (verified)' : ' (not verified)') : 'Not added';
+                        }),
+                    Placeholder::make('sales_display')
+                        ->label('Sales manager')
+                        ->content(fn (?ClientProject $record) => $record?->salesManager?->name ?? '—'),
+                    Placeholder::make('pm_display')
+                        ->label('Project manager')
+                        ->content(fn (?ClientProject $record) => $record?->projectManager?->name ?? '—'),
+                ])
+                ->columns(2),
+
+            Section::make('Status & Acceptance')
+                ->schema([
                     Select::make('status')
                         ->options([
                             'draft' => 'Draft',
                             'pending' => 'Pending',
-                            'active' => 'Active / accepted',
+                            'active' => 'Active',
+                            'accepted' => 'Accepted',
                             'completed' => 'Completed',
                             'cancelled' => 'Cancelled',
                         ])
                         ->required(),
-                    Select::make('sales_manager_id')
-                        ->label('Sales manager')
-                        ->options(fn () => User::query()
-                            ->whereIn('role', ['superadmin', 'admin', 'sales_manager'])
-                            ->orderBy('name')
-                            ->pluck('name', 'id'))
-                        ->searchable(),
-                    Select::make('project_manager_id')
-                        ->label('Project manager')
-                        ->options(fn () => User::query()
-                            ->whereIn('role', ['superadmin', 'admin', 'project_manager'])
-                            ->orderBy('name')
-                            ->pluck('name', 'id'))
-                        ->searchable(),
                     Textarea::make('acceptance_notes')
                         ->rows(5)
                         ->columnSpanFull(),
@@ -116,6 +133,7 @@ class ClientProjectResource extends Resource
                         'draft' => 'Draft',
                         'pending' => 'Pending',
                         'active' => 'Active',
+                        'accepted' => 'Accepted',
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
                     ]),

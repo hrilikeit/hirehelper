@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\HireRequestResource\Pages\EditHireRequest;
 use App\Filament\Resources\HireRequestResource\Pages\ListHireRequests;
 use App\Models\HireRequest;
+use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -33,6 +34,11 @@ class HireRequestResource extends Resource
     protected static bool $shouldSkipAuthorization = true;
 
     protected static ?string $slug = 'hire-requests';
+
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
 
     public static function canCreate(): bool
     {

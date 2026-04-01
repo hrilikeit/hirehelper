@@ -127,6 +127,11 @@ class PayPalBillingController extends Controller
                         'billing_method' => $billing->display_label,
                         'status' => 'pending',
                     ]);
+
+                    // Move project to "active" when payment method is added
+                    if ($offer->project && in_array($offer->project->status, ['draft', 'pending'], true)) {
+                        $offer->project->update(['status' => 'active']);
+                    }
                 }
             });
         } catch (\Throwable $exception) {
@@ -154,7 +159,7 @@ class PayPalBillingController extends Controller
 
         return redirect()
             ->route($offer ? 'workspace.project-pending' : 'workspace.billing-method')
-            ->with('success', 'PayPal billing method connected successfully.');
+            ->with('success', 'Your payment method was successfully added.');
     }
 
     public function cancel(Request $request): RedirectResponse

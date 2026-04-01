@@ -112,7 +112,7 @@ class AdminAccess
 
         if (self::isSalesManager($user) && $user) {
             return $query
-                ->whereIn('status', ['draft', 'pending'])
+                ->whereIn('status', ['draft', 'pending', 'active'])
                 ->where(function (Builder $builder) use ($user) {
                     $builder
                         ->whereNull('sales_manager_id')
@@ -122,7 +122,7 @@ class AdminAccess
 
         if (self::isProjectManager($user) && $user) {
             return $query
-                ->whereNotIn('status', ['draft', 'pending'])
+                ->whereIn('status', ['accepted', 'completed', 'cancelled'])
                 ->where(function (Builder $builder) use ($user) {
                     $builder
                         ->whereNull('project_manager_id')
@@ -169,12 +169,12 @@ class AdminAccess
         }
 
         if (self::isSalesManager($user) && $user) {
-            return in_array((string) $project->status, ['draft', 'pending'], true)
+            return in_array((string) $project->status, ['draft', 'pending', 'active'], true)
                 && (! $project->sales_manager_id || $project->sales_manager_id === $user->id);
         }
 
         if (self::isProjectManager($user) && $user) {
-            return ! in_array((string) $project->status, ['draft', 'pending'], true)
+            return in_array((string) $project->status, ['accepted', 'completed', 'cancelled'], true)
                 && (! $project->project_manager_id || $project->project_manager_id === $user->id);
         }
 
@@ -226,5 +226,17 @@ class AdminAccess
         }
 
         return false;
+    }
+
+    /**
+     * Sales users can only access Freelancers and Hiring Projects.
+     */
+    public static function canAccessNonSalesResource(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return ! self::isSalesManager($user);
     }
 }

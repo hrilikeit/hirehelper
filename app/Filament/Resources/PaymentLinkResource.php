@@ -8,6 +8,7 @@ use App\Filament\Resources\PaymentLinkResource\Pages\ListPaymentLinks;
 use App\Models\Freelancer;
 use App\Models\PaymentLink;
 use App\Services\PayPalCheckoutService;
+use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -41,6 +42,11 @@ class PaymentLinkResource extends Resource
     protected static bool $shouldSkipAuthorization = true;
 
     protected static ?string $slug = 'payment-links';
+
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
 
     public static function form(Schema $schema): Schema
     {

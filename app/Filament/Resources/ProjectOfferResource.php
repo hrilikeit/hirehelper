@@ -43,6 +43,11 @@ class ProjectOfferResource extends Resource
 
     protected static ?string $slug = 'project-offers';
 
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return AdminAccess::scopeOffers(parent::getEloquentQuery(), auth()->user());

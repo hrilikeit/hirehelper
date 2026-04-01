@@ -6,6 +6,7 @@ use App\Filament\Resources\AcbaSettingResource\Pages\CreateAcbaSetting;
 use App\Filament\Resources\AcbaSettingResource\Pages\EditAcbaSetting;
 use App\Filament\Resources\AcbaSettingResource\Pages\ListAcbaSettings;
 use App\Models\AcbaSetting;
+use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -38,6 +39,11 @@ class AcbaSettingResource extends Resource
     protected static ?int $navigationSort = 11;
 
     protected static ?string $slug = 'acba-settings';
+
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
 
     public static function getEloquentQuery(): Builder
     {

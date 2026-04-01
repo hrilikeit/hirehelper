@@ -132,6 +132,11 @@ class WorkspaceController extends Controller
 
             $offer = $this->upsertOfferForProject($user, $project, $offerData);
 
+            // Move project to "pending" when offer is sent
+            if (in_array($project->status, ['draft'], true)) {
+                $project->update(['status' => 'pending']);
+            }
+
             return redirect()
                 ->route('workspace.billing-method', ['offer' => $offer->id])
                 ->with('success', 'Project brief and offer saved. Add or confirm billing next.');
@@ -552,21 +557,21 @@ class WorkspaceController extends Controller
             ]);
 
             $offer->project->update([
-                'status' => 'completed',
+                'status' => 'cancelled',
             ]);
 
             $offer->project->messages()->create([
                 'project_offer_id' => $offer->id,
                 'sender_type' => 'system',
                 'sender_name' => 'System',
-                'message' => 'The contract was marked as completed from the client workspace.',
+                'message' => 'The project was cancelled by the client.',
                 'sent_at' => now(),
             ]);
         });
 
         return redirect()
             ->route('workspace.dashboard')
-            ->with('success', 'The contract has been marked as completed.');
+            ->with('success', 'The project has been cancelled.');
     }
 
     public function messages(Request $request)

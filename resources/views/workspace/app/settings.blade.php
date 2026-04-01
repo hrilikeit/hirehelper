@@ -7,7 +7,6 @@
     <div class="page-heading">
         <div>
             <h1>Workspace settings</h1>
-            <p>This screen organizes the most common client-side settings after login: notifications, billing reminders, invoicing, and interface preferences.</p>
         </div>
     </div>
 
@@ -32,6 +31,17 @@
                     <div class="form-group">
                         <label class="form-label" for="email">Email</label>
                         <input class="input" id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required />
+                        @if ($user->email_verified_at)
+                            <span style="display:inline-block;margin-top:6px;font-size:12px;color:#16a34a;font-weight:600">Verified</span>
+                        @else
+                            <span style="display:inline-flex;align-items:center;gap:8px;margin-top:6px">
+                                <span style="font-size:12px;color:#dc2626;font-weight:600">Not verified</span>
+                                <form method="post" action="{{ route('verification.send') }}" style="display:inline">
+                                    @csrf
+                                    <button type="submit" style="font-size:12px;color:#2563eb;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0">Send verification email</button>
+                                </form>
+                            </span>
+                        @endif
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="phone">Phone</label>

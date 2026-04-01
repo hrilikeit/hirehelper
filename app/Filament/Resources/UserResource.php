@@ -37,6 +37,11 @@ class UserResource extends Resource
 
     protected static ?string $slug = 'clients';
 
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         return static::canViewAny();

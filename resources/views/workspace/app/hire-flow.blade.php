@@ -144,7 +144,6 @@
                     </div>
                 </div>
 
-                <p class="muted small compact-help">Default weekly limit is 40 hours. The client can change it before continuing.</p>
 
                 <div class="form-actions">
                     <a class="link-button" href="{{ route('workspace.dashboard') }}">‹ Back</a>
@@ -237,11 +236,6 @@
 
             <div class="separator"></div>
 
-            <div class="process-list">
-                <div class="process-item"><span class="num">1</span><div><strong>Save brief + offer</strong><div class="muted small">Keep the project scope and freelancer details on the same page.</div></div></div>
-                <div class="process-item"><span class="num">2</span><div><strong>Add billing</strong><div class="muted small">Choose the billing method that will be used for this offer.</div></div></div>
-                <div class="process-item"><span class="num">3</span><div><strong>Activate contract</strong><div class="muted small">Review the pending offer and move it into the active state.</div></div></div>
-            </div>
         </aside>
     </div>
 </div>

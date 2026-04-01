@@ -22,8 +22,6 @@
         <div class="account-nav">
             <button class="icon-button menu-toggle" type="button" aria-label="Open menu" data-menu-toggle>☰</button>
             @auth
-                <button class="icon-button" type="button" aria-label="Notifications">🔔</button>
-                <button class="icon-button" type="button" aria-label="Support">?</button>
                 <a class="account-pill" href="{{ route('workspace.settings') }}">
                     <img src="{{ asset('workspace-assets/img/avatar-jade.svg') }}" alt="Account avatar" />
                     <div class="meta">

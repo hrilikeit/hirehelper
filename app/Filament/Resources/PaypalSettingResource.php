@@ -6,6 +6,7 @@ use App\Filament\Resources\PaypalSettingResource\Pages\CreatePaypalSetting;
 use App\Filament\Resources\PaypalSettingResource\Pages\EditPaypalSetting;
 use App\Filament\Resources\PaypalSettingResource\Pages\ListPaypalSettings;
 use App\Models\PaypalSetting;
+use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Radio;
@@ -38,6 +39,11 @@ class PaypalSettingResource extends Resource
     protected static ?int $navigationSort = 10;
 
     protected static ?string $slug = 'paypal-settings';
+
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
 
     public static function getEloquentQuery(): Builder
     {

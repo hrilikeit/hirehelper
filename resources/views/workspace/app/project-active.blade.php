@@ -60,7 +60,13 @@
 
         <aside class="sidebar-card side-profile">
             <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
-            <h3>{{ $offer->freelancer_display_name }}</h3>
+            <h3>
+                @if ($offer->freelancer && $offer->freelancer->slug)
+                    <a href="{{ url('/freelancers/' . $offer->freelancer->slug) }}" style="color:inherit;text-decoration:none">{{ $offer->freelancer_display_name }}</a>
+                @else
+                    {{ $offer->freelancer_display_name }}
+                @endif
+            </h3>
             <div class="place">{{ $offer->freelancer_display_title }}</div>
             <a class="cta-link" href="{{ route('workspace.messages') }}">Send a message</a>
             <div class="status-block">

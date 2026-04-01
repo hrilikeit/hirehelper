@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\WeeklySubscriptionResource\Pages\ListWeeklySubscriptions;
 use App\Models\WeeklySubscription;
 use App\Services\PayPalSubscriptionService;
+use App\Support\AdminAccess;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -34,6 +35,11 @@ class WeeklySubscriptionResource extends Resource
     protected static bool $shouldSkipAuthorization = true;
 
     protected static ?string $slug = 'weekly-subscriptions';
+
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
 
     public static function table(Table $table): Table
     {
