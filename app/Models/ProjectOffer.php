@@ -70,6 +70,11 @@ class ProjectOffer extends Model
         return $this->hasMany(ProjectMessage::class);
     }
 
+    public function timesheets()
+    {
+        return $this->hasMany(Timesheet::class, 'project_offer_id');
+    }
+
     public function getWeeklyAmountAttribute(): float
     {
         return (float) $this->hourly_rate * (int) $this->weekly_limit;

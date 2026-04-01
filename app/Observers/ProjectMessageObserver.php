@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Mail\UnreadMessageMail;
+use App\Models\EmailSetting;
 use App\Models\ProjectMessage;
 use Illuminate\Support\Facades\Mail;
 
@@ -24,7 +25,7 @@ class ProjectMessageObserver
         }
 
         $client = $project->user;
-        if (! $client || ! $client->notify_messages) {
+        if (! $client || ! $client->notify_messages || ! EmailSetting::isActive('unread_message')) {
             return;
         }
 

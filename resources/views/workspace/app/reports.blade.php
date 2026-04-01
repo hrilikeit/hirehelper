@@ -12,10 +12,10 @@
     </div>
 
     <div class="report-grid">
-        <div class="report-card"><small>This week spend</small><strong>${{ number_format((float) $estimatedWeeklySpend, 2) }}</strong><div class="muted small">{{ $activeCount ? 'Estimated based on active contract' : 'No billed hours yet' }}</div></div>
+        <div class="report-card"><small>This week spend</small><strong>${{ number_format((float) $estimatedWeeklySpend, 2) }}</strong><div class="muted small">{{ $estimatedWeeklySpend > 0 ? 'Based on tracked hours' : 'No billed hours yet' }}</div></div>
         <div class="report-card"><small>Active contracts</small><strong>{{ $activeCount }}</strong><div class="muted small">{{ $activeCount ? 'Ready for time tracking' : 'Nothing active yet' }}</div></div>
         <div class="report-card"><small>Pending offers</small><strong>{{ $pendingCount }}</strong><div class="muted small">{{ $pendingCount ? 'Awaiting next action' : 'No pending offers' }}</div></div>
-        <div class="report-card"><small>Billing status</small><strong>{{ $billingMethod ?: 'Action' }}</strong><div class="muted small">{{ $billingMethod ? 'Default billing method saved' : 'Verify billing to remove warnings' }}</div></div>
+        <div class="report-card"><small>Billing status</small><strong>PayPal {{ $paypalStatus }}</strong><div class="muted small">{{ $paypalStatus === 'Active' ? 'Subscription active' : 'No active subscription' }}</div></div>
     </div>
 
     <div class="spacer"></div>
@@ -23,10 +23,17 @@
     <div class="grid-2">
         <section class="project-card chart-card">
             <h3 style="font-size:30px;letter-spacing:-.04em;margin:0">Hours trend</h3>
-            <p class="muted">The chart presents workspace hours and invoice totals in a calm, minimal layout.</p>
+            <p class="muted">Weekly tracked hours from the last 6 weeks.</p>
             <div class="bar-chart">
-                @foreach ([24, 24, 24, 24, 24, 24] as $height)
-                    <div class="bar" style="height:{{ $height }}px"></div>
+                @php
+                    $maxHours = max(1, collect($hoursTrend)->max('hours'));
+                @endphp
+                @foreach ($hoursTrend as $week)
+                    <div class="bar-wrapper" style="text-align:center">
+                        <div class="bar" style="height:{{ $maxHours > 0 ? round(($week['hours'] / $maxHours) * 80, 0) : 4 }}px; min-height:4px"></div>
+                        <div class="muted small" style="margin-top:4px;font-size:11px">{{ $week['hours'] }}h</div>
+                        <div class="muted small" style="font-size:10px">{{ $week['week'] }}</div>
+                    </div>
                 @endforeach
             </div>
         </section>

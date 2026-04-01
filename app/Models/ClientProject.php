@@ -58,6 +58,16 @@ class ClientProject extends Model
         return $this->hasMany(ProjectMessage::class);
     }
 
+    public function timesheets()
+    {
+        return $this->hasManyThrough(
+            Timesheet::class,
+            ProjectOffer::class,
+            'client_project_id',
+            'project_offer_id',
+        );
+    }
+
     public function latestOffer()
     {
         return $this->hasOne(ProjectOffer::class)->latestOfMany();

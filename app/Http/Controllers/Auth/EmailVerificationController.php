@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\VerifyEmailMail;
+use App\Models\EmailSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +21,10 @@ class EmailVerificationController extends Controller
 
         if ($user->email_verified_at) {
             return back()->with('info', 'Your email is already verified.');
+        }
+
+        if (! EmailSetting::isActive('verify_email')) {
+            return back()->with('info', 'Email verification is currently disabled.');
         }
 
         $verificationUrl = URL::temporarySignedRoute(

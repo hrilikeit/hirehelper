@@ -6,6 +6,7 @@ use App\Filament\Resources\ProjectOfferResource;
 use App\Mail\ContractActiveMail;
 use App\Mail\PaymentFailedMail;
 use App\Mail\WeeklyTrackedHoursMail;
+use App\Models\EmailSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -30,7 +31,7 @@ class EditProjectOffer extends EditRecord
         $offer = $this->record;
 
         // Send "Contract Active" email when status changes to active
-        if ($offer->wasChanged('status') && $offer->status === 'active') {
+        if ($offer->wasChanged('status') && $offer->status === 'active' && EmailSetting::isActive('contract_active')) {
             $client = $offer->project?->user;
             if ($client) {
                 try {
@@ -71,6 +72,11 @@ class EditProjectOffer extends EditRecord
 
                     if (! $client) {
                         Notification::make()->title('No client found for this offer.')->danger()->send();
+                        return;
+                    }
+
+                    if (! EmailSetting::isActive('payment_failed')) {
+                        Notification::make()->title('Payment Failed email is disabled in settings.')->warning()->send();
                         return;
                     }
 
@@ -117,6 +123,11 @@ class EditProjectOffer extends EditRecord
 
                     if (! $client) {
                         Notification::make()->title('No client found for this offer.')->danger()->send();
+                        return;
+                    }
+
+                    if (! EmailSetting::isActive('weekly_tracked_hours')) {
+                        Notification::make()->title('Weekly Tracked Hours email is disabled in settings.')->warning()->send();
                         return;
                     }
 

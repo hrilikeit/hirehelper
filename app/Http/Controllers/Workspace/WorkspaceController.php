@@ -618,12 +618,24 @@ class WorkspaceController extends Controller
     public function reports(Request $request)
     {
         $snapshot = $this->buildSnapshot($request->user());
-        $offer = $snapshot['activeOffer'] ?: $snapshot['pendingOffer'] ?: $snapshot['primaryOffer'];
-        $billingMethod = $request->user()->defaultBillingMethod?->display_label ?: $offer?->billing_method;
+        $user = $request->user();
+
+        // PayPal subscription status
+        $subscription = \App\Models\WeeklySubscription::where('user_id', $user->id)
+            ->latest()
+            ->first();
+        $paypalStatus = $subscription && $subscription->isActive() ? 'Active' : 'Inactive';
+
+        // This week spend from admin timesheets
+        $weeklySpend = \App\Models\Timesheet::currentWeekSpend($user->id);
+
+        // Hours trend (last 6 weeks from timesheets)
+        $hoursTrend = \App\Models\Timesheet::weeklyTrend($user->id, 6);
 
         return view('workspace.app.reports', array_merge($snapshot, [
-            'billingMethod' => $billingMethod,
-            'estimatedWeeklySpend' => $offer ? $offer->weekly_amount : 0,
+            'paypalStatus' => $paypalStatus,
+            'estimatedWeeklySpend' => $weeklySpend,
+            'hoursTrend' => $hoursTrend,
         ]));
     }
 

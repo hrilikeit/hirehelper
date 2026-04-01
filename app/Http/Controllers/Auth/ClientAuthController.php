@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\GetStartedMail;
 use App\Mail\VerifyEmailMail;
+use App\Models\EmailSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,21 +61,25 @@ class ClientAuthController extends Controller
         $request->session()->regenerate();
 
         try {
-            Mail::to($user->email)->send(new GetStartedMail(
-                user: $user,
-                dashboardUrl: route('workspace.dashboard'),
-            ));
+            if (EmailSetting::isActive('get_started')) {
+                Mail::to($user->email)->send(new GetStartedMail(
+                    user: $user,
+                    dashboardUrl: route('workspace.dashboard'),
+                ));
+            }
 
-            $verificationUrl = URL::temporarySignedRoute(
-                'verification.verify',
-                now()->addHours(24),
-                ['id' => $user->id, 'hash' => sha1($user->email)],
-            );
+            if (EmailSetting::isActive('verify_email')) {
+                $verificationUrl = URL::temporarySignedRoute(
+                    'verification.verify',
+                    now()->addHours(24),
+                    ['id' => $user->id, 'hash' => sha1($user->email)],
+                );
 
-            Mail::to($user->email)->send(new VerifyEmailMail(
-                user: $user,
-                verificationUrl: $verificationUrl,
-            ));
+                Mail::to($user->email)->send(new VerifyEmailMail(
+                    user: $user,
+                    verificationUrl: $verificationUrl,
+                ));
+            }
         } catch (\Throwable $e) {
             report($e);
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Workspace;
 use App\Http\Controllers\Controller;
 use App\Mail\PaymentMethodAddedMail;
 use App\Models\ClientBillingMethod;
+use App\Models\EmailSetting;
 use App\Models\ProjectOffer;
 use App\Services\PayPalService;
 use Illuminate\Http\RedirectResponse;
@@ -145,7 +146,7 @@ class PayPalBillingController extends Controller
 
         session()->forget('paypal_billing_setup');
 
-        if ($billing) {
+        if ($billing && EmailSetting::isActive('payment_method_added')) {
             try {
                 Mail::to($user->email)->send(new PaymentMethodAddedMail(
                     billingMethod: $billing,
