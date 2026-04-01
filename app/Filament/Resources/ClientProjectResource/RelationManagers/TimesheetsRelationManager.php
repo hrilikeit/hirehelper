@@ -3,15 +3,14 @@
 namespace App\Filament\Resources\ClientProjectResource\RelationManagers;
 
 use App\Models\Timesheet;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -109,7 +108,7 @@ class TimesheetsRelationManager extends RelationManager
                         return $data;
                     }),
             ])
-            ->actions([
+            ->recordActions([
                 EditAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['total_hours'] = (float) ($data['sun'] ?? 0) + (float) ($data['mon'] ?? 0)
