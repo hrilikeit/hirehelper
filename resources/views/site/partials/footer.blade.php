@@ -45,3 +45,4 @@
         <span>&copy; <span data-current-year></span> HireHelper.ai</span>
     </div>
 </footer>
+@include('partials.intercom')

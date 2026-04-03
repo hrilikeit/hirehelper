@@ -20,5 +20,6 @@
 
 <script src="{{ asset('workspace-assets/js/app.js') }}"></script>
 @stack('scripts')
+@include('partials.intercom')
 </body>
 </html>
