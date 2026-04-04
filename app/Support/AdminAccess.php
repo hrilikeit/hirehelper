@@ -112,7 +112,7 @@ class AdminAccess
 
         if (self::isSalesManager($user) && $user) {
             return $query
-                ->whereIn('status', ['draft', 'pending', 'active'])
+                ->whereIn('status', ['draft', 'pending'])
                 ->where(function (Builder $builder) use ($user) {
                     $builder
                         ->whereNull('sales_manager_id')
@@ -169,7 +169,7 @@ class AdminAccess
         }
 
         if (self::isSalesManager($user) && $user) {
-            return in_array((string) $project->status, ['draft', 'pending', 'active'], true)
+            return in_array((string) $project->status, ['draft', 'pending'], true)
                 && (! $project->sales_manager_id || $project->sales_manager_id === $user->id);
         }
 

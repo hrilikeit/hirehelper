@@ -9,7 +9,6 @@
                 <a href="{{ route('workspace.dashboard') }}" class="{{ ($activeNav ?? '') === 'projects' ? 'active' : '' }}">Projects</a>
                 <a href="{{ route('workspace.messages') }}" class="{{ ($activeNav ?? '') === 'messages' ? 'active' : '' }}">Messages</a>
                 <a href="{{ route('workspace.reports') }}" class="{{ ($activeNav ?? '') === 'reports' ? 'active' : '' }}">Reports</a>
-                <a href="{{ route('workspace.hire-flow') }}" class="{{ ($activeNav ?? '') === 'hire' ? 'active' : '' }}">Hire</a>
             </nav>
         @else
             <nav class="primary-nav" aria-label="Primary">
@@ -41,7 +40,6 @@
             <a href="{{ route('workspace.dashboard') }}">Projects</a>
             <a href="{{ route('workspace.messages') }}">Messages</a>
             <a href="{{ route('workspace.reports') }}">Reports</a>
-            <a href="{{ route('workspace.hire-flow') }}">Hire</a>
             <a href="{{ route('workspace.settings') }}">Settings</a>
         @else
             <a href="{{ route('workspace.index') }}">Workspace</a>

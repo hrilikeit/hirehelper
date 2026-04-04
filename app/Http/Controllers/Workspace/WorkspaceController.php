@@ -528,11 +528,47 @@ class WorkspaceController extends Controller
 
         $billingMethod = $offer->billing_method ?: $request->user()->defaultBillingMethod?->display_label;
 
+        // Current week timesheet
+        $weekStart = \App\Models\Timesheet::weekStartFor(now());
+        $currentTimesheet = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+            ->where('week_start', $weekStart)
+            ->first();
+
+        $currentWeekHours = $currentTimesheet ? (float) $currentTimesheet->total_hours : 0;
+        $currentWeekAmount = $currentTimesheet ? (float) $currentTimesheet->amount : 0;
+
+        // Last week timesheet
+        $lastWeekStart = $weekStart->copy()->subWeek();
+        $lastWeekTs = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+            ->where('week_start', $lastWeekStart)
+            ->first();
+
+        $lastWeekHours = $lastWeekTs ? (float) $lastWeekTs->total_hours : 0;
+        $lastWeekAmount = $lastWeekTs ? (float) $lastWeekTs->amount : 0;
+
+        // All-time totals
+        $totalHours = \App\Models\Timesheet::where('project_offer_id', $offer->id)->sum('total_hours');
+        $totalAmount = \App\Models\Timesheet::where('project_offer_id', $offer->id)->sum('amount');
+
+        // Recent timesheets for table
+        $timesheets = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+            ->orderByDesc('week_start')
+            ->take(12)
+            ->get();
+
         return view('workspace.app.project-active', [
             'offer' => $offer,
             'project' => $offer->project,
             'billingMethod' => $billingMethod,
             'billingVerified' => filled($billingMethod),
+            'currentTimesheet' => $currentTimesheet,
+            'currentWeekHours' => $currentWeekHours,
+            'currentWeekAmount' => $currentWeekAmount,
+            'lastWeekHours' => $lastWeekHours,
+            'lastWeekAmount' => $lastWeekAmount,
+            'totalHours' => $totalHours,
+            'totalAmount' => $totalAmount,
+            'timesheets' => $timesheets,
         ]);
     }
 

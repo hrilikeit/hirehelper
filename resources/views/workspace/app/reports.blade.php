@@ -41,13 +41,15 @@
         <section class="project-card">
             <h3 style="font-size:30px;letter-spacing:-.04em;margin:0 0 14px">Billing reminders</h3>
             <div class="setting-list">
-                <div class="setting-row">
-                    <div>
-                        <strong>Verify billing method</strong>
-                        <span>Add, remove, or change the primary billing method for the workspace.</span>
+                @if (! $billingMethod)
+                    <div class="setting-row">
+                        <div>
+                            <strong>Verify billing method</strong>
+                            <span>Add, remove, or change the primary billing method for the workspace.</span>
+                        </div>
+                        <a class="cta-link" href="{{ route('workspace.billing-method') }}">Open</a>
                     </div>
-                    <a class="cta-link" href="{{ route('workspace.billing-method') }}">Open</a>
-                </div>
+                @endif
                 <div class="setting-row">
                     <div>
                         <strong>Invoice details</strong>

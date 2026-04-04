@@ -290,6 +290,55 @@ class PayPalSubscriptionService
         return $response->json();
     }
 
+    /**
+     * List transactions for a subscription in a given date range.
+     */
+    public function listTransactions(WeeklySubscription $subscription, string $startTime, string $endTime): array
+    {
+        $setting = $this->requireSetting();
+
+        if (! filled($subscription->paypal_subscription_id)) {
+            return [];
+        }
+
+        $response = Http::baseUrl($setting->baseUrl())
+            ->withToken($this->accessToken($setting))
+            ->acceptJson()
+            ->get("/v1/billing/subscriptions/{$subscription->paypal_subscription_id}/transactions", [
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+            ]);
+
+        if (! $response->successful()) {
+            return [];
+        }
+
+        return $response->json('transactions', []);
+    }
+
+    /**
+     * Check if PayPal collected a payment for the given week (Monday charge for past week).
+     */
+    public function hasPaymentForWeek(WeeklySubscription $subscription, \DateTimeInterface $weekStart): bool
+    {
+        // PayPal charges on Monday for the past week (Sun-Sat).
+        // Look for transactions from the Monday after the week starts through to the following Sunday.
+        $chargeDate = \Carbon\Carbon::parse($weekStart)->next(Carbon::MONDAY);
+        $startTime = $chargeDate->copy()->startOfDay()->toIso8601String();
+        $endTime = $chargeDate->copy()->addDays(6)->endOfDay()->toIso8601String();
+
+        $transactions = $this->listTransactions($subscription, $startTime, $endTime);
+
+        foreach ($transactions as $tx) {
+            $status = strtoupper($tx['status'] ?? '');
+            if ($status === 'COMPLETED') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // ─── Helpers ────────────────────────────────────────────────
 
     /**
