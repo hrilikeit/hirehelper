@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\GetStartedMail;
 use App\Mail\VerifyEmailMail;
+use App\Models\EmailLog;
 use App\Models\EmailSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -65,10 +66,19 @@ class ClientAuthController extends Controller
 
         try {
             if (EmailSetting::isActive('get_started')) {
-                Mail::to($user->email)->send(new GetStartedMail(
+                $getStartedMail = new GetStartedMail(
                     user: $user,
                     dashboardUrl: route('workspace.dashboard'),
-                ));
+                );
+                Mail::to($user->email)->send($getStartedMail);
+
+                EmailLog::record(
+                    userId: $user->id,
+                    emailType: 'get_started',
+                    subject: 'Welcome to HireHelper',
+                    toEmail: $user->email,
+                    body: $getStartedMail->render(),
+                );
             }
 
             if (EmailSetting::isActive('verify_email')) {
@@ -78,10 +88,19 @@ class ClientAuthController extends Controller
                     ['id' => $user->id, 'hash' => sha1($user->email)],
                 );
 
-                Mail::to($user->email)->send(new VerifyEmailMail(
+                $verifyMail = new VerifyEmailMail(
                     user: $user,
                     verificationUrl: $verificationUrl,
-                ));
+                );
+                Mail::to($user->email)->send($verifyMail);
+
+                EmailLog::record(
+                    userId: $user->id,
+                    emailType: 'verify_email',
+                    subject: 'Verify your email',
+                    toEmail: $user->email,
+                    body: $verifyMail->render(),
+                );
             }
         } catch (\Throwable $e) {
             report($e);

@@ -88,8 +88,13 @@ class EditProjectActive extends EditRecord
                     $offer = $project->offers()->where('status', 'active')->first();
                     $client = $project->user;
 
-                    if (! $client || ! $offer) {
-                        Notification::make()->title('No client or active offer found.')->danger()->send();
+                    if (! $client) {
+                        Notification::make()->title('No client found for this project.')->danger()->send();
+                        return;
+                    }
+
+                    if (! $offer) {
+                        Notification::make()->title('No active offer/freelancer assigned to this project. Assign a freelancer first.')->danger()->send();
                         return;
                     }
 
@@ -151,8 +156,13 @@ class EditProjectActive extends EditRecord
                     $offer = $project->offers()->where('status', 'active')->first();
                     $client = $project->user;
 
-                    if (! $client || ! $offer) {
-                        Notification::make()->title('No client or active offer found.')->danger()->send();
+                    if (! $client) {
+                        Notification::make()->title('No client found for this project.')->danger()->send();
+                        return;
+                    }
+
+                    if (! $offer) {
+                        Notification::make()->title('No active offer/freelancer assigned to this project. Assign a freelancer first.')->danger()->send();
                         return;
                     }
 

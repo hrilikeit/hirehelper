@@ -151,6 +151,7 @@ class ProjectActiveResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('title')->searchable()->sortable()->limit(42),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
                 TextColumn::make('user.country')->label('Country')->toggleable(),

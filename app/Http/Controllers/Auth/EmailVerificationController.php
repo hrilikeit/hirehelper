@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\VerifyEmailMail;
+use App\Models\EmailLog;
 use App\Models\EmailSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,10 +35,19 @@ class EmailVerificationController extends Controller
         );
 
         try {
-            Mail::to($user->email)->send(new VerifyEmailMail(
+            $mailable = new VerifyEmailMail(
                 user: $user,
                 verificationUrl: $verificationUrl,
-            ));
+            );
+            Mail::to($user->email)->send($mailable);
+
+            EmailLog::record(
+                userId: $user->id,
+                emailType: 'verify_email',
+                subject: 'Verify your email',
+                toEmail: $user->email,
+                body: $mailable->render(),
+            );
         } catch (\Throwable $e) {
             report($e);
             return back()->with('info', 'Could not send verification email. Please try again later.');
