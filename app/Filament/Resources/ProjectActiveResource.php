@@ -113,7 +113,7 @@ class ProjectActiveResource extends Resource
                     Placeholder::make('freelancer_display')
                         ->label('Freelancer')
                         ->content(function (?ClientProject $record) {
-                            $offer = $record?->offers()->where('status', 'active')->first();
+                            $offer = $record?->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                             return $offer ? $offer->freelancer_display_name . ' — $' . number_format((float) $offer->hourly_rate, 2) . '/hr' : '—';
                         }),
                     Placeholder::make('sales_display')
@@ -158,9 +158,10 @@ class ProjectActiveResource extends Resource
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
                     ->state(function (ClientProject $record) {
-                        $offer = $record->offers()->where('status', 'active')->first();
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                         return $offer ? $offer->freelancer_display_name : '—';
                     }),
+                TextColumn::make('salesManager.name')->label('Sales')->toggleable(),
                 TextColumn::make('projectManager.name')->label('PM')->toggleable(),
                 TextColumn::make('status')->badge()->sortable(),
                 TextColumn::make('user.last_login_at')

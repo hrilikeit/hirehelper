@@ -125,9 +125,17 @@ class ClientProjectResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('title')->searchable()->sortable()->limit(42),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
-                TextColumn::make('specialty')->badge(),
+                TextColumn::make('user.country')->label('Country')->toggleable(),
+                TextColumn::make('specialty')->badge()->toggleable(),
+                TextColumn::make('offers_summary')
+                    ->label('Freelancer')
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending'])->first();
+                        return $offer ? $offer->freelancer_display_name : '—';
+                    }),
                 TextColumn::make('salesManager.name')->label('Sales')->toggleable(),
                 TextColumn::make('projectManager.name')->label('PM')->toggleable(),
                 TextColumn::make('status')->badge()->sortable(),
