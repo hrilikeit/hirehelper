@@ -46,7 +46,7 @@ class ProjectOfferResource extends Resource
 
     public static function canAccess(): bool
     {
-        return AdminAccess::canAccessNonSalesResource(auth()->user());
+        return AdminAccess::isSuperAdmin(auth()->user());
     }
 
     public static function getEloquentQuery(): Builder

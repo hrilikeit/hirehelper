@@ -133,6 +133,25 @@ class AdminAccess
         return $query->whereRaw('1 = 0');
     }
 
+    public static function scopeActiveProjects(Builder $query, ?User $user): Builder
+    {
+        if (self::isSuperAdmin($user) || self::isAdmin($user)) {
+            return $query;
+        }
+
+        if (self::isProjectManager($user) && $user) {
+            return $query
+                ->where(function (Builder $builder) use ($user) {
+                    $builder
+                        ->whereNull('project_manager_id')
+                        ->orWhere('project_manager_id', $user->id);
+                });
+        }
+
+        // Sales managers do not see active projects
+        return $query->whereRaw('1 = 0');
+    }
+
     public static function scopeOffers(Builder $query, ?User $user): Builder
     {
         if (self::isSuperAdmin($user) || self::isAdmin($user)) {
