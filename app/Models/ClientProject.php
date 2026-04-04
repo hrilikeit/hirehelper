@@ -73,6 +73,21 @@ class ClientProject extends Model
         return $this->hasMany(EmailLog::class);
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function bonusPayments()
+    {
+        return $this->hasManyThrough(
+            BonusPayment::class,
+            ProjectOffer::class,
+            'client_project_id',
+            'project_offer_id',
+        );
+    }
+
     public function latestOffer()
     {
         return $this->hasOne(ProjectOffer::class)->latestOfMany();

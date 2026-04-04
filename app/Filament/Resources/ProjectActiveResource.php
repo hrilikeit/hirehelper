@@ -6,6 +6,7 @@ use App\Filament\Resources\ClientProjectResource\RelationManagers\TimesheetsRela
 use App\Filament\Resources\ProjectActiveResource\Pages\EditProjectActive;
 use App\Filament\Resources\ProjectActiveResource\Pages\ListProjectActives;
 use App\Filament\Resources\ProjectActiveResource\RelationManagers\EmailLogsRelationManager;
+use App\Filament\Resources\ProjectActiveResource\RelationManagers\InvoicesRelationManager;
 use App\Models\ClientBillingMethod;
 use App\Models\ClientProject;
 use App\Models\User;
@@ -191,6 +192,7 @@ class ProjectActiveResource extends Resource
     {
         return [
             TimesheetsRelationManager::class,
+            InvoicesRelationManager::class,
             EmailLogsRelationManager::class,
         ];
     }

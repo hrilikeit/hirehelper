@@ -13,6 +13,7 @@ class EmailLog extends Model
         'email_type',
         'subject',
         'to_email',
+        'body',
         'status',
         'opened_at',
         'message_id',
@@ -51,6 +52,7 @@ class EmailLog extends Model
         ?int $projectId = null,
         ?int $offerId = null,
         ?string $messageId = null,
+        ?string $body = null,
     ): static {
         return static::create([
             'user_id' => $userId,
@@ -59,6 +61,7 @@ class EmailLog extends Model
             'email_type' => $emailType,
             'subject' => $subject,
             'to_email' => $toEmail,
+            'body' => $body,
             'message_id' => $messageId,
         ]);
     }

@@ -135,6 +135,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(EmailLog::class);
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     /**
      * Record login time, IP, and detect country via IP geolocation.
      */

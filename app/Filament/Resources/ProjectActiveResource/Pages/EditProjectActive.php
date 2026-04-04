@@ -41,11 +41,12 @@ class EditProjectActive extends EditRecord
             $client = $project->user;
             if ($client) {
                 try {
-                    Mail::to($client->email)->send(new ContractActiveMail(
+                    $mailable = new ContractActiveMail(
                         offer: $offer,
                         userName: $client->name,
                         projectUrl: route('workspace.project-active'),
-                    ));
+                    );
+                    Mail::to($client->email)->send($mailable);
 
                     EmailLog::record(
                         userId: $client->id,
@@ -54,6 +55,7 @@ class EditProjectActive extends EditRecord
                         toEmail: $client->email,
                         projectId: $project->id,
                         offerId: $offer->id,
+                        body: $mailable->render(),
                     );
 
                     Notification::make()
@@ -97,12 +99,13 @@ class EditProjectActive extends EditRecord
                     }
 
                     try {
-                        Mail::to($client->email)->send(new PaymentFailedMail(
+                        $mailable = new PaymentFailedMail(
                             offer: $offer,
                             userName: $client->name,
                             billingUrl: route('workspace.billing-method'),
                             amount: '$' . number_format($offer->weekly_amount, 2),
-                        ));
+                        );
+                        Mail::to($client->email)->send($mailable);
 
                         EmailLog::record(
                             userId: $client->id,
@@ -111,6 +114,7 @@ class EditProjectActive extends EditRecord
                             toEmail: $client->email,
                             projectId: $project->id,
                             offerId: $offer->id,
+                            body: $mailable->render(),
                         );
 
                         Notification::make()
@@ -158,13 +162,14 @@ class EditProjectActive extends EditRecord
                     }
 
                     try {
-                        Mail::to($client->email)->send(new WeeklyTrackedHoursMail(
+                        $mailable = new WeeklyTrackedHoursMail(
                             offer: $offer,
                             userName: $client->name,
                             hoursTracked: (float) $data['hours'],
                             weekLabel: $data['week_label'],
                             reportsUrl: route('workspace.reports'),
-                        ));
+                        );
+                        Mail::to($client->email)->send($mailable);
 
                         EmailLog::record(
                             userId: $client->id,
@@ -173,6 +178,7 @@ class EditProjectActive extends EditRecord
                             toEmail: $client->email,
                             projectId: $project->id,
                             offerId: $offer->id,
+                            body: $mailable->render(),
                         );
 
                         Notification::make()

@@ -124,6 +124,12 @@ class TimesheetsRelationManager extends RelationManager
                     ->action(function (Timesheet $record) {
                         $record->update(['status' => 'paid']);
 
+                        // Generate invoice
+                        $userId = $record->offer?->project?->user_id;
+                        if ($userId) {
+                            \App\Models\Invoice::createForTimesheet($record, $userId);
+                        }
+
                         Notification::make()
                             ->title('Marked as paid')
                             ->body('Week of ' . $record->week_start->format('M j, Y') . ' — $' . number_format((float) $record->amount, 2))
@@ -176,6 +182,12 @@ class TimesheetsRelationManager extends RelationManager
 
                             if ($paid) {
                                 $record->update(['status' => 'paid']);
+
+                                // Generate invoice
+                                $userId = $record->offer?->project?->user_id;
+                                if ($userId) {
+                                    \App\Models\Invoice::createForTimesheet($record, $userId);
+                                }
 
                                 Notification::make()
                                     ->title('Payment confirmed')

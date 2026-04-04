@@ -3,7 +3,7 @@
         <img src="{{ asset('workspace-assets/img/logo.svg') }}" alt="HireHelper.ai" />
         <div class="footer-minimal-copy">
             <strong>HireHelper.ai</strong>
-            <small>Client workspace</small>
+            <small>&copy; {{ date('Y') }} HireHelper.ai</small>
             @include('site.partials.payment-badges')
         </div>
     </div>

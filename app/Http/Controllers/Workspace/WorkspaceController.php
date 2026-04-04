@@ -708,6 +708,13 @@ class WorkspaceController extends Controller
             ]);
 
             if ($status === 'COMPLETED') {
+                // Generate invoice
+                \App\Models\Invoice::createForBonus(
+                    $bonusPayment,
+                    $user->id,
+                    $bonusPayment->offer?->client_project_id,
+                );
+
                 // Record in messages
                 $offer = $bonusPayment->offer;
                 if ($offer?->project) {
@@ -811,10 +818,22 @@ class WorkspaceController extends Controller
         // Hours trend (last 2 weeks, daily bars)
         $hoursTrend = \App\Models\Timesheet::weeklyTrend($user->id, 2);
 
+        // Invoices for this user
+        $invoices = \App\Models\Invoice::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->take(20)
+            ->get();
+
+        $totalPaid = \App\Models\Invoice::where('user_id', $user->id)
+            ->where('status', 'paid')
+            ->sum('amount');
+
         return view('workspace.app.reports', array_merge($snapshot, [
             'paypalStatus' => $paypalStatus,
             'estimatedWeeklySpend' => $weeklySpend,
             'hoursTrend' => $hoursTrend,
+            'invoices' => $invoices,
+            'totalPaid' => $totalPaid,
         ]));
     }
 

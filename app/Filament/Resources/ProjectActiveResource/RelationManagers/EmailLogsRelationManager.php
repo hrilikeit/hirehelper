@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\ProjectActiveResource\RelationManagers;
 
+use App\Models\EmailLog;
+use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class EmailLogsRelationManager extends RelationManager
 {
@@ -46,6 +47,31 @@ class EmailLogsRelationManager extends RelationManager
                     ->dateTime('M j, Y g:i A')
                     ->sortable(),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
+                Action::make('viewEmail')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->modalHeading(fn (EmailLog $record) => $record->subject ?: 'Email Preview')
+                    ->modalContent(function (EmailLog $record): HtmlString {
+                        if (filled($record->body)) {
+                            return new HtmlString(
+                                '<div style="max-height:500px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:0">'
+                                . '<iframe srcdoc="' . e($record->body) . '" style="width:100%;height:500px;border:none"></iframe>'
+                                . '</div>'
+                            );
+                        }
+
+                        return new HtmlString(
+                            '<div style="text-align:center;padding:48px 24px;color:#6b7280">'
+                            . '<p style="font-size:14px">Email content is not available for this message.</p>'
+                            . '<p style="font-size:12px;margin-top:8px">Email body storage was added after this email was sent.</p>'
+                            . '</div>'
+                        );
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
+            ]);
     }
 }

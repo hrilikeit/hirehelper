@@ -25,7 +25,7 @@
                     <img src="{{ asset('workspace-assets/img/avatar-jade.svg') }}" alt="Account avatar" />
                     <div class="meta">
                         <strong>{{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}</strong>
-                        <span>{{ auth()->user()->company ?: 'Client workspace' }}</span>
+                        <span>{{ auth()->user()->company ?: 'My workspace' }}</span>
                     </div>
                 </a>
             @else
