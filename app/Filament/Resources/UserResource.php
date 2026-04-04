@@ -97,9 +97,14 @@ class UserResource extends Resource
                 TextColumn::make('email')->searchable()->sortable(),
                 TextColumn::make('company')->searchable()->toggleable(),
                 TextColumn::make('phone')->toggleable(),
+                TextColumn::make('country')->toggleable(),
                 TextColumn::make('projects_count')
                     ->label('Projects')
                     ->counts('projects'),
+                TextColumn::make('last_login_at')
+                    ->label('Last login')
+                    ->since()
+                    ->sortable(),
                 TextColumn::make('created_at')->dateTime('M j, Y g:i A')->sortable(),
             ])
             ->defaultSort('created_at', 'desc')

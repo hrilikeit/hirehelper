@@ -68,6 +68,11 @@ class ClientProject extends Model
         );
     }
 
+    public function emailLogs()
+    {
+        return $this->hasMany(EmailLog::class);
+    }
+
     public function latestOffer()
     {
         return $this->hasOne(ProjectOffer::class)->latestOfMany();

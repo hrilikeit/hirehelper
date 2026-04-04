@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClientProjectResource\RelationManagers\TimesheetsRelationManager;
 use App\Filament\Resources\ProjectActiveResource\Pages\EditProjectActive;
 use App\Filament\Resources\ProjectActiveResource\Pages\ListProjectActives;
+use App\Filament\Resources\ProjectActiveResource\RelationManagers\EmailLogsRelationManager;
 use App\Models\ClientBillingMethod;
 use App\Models\ClientProject;
 use App\Models\User;
@@ -55,11 +56,31 @@ class ProjectActiveResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Project details')
+            Section::make('Client')
                 ->schema([
                     Placeholder::make('client_name')
-                        ->label('Client')
+                        ->label('Name')
                         ->content(fn (?ClientProject $record) => $record?->user?->name ?? '—'),
+                    Placeholder::make('client_email')
+                        ->label('Email')
+                        ->content(fn (?ClientProject $record) => $record?->user?->email ?? '—'),
+                    Placeholder::make('client_company')
+                        ->label('Company')
+                        ->content(fn (?ClientProject $record) => $record?->user?->company ?: '—'),
+                    Placeholder::make('client_country')
+                        ->label('Country')
+                        ->content(fn (?ClientProject $record) => $record?->user?->country ?: 'Not detected'),
+                    Placeholder::make('client_last_login')
+                        ->label('Last login')
+                        ->content(fn (?ClientProject $record) => $record?->user?->last_login_at?->diffForHumans() ?: 'Never'),
+                    Placeholder::make('client_registered')
+                        ->label('Registered')
+                        ->content(fn (?ClientProject $record) => $record?->user?->created_at?->format('M j, Y g:i A') ?? '—'),
+                ])
+                ->columns(3),
+
+            Section::make('Project details')
+                ->schema([
                     Placeholder::make('title_display')
                         ->label('Title')
                         ->content(fn (?ClientProject $record) => $record?->title ?? '—')
@@ -74,9 +95,6 @@ class ProjectActiveResource extends Resource
                     Placeholder::make('timeframe_display')
                         ->label('Timeframe')
                         ->content(fn (?ClientProject $record) => $record?->timeframe ?? '—'),
-                    Placeholder::make('specialty_display')
-                        ->label('Specialty')
-                        ->content(fn (?ClientProject $record) => $record?->specialty ?? '—'),
                     Placeholder::make('external_ref_display')
                         ->label('External reference')
                         ->content(fn (?ClientProject $record) => $record?->external_reference ?: '—'),
@@ -100,9 +118,6 @@ class ProjectActiveResource extends Resource
                     Placeholder::make('sales_display')
                         ->label('Sales manager')
                         ->content(fn (?ClientProject $record) => $record?->salesManager?->name ?? '—'),
-                    Placeholder::make('pm_display')
-                        ->label('Project manager')
-                        ->content(fn (?ClientProject $record) => $record?->projectManager?->name ?? '—'),
                 ])
                 ->columns(2),
 
@@ -137,16 +152,19 @@ class ProjectActiveResource extends Resource
             ->columns([
                 TextColumn::make('title')->searchable()->sortable()->limit(42),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
-                TextColumn::make('specialty')->badge(),
+                TextColumn::make('user.country')->label('Country')->toggleable(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
                     ->state(function (ClientProject $record) {
                         $offer = $record->offers()->where('status', 'active')->first();
                         return $offer ? $offer->freelancer_display_name : '—';
                     }),
-                TextColumn::make('salesManager.name')->label('Sales')->toggleable(),
                 TextColumn::make('projectManager.name')->label('PM')->toggleable(),
                 TextColumn::make('status')->badge()->sortable(),
+                TextColumn::make('user.last_login_at')
+                    ->label('Last login')
+                    ->since()
+                    ->toggleable(),
                 TextColumn::make('updated_at')->dateTime('M j, Y g:i A')->sortable(),
             ])
             ->filters([
@@ -173,6 +191,7 @@ class ProjectActiveResource extends Resource
     {
         return [
             TimesheetsRelationManager::class,
+            EmailLogsRelationManager::class,
         ];
     }
 

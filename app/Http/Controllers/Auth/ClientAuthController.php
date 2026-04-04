@@ -60,6 +60,9 @@ class ClientAuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        // Record first login time and detect country
+        $user->recordLogin($request->ip());
+
         try {
             if (EmailSetting::isActive('get_started')) {
                 Mail::to($user->email)->send(new GetStartedMail(
@@ -136,6 +139,9 @@ class ClientAuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        // Record login time and detect country
+        Auth::user()->recordLogin($request->ip());
 
         if ($next) {
             $request->session()->put('url.intended', $next);

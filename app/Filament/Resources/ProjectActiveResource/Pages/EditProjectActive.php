@@ -6,6 +6,7 @@ use App\Filament\Resources\ProjectActiveResource;
 use App\Mail\ContractActiveMail;
 use App\Mail\PaymentFailedMail;
 use App\Mail\WeeklyTrackedHoursMail;
+use App\Models\EmailLog;
 use App\Models\EmailSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -45,6 +46,15 @@ class EditProjectActive extends EditRecord
                         userName: $client->name,
                         projectUrl: route('workspace.project-active'),
                     ));
+
+                    EmailLog::record(
+                        userId: $client->id,
+                        emailType: 'contract_active',
+                        subject: 'Your contract is now active',
+                        toEmail: $client->email,
+                        projectId: $project->id,
+                        offerId: $offer->id,
+                    );
 
                     Notification::make()
                         ->title('Contract active email sent to ' . $client->email)
@@ -93,6 +103,15 @@ class EditProjectActive extends EditRecord
                             billingUrl: route('workspace.billing-method'),
                             amount: '$' . number_format($offer->weekly_amount, 2),
                         ));
+
+                        EmailLog::record(
+                            userId: $client->id,
+                            emailType: 'payment_failed',
+                            subject: 'Payment failed',
+                            toEmail: $client->email,
+                            projectId: $project->id,
+                            offerId: $offer->id,
+                        );
 
                         Notification::make()
                             ->title('Payment failed email sent to ' . $client->email)
@@ -146,6 +165,15 @@ class EditProjectActive extends EditRecord
                             weekLabel: $data['week_label'],
                             reportsUrl: route('workspace.reports'),
                         ));
+
+                        EmailLog::record(
+                            userId: $client->id,
+                            emailType: 'weekly_tracked_hours',
+                            subject: 'Weekly tracked hours — ' . $data['week_label'],
+                            toEmail: $client->email,
+                            projectId: $project->id,
+                            offerId: $offer->id,
+                        );
 
                         Notification::make()
                             ->title('Weekly hours email sent to ' . $client->email)

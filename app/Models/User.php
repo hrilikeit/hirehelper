@@ -27,6 +27,9 @@ class User extends Authenticatable implements FilamentUser
         'notify_messages',
         'notify_reports',
         'reminder_frequency',
+        'country',
+        'last_login_at',
+        'last_login_ip',
     ];
 
     protected $hidden = [
@@ -42,6 +45,7 @@ class User extends Authenticatable implements FilamentUser
             'is_active' => 'boolean',
             'notify_messages' => 'boolean',
             'notify_reports' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -124,5 +128,35 @@ class User extends Authenticatable implements FilamentUser
     public function managedOffers()
     {
         return $this->hasMany(ProjectOffer::class, 'project_manager_id');
+    }
+
+    public function emailLogs()
+    {
+        return $this->hasMany(EmailLog::class);
+    }
+
+    /**
+     * Record login time, IP, and detect country via IP geolocation.
+     */
+    public function recordLogin(string $ip): void
+    {
+        $this->forceFill([
+            'last_login_at' => now(),
+            'last_login_ip' => $ip,
+        ]);
+
+        // Detect country from IP if not already set
+        if (! $this->country && $ip !== '127.0.0.1') {
+            try {
+                $response = @file_get_contents("https://ipapi.co/{$ip}/country_name/");
+                if ($response && strlen($response) < 100 && ! str_contains($response, 'error')) {
+                    $this->country = trim($response);
+                }
+            } catch (\Throwable) {
+                // Silently fail — country is optional
+            }
+        }
+
+        $this->save();
     }
 }
