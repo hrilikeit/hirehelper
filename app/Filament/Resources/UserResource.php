@@ -9,8 +9,11 @@ use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
 use UnitEnum;
+use App\Models\LoginToken;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -101,6 +104,25 @@ class UserResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
+                Action::make('loginAsClient')
+                    ->label('Login')
+                    ->icon('heroicon-o-arrow-right-on-rectangle')
+                    ->color('success')
+                    ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user()))
+                    ->requiresConfirmation()
+                    ->modalHeading('Login as this client')
+                    ->modalDescription('A one-time login link will be generated (valid for 5 minutes). The client\'s password will not be changed.')
+                    ->action(function (User $record) {
+                        $token = LoginToken::createFor($record->id, auth()->id());
+                        $url = route('login-token', ['token' => $token->token]);
+
+                        Notification::make()
+                            ->title('Login link generated')
+                            ->body($url)
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    }),
                 EditAction::make(),
                 DeleteAction::make()
                     ->requiresConfirmation()

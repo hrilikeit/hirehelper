@@ -83,6 +83,21 @@ Route::post('/client/reset-password', [ResetPasswordController::class, 'reset'])
 
 Route::post('/client/logout', [ClientAuthController::class, 'logout'])->name('client.logout')->middleware('auth');
 
+Route::get('/login-token/{token}', function (string $token) {
+    $loginToken = \App\Models\LoginToken::where('token', $token)->first();
+
+    if (! $loginToken || ! $loginToken->isValid()) {
+        return redirect()->route('client.login')->with('error', 'This login link is invalid or has expired.');
+    }
+
+    $loginToken->update(['used_at' => now()]);
+
+    \Illuminate\Support\Facades\Auth::login($loginToken->user);
+    request()->session()->regenerate();
+
+    return redirect()->route('workspace.dashboard');
+})->name('login-token');
+
 Route::middleware('auth')->group(function () {
     Route::post('/email/verification-send', [EmailVerificationController::class, 'send'])->name('verification.send');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('signed');
