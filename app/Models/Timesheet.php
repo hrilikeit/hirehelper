@@ -81,27 +81,38 @@ class Timesheet extends Model
     }
 
     /**
-     * Get weekly totals for the Hours trend chart (last 6 weeks).
+     * Get daily hours for the trend chart (last N weeks, one bar per day).
      */
     public static function weeklyTrend(int $userId, int $weeks = 6): array
     {
+        $dayColumns = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         $results = [];
         $weekStart = static::weekStartFor(now());
 
-        for ($i = $weeks - 1; $i >= 0; $i--) {
-            $start = $weekStart->copy()->subWeeks($i);
-            $hours = static::query()
-                ->where('week_start', $start)
-                ->whereHas('offer', fn ($q) => $q
-                    ->whereHas('project', fn ($p) => $p->where('user_id', $userId))
-                    ->where('status', 'active')
-                )
-                ->sum('total_hours');
+        // Get all timesheets for this period
+        $earliest = $weekStart->copy()->subWeeks($weeks - 1);
+        $timesheets = static::query()
+            ->where('week_start', '>=', $earliest)
+            ->whereHas('offer', fn ($q) => $q
+                ->whereHas('project', fn ($p) => $p->where('user_id', $userId))
+                ->where('status', 'active')
+            )
+            ->get()
+            ->keyBy('week_start');
 
-            $results[] = [
-                'week' => $start->format('M j'),
-                'hours' => round((float) $hours, 2),
-            ];
+        for ($i = $weeks - 1; $i >= 0; $i--) {
+            $ws = $weekStart->copy()->subWeeks($i);
+
+            foreach ($dayColumns as $dayIdx => $dayCol) {
+                $date = $ws->copy()->addDays($dayIdx);
+                $ts = $timesheets->first(fn ($t) => $t->week_start->toDateString() === $ws->toDateString());
+                $hours = $ts ? round((float) $ts->{$dayCol}, 2) : 0;
+
+                $results[] = [
+                    'week' => $date->format('D j'),
+                    'hours' => $hours,
+                ];
+            }
         }
 
         return $results;

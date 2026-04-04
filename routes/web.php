@@ -139,6 +139,8 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
     Route::post('/project-active/close', [WorkspaceController::class, 'closeProject'])->name('project.close');
     Route::post('/project-active/update-weekly-limit', [WorkspaceController::class, 'updateWeeklyLimit'])->name('project.update-weekly-limit');
     Route::post('/project-active/pay-bonus', [WorkspaceController::class, 'payBonus'])->name('project.pay-bonus');
+    Route::get('/project-active/bonus-return/{bonus}', [WorkspaceController::class, 'bonusReturn'])->name('project.bonus-return');
+    Route::get('/project-active/bonus-cancel/{bonus}', [WorkspaceController::class, 'bonusCancel'])->name('project.bonus-cancel');
 
     Route::get('/messages.html', [WorkspaceController::class, 'messages'])->name('messages');
     Route::post('/messages.html', [WorkspaceController::class, 'storeMessage'])->name('messages.store');

@@ -645,34 +645,112 @@ class WorkspaceController extends Controller
             return redirect()->route('workspace.project-active')->with('error', 'Cannot process bonus for this contract.');
         }
 
-        // Create a bonus timesheet entry to track the payment
-        \App\Models\Timesheet::create([
+        $amount = (float) $data['amount'];
+
+        // Create bonus payment record
+        $bonus = \App\Models\BonusPayment::create([
+            'user_id' => $user->id,
             'project_offer_id' => $offer->id,
-            'week_start' => \App\Models\Timesheet::weekStartFor(now()),
-            'sun' => 0,
-            'mon' => 0,
-            'tue' => 0,
-            'wed' => 0,
-            'thu' => 0,
-            'fri' => 0,
-            'sat' => 0,
-            'total_hours' => 0,
-            'amount' => (float) $data['amount'],
+            'amount' => $amount,
+            'note' => $data['note'],
             'status' => 'pending',
         ]);
 
-        // Record in messages as well
-        $offer->project->messages()->create([
-            'project_offer_id' => $offer->id,
-            'sender_type' => 'client',
-            'sender_name' => $user->name,
-            'message' => 'Bonus payment of $' . number_format((float) $data['amount'], 2) . ' requested.' . ($data['note'] ? ' Note: ' . $data['note'] : ''),
-            'sent_at' => now(),
-        ]);
+        // Create PayPal order
+        try {
+            $service = app(\App\Services\PayPalSubscriptionService::class);
+            $result = $service->createBonusOrder(
+                amount: $amount,
+                description: 'Bonus payment for ' . $offer->freelancer_display_name . ' — ' . $offer->project->title,
+                returnUrl: route('workspace.project.bonus-return', ['bonus' => $bonus->id]),
+                cancelUrl: route('workspace.project.bonus-cancel', ['bonus' => $bonus->id]),
+            );
+
+            $bonus->update([
+                'paypal_order_id' => $result['order_id'],
+                'status' => 'approved',
+            ]);
+
+            return redirect()->away($result['approve_url']);
+        } catch (\Throwable $e) {
+            report($e);
+            $bonus->update(['status' => 'failed']);
+
+            return redirect()
+                ->route('workspace.project-active')
+                ->with('error', 'Could not create PayPal payment: ' . $e->getMessage());
+        }
+    }
+
+    public function bonusReturn(Request $request, int $bonus)
+    {
+        $user = $request->user();
+        $bonusPayment = \App\Models\BonusPayment::where('id', $bonus)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        if (! $bonusPayment->paypal_order_id) {
+            return redirect()->route('workspace.project-active')->with('error', 'Invalid bonus payment.');
+        }
+
+        try {
+            $service = app(\App\Services\PayPalSubscriptionService::class);
+            $capture = $service->captureOrder($bonusPayment->paypal_order_id);
+
+            $status = strtoupper($capture['status'] ?? '');
+            $captureId = data_get($capture, 'purchase_units.0.payments.captures.0.id');
+
+            $bonusPayment->update([
+                'status' => $status === 'COMPLETED' ? 'captured' : 'failed',
+                'paypal_capture_id' => $captureId,
+                'paypal_payload' => $capture,
+                'paid_at' => $status === 'COMPLETED' ? now() : null,
+            ]);
+
+            if ($status === 'COMPLETED') {
+                // Record in messages
+                $offer = $bonusPayment->offer;
+                if ($offer?->project) {
+                    $offer->project->messages()->create([
+                        'project_offer_id' => $offer->id,
+                        'sender_type' => 'client',
+                        'sender_name' => $user->name,
+                        'message' => 'Bonus payment of $' . number_format((float) $bonusPayment->amount, 2) . ' completed via PayPal.' . ($bonusPayment->note ? ' Note: ' . $bonusPayment->note : ''),
+                        'sent_at' => now(),
+                    ]);
+                }
+
+                return redirect()
+                    ->route('workspace.project-active')
+                    ->with('success', 'Bonus payment of $' . number_format((float) $bonusPayment->amount, 2) . ' completed successfully!');
+            }
+
+            return redirect()
+                ->route('workspace.project-active')
+                ->with('error', 'PayPal payment was not completed. Status: ' . $status);
+        } catch (\Throwable $e) {
+            report($e);
+            $bonusPayment->update(['status' => 'failed']);
+
+            return redirect()
+                ->route('workspace.project-active')
+                ->with('error', 'Payment capture failed: ' . $e->getMessage());
+        }
+    }
+
+    public function bonusCancel(Request $request, int $bonus)
+    {
+        $bonusPayment = \App\Models\BonusPayment::where('id', $bonus)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if ($bonusPayment) {
+            $bonusPayment->update(['status' => 'cancelled']);
+        }
 
         return redirect()
             ->route('workspace.project-active')
-            ->with('success', 'Bonus payment of $' . number_format((float) $data['amount'], 2) . ' has been submitted.');
+            ->with('info', 'Bonus payment was cancelled.');
     }
 
     public function messages(Request $request)
@@ -730,8 +808,8 @@ class WorkspaceController extends Controller
         // This week spend from admin timesheets
         $weeklySpend = \App\Models\Timesheet::currentWeekSpend($user->id);
 
-        // Hours trend (last 6 weeks from timesheets)
-        $hoursTrend = \App\Models\Timesheet::weeklyTrend($user->id, 6);
+        // Hours trend (last 2 weeks, daily bars)
+        $hoursTrend = \App\Models\Timesheet::weeklyTrend($user->id, 2);
 
         return view('workspace.app.reports', array_merge($snapshot, [
             'paypalStatus' => $paypalStatus,

@@ -339,6 +339,75 @@ class PayPalSubscriptionService
         return false;
     }
 
+    // ─── One-time Bonus Payments (Orders API v2) ──────────────
+
+    /**
+     * Create a PayPal order for a one-time bonus payment.
+     * Returns the approval URL to redirect the client to.
+     */
+    public function createBonusOrder(float $amount, string $description, string $returnUrl, string $cancelUrl): array
+    {
+        $setting = $this->requireSetting();
+
+        $response = Http::baseUrl($setting->baseUrl())
+            ->withToken($this->accessToken($setting))
+            ->acceptJson()
+            ->post('/v2/checkout/orders', [
+                'intent' => 'CAPTURE',
+                'purchase_units' => [
+                    [
+                        'amount' => [
+                            'currency_code' => 'USD',
+                            'value' => number_format($amount, 2, '.', ''),
+                        ],
+                        'description' => $description,
+                    ],
+                ],
+                'application_context' => [
+                    'return_url' => $returnUrl,
+                    'cancel_url' => $cancelUrl,
+                    'brand_name' => 'HireHelper',
+                    'user_action' => 'PAY_NOW',
+                ],
+            ]);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('PayPal create order failed: ' . $response->body());
+        }
+
+        $data = $response->json();
+        $approveUrl = $this->findLink($data, 'approve');
+
+        if (! $approveUrl) {
+            throw new RuntimeException('PayPal order did not return approval URL.');
+        }
+
+        return [
+            'order_id' => $data['id'],
+            'approve_url' => $approveUrl,
+        ];
+    }
+
+    /**
+     * Capture a PayPal order after client approval.
+     */
+    public function captureOrder(string $orderId): array
+    {
+        $setting = $this->requireSetting();
+
+        $response = Http::baseUrl($setting->baseUrl())
+            ->withToken($this->accessToken($setting))
+            ->acceptJson()
+            ->contentType('application/json')
+            ->post("/v2/checkout/orders/{$orderId}/capture", (object) []);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('PayPal capture order failed: ' . $response->body());
+        }
+
+        return $response->json();
+    }
+
     // ─── Helpers ────────────────────────────────────────────────
 
     /**

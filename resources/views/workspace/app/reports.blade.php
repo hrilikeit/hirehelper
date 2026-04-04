@@ -23,16 +23,16 @@
     <div class="grid-2">
         <section class="project-card chart-card">
             <h3 style="font-size:30px;letter-spacing:-.04em;margin:0">Hours trend</h3>
-            <p class="muted">Weekly tracked hours from the last 6 weeks.</p>
-            <div class="bar-chart">
+            <p class="muted">Daily tracked hours from the last 2 weeks.</p>
+            <div class="bar-chart" style="overflow-x:auto">
                 @php
                     $maxHours = max(1, collect($hoursTrend)->max('hours'));
                 @endphp
-                @foreach ($hoursTrend as $week)
-                    <div class="bar-wrapper" style="text-align:center">
-                        <div class="bar" style="height:{{ $maxHours > 0 ? round(($week['hours'] / $maxHours) * 80, 0) : 4 }}px; min-height:4px"></div>
-                        <div class="muted small" style="margin-top:4px;font-size:11px">{{ $week['hours'] }}h</div>
-                        <div class="muted small" style="font-size:10px">{{ $week['week'] }}</div>
+                @foreach ($hoursTrend as $entry)
+                    <div class="bar-wrapper" style="text-align:center;min-width:36px">
+                        <div class="bar" style="height:{{ $maxHours > 0 ? round(($entry['hours'] / $maxHours) * 80, 0) : 4 }}px; min-height:4px"></div>
+                        <div class="muted small" style="margin-top:4px;font-size:10px">{{ $entry['hours'] > 0 ? $entry['hours'] . 'h' : '' }}</div>
+                        <div class="muted small" style="font-size:9px">{{ $entry['week'] }}</div>
                     </div>
                 @endforeach
             </div>
