@@ -610,6 +610,71 @@ class WorkspaceController extends Controller
             ->with('success', 'The project has been cancelled.');
     }
 
+    public function updateWeeklyLimit(Request $request)
+    {
+        $data = $request->validate([
+            'offer_id' => ['required', 'integer'],
+            'weekly_limit' => ['required', 'integer', 'min:1', 'max:168'],
+        ]);
+
+        $offer = $this->resolveOffer($request->user(), $data['offer_id']);
+
+        if (! $offer || $offer->status !== 'active') {
+            return redirect()->route('workspace.project-active')->with('error', 'Cannot update this contract.');
+        }
+
+        $offer->update(['weekly_limit' => $data['weekly_limit']]);
+
+        return redirect()
+            ->route('workspace.project-active')
+            ->with('success', 'Weekly limit updated to ' . $data['weekly_limit'] . ' hrs / week.');
+    }
+
+    public function payBonus(Request $request)
+    {
+        $data = $request->validate([
+            'offer_id' => ['required', 'integer'],
+            'amount' => ['required', 'numeric', 'min:1', 'max:50000'],
+            'note' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $user = $request->user();
+        $offer = $this->resolveOffer($user, $data['offer_id']);
+
+        if (! $offer || $offer->status !== 'active') {
+            return redirect()->route('workspace.project-active')->with('error', 'Cannot process bonus for this contract.');
+        }
+
+        // Create a bonus timesheet entry to track the payment
+        \App\Models\Timesheet::create([
+            'project_offer_id' => $offer->id,
+            'week_start' => \App\Models\Timesheet::weekStartFor(now()),
+            'sun' => 0,
+            'mon' => 0,
+            'tue' => 0,
+            'wed' => 0,
+            'thu' => 0,
+            'fri' => 0,
+            'sat' => 0,
+            'total_hours' => 0,
+            'amount' => (float) $data['amount'],
+            'status' => 'pending',
+        ]);
+
+        // Record in messages as well
+        $offer->project->messages()->create([
+            'project_offer_id' => $offer->id,
+            'sender_type' => 'client',
+            'sender_name' => $user->name,
+            'message' => 'Bonus payment of $' . number_format((float) $data['amount'], 2) . ' requested.' . ($data['note'] ? ' Note: ' . $data['note'] : ''),
+            'sent_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('workspace.project-active')
+            ->with('success', 'Bonus payment of $' . number_format((float) $data['amount'], 2) . ' has been submitted.');
+    }
+
     public function messages(Request $request)
     {
         $snapshot = $this->buildSnapshot($request->user());
