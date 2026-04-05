@@ -21,7 +21,7 @@
                 <div>
                     <h1 style="font-size:48px;letter-spacing:-.05em;margin:0 0 20px">{{ $project->title }}</h1>
                 </div>
-                <button class="cta-link" type="button" onclick="document.getElementById('bonusModal').style.display='grid'" style="border:none;background:none;cursor:pointer;font:inherit;color:var(--primary);font-weight:700">Pay bonus</button>
+                <button class="cta-link" type="button" onclick="document.getElementById('bonusModal').style.display='grid'" style="border:none;background:none;cursor:pointer;font:inherit;color:var(--primary);font-weight:700;font-size:13px">Pay bonus</button>
             </div>
 
             {{-- Tabs --}}
@@ -144,7 +144,15 @@
                 <span>Pause contract</span>
                 <span class="toggle"></span>
             </div>
-            <button class="button button-primary" type="button" style="width:100%" onclick="document.getElementById('bonusModal').style.display='grid'">Pay bonus</button>
+            @if ($unpaidAmount > 0)
+                <form method="post" action="{{ route('workspace.project.pay-now') }}" style="width:100%">
+                    @csrf
+                    <input type="hidden" name="offer_id" value="{{ $offer->id }}">
+                    <button class="button button-primary" type="submit" style="width:100%">Pay now — ${{ number_format((float) $unpaidAmount, 2) }}</button>
+                </form>
+            @else
+                <button class="button button-primary" type="button" style="width:100%;opacity:.5;cursor:default" disabled>No outstanding balance</button>
+            @endif
             <form method="post" action="{{ route('workspace.project.close') }}" style="width:100%">
                 @csrf
                 <input type="hidden" name="offer_id" value="{{ $offer->id }}">

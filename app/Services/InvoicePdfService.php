@@ -138,7 +138,8 @@ class InvoicePdfService
       <div class="info-label">From</div>
       <div class="info-value">
         <strong>HireHelper.ai</strong><br>
-        hello@hirehelper.ai
+        hello@hirehelper.ai<br>
+        <span style="color:#6b7280">Freelancer: {$freelancerName}</span>
       </div>
     </div>
     <div class="info-block">

@@ -556,6 +556,11 @@ class WorkspaceController extends Controller
             ->take(12)
             ->get();
 
+        // Outstanding (unpaid) balance
+        $unpaidAmount = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+            ->where('status', 'pending')
+            ->sum('amount');
+
         return view('workspace.app.project-active', [
             'offer' => $offer,
             'project' => $offer->project,
@@ -569,6 +574,7 @@ class WorkspaceController extends Controller
             'totalHours' => $totalHours,
             'totalAmount' => $totalAmount,
             'timesheets' => $timesheets,
+            'unpaidAmount' => (float) $unpaidAmount,
         ]);
     }
 
@@ -743,6 +749,150 @@ class WorkspaceController extends Controller
                 ->route('workspace.project-active')
                 ->with('error', 'Payment capture failed: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Pay outstanding (unpaid) timesheet balance via PayPal.
+     */
+    public function payNow(Request $request)
+    {
+        $data = $request->validate([
+            'offer_id' => ['required', 'integer'],
+        ]);
+
+        $user = $request->user();
+        $offer = $this->resolveOffer($user, $data['offer_id']);
+
+        if (! $offer || $offer->status !== 'active') {
+            return redirect()->route('workspace.project-active')->with('error', 'Cannot process payment for this contract.');
+        }
+
+        // Gather all pending timesheets
+        $pendingTimesheets = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($pendingTimesheets->isEmpty()) {
+            return redirect()->route('workspace.project-active')->with('info', 'No outstanding balance to pay.');
+        }
+
+        $totalAmount = (float) $pendingTimesheets->sum('amount');
+
+        if ($totalAmount <= 0) {
+            return redirect()->route('workspace.project-active')->with('info', 'Outstanding balance is $0.00.');
+        }
+
+        // Store timesheet IDs in session so we can mark them paid on return
+        session(['pay_now_offer_id' => $offer->id, 'pay_now_timesheet_ids' => $pendingTimesheets->pluck('id')->toArray()]);
+
+        // Create PayPal order
+        try {
+            $service = app(\App\Services\PayPalSubscriptionService::class);
+            $result = $service->createBonusOrder(
+                amount: $totalAmount,
+                description: 'Outstanding balance for ' . $offer->freelancer_display_name . ' — ' . $offer->project->title,
+                returnUrl: route('workspace.project.pay-now-return'),
+                cancelUrl: route('workspace.project.pay-now-cancel'),
+            );
+
+            session(['pay_now_paypal_order_id' => $result['order_id']]);
+
+            return redirect()->away($result['approve_url']);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('workspace.project-active')
+                ->with('error', 'Could not create PayPal payment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle PayPal return for Pay Now.
+     */
+    public function payNowReturn(Request $request)
+    {
+        $user = $request->user();
+        $orderId = session('pay_now_paypal_order_id');
+        $timesheetIds = session('pay_now_timesheet_ids', []);
+        $offerId = session('pay_now_offer_id');
+
+        if (! $orderId || empty($timesheetIds)) {
+            return redirect()->route('workspace.project-active')->with('error', 'Invalid payment session.');
+        }
+
+        try {
+            $service = app(\App\Services\PayPalSubscriptionService::class);
+            $capture = $service->captureOrder($orderId);
+
+            $status = strtoupper($capture['status'] ?? '');
+            $captureId = data_get($capture, 'purchase_units.0.payments.captures.0.id');
+
+            if ($status === 'COMPLETED') {
+                $timesheets = \App\Models\Timesheet::whereIn('id', $timesheetIds)->get();
+                $offer = ProjectOffer::find($offerId);
+
+                foreach ($timesheets as $ts) {
+                    $ts->update([
+                        'status' => 'paid',
+                        'paid_at' => now(),
+                    ]);
+
+                    // Generate invoice per timesheet
+                    \App\Models\Invoice::createForTimesheet(
+                        $ts,
+                        $user->id,
+                        $offer?->client_project_id,
+                        $captureId,
+                    );
+                }
+
+                $totalPaid = $timesheets->sum('amount');
+
+                // Record in messages
+                if ($offer?->project) {
+                    $offer->project->messages()->create([
+                        'project_offer_id' => $offer->id,
+                        'sender_type' => 'client',
+                        'sender_name' => $user->name,
+                        'message' => 'Manual payment of $' . number_format((float) $totalPaid, 2) . ' completed via PayPal for ' . count($timesheets) . ' timesheet(s).',
+                        'sent_at' => now(),
+                    ]);
+                }
+
+                // Clear session data
+                session()->forget(['pay_now_paypal_order_id', 'pay_now_timesheet_ids', 'pay_now_offer_id']);
+
+                return redirect()
+                    ->route('workspace.project-active')
+                    ->with('success', 'Payment of $' . number_format((float) $totalPaid, 2) . ' completed successfully!');
+            }
+
+            session()->forget(['pay_now_paypal_order_id', 'pay_now_timesheet_ids', 'pay_now_offer_id']);
+
+            return redirect()
+                ->route('workspace.project-active')
+                ->with('error', 'PayPal payment was not completed. Status: ' . $status);
+        } catch (\Throwable $e) {
+            report($e);
+            session()->forget(['pay_now_paypal_order_id', 'pay_now_timesheet_ids', 'pay_now_offer_id']);
+
+            return redirect()
+                ->route('workspace.project-active')
+                ->with('error', 'Payment capture failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle PayPal cancel for Pay Now.
+     */
+    public function payNowCancel(Request $request)
+    {
+        session()->forget(['pay_now_paypal_order_id', 'pay_now_timesheet_ids', 'pay_now_offer_id']);
+
+        return redirect()
+            ->route('workspace.project-active')
+            ->with('info', 'Payment was cancelled.');
     }
 
     public function bonusCancel(Request $request, int $bonus)

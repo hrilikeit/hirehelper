@@ -142,6 +142,10 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
     Route::get('/project-active/bonus-return/{bonus}', [WorkspaceController::class, 'bonusReturn'])->name('project.bonus-return');
     Route::get('/project-active/bonus-cancel/{bonus}', [WorkspaceController::class, 'bonusCancel'])->name('project.bonus-cancel');
 
+    Route::post('/project-active/pay-now', [WorkspaceController::class, 'payNow'])->name('project.pay-now');
+    Route::get('/project-active/pay-now-return', [WorkspaceController::class, 'payNowReturn'])->name('project.pay-now-return');
+    Route::get('/project-active/pay-now-cancel', [WorkspaceController::class, 'payNowCancel'])->name('project.pay-now-cancel');
+
     Route::get('/messages.html', [WorkspaceController::class, 'messages'])->name('messages');
     Route::post('/messages.html', [WorkspaceController::class, 'storeMessage'])->name('messages.store');
 
