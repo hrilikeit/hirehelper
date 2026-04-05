@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\ProjectActiveResource\RelationManagers;
 
+use App\Models\ClientProject;
 use App\Models\EmailLog;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 
 class EmailLogsRelationManager extends RelationManager
@@ -16,6 +18,22 @@ class EmailLogsRelationManager extends RelationManager
     protected static ?string $title = 'Emails Sent';
 
     protected static ?string $recordTitleAttribute = 'email_type';
+
+    /**
+     * Override the query to show ALL emails for this client (by user_id),
+     * not just emails linked to this specific project.
+     */
+    public function getTableQuery(): ?Builder
+    {
+        /** @var ClientProject $project */
+        $project = $this->getOwnerRecord();
+
+        return EmailLog::query()
+            ->where(function (Builder $q) use ($project) {
+                $q->where('client_project_id', $project->id)
+                  ->orWhere('user_id', $project->user_id);
+            });
+    }
 
     public function table(Table $table): Table
     {

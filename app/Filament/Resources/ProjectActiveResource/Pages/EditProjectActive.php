@@ -30,7 +30,7 @@ class EditProjectActive extends EditRecord
     protected function afterSave(): void
     {
         $project = $this->record;
-        $offer = $project->offers()->where('status', 'active')->first();
+        $offer = $project->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
 
         if (! $offer) {
             return;
@@ -85,7 +85,7 @@ class EditProjectActive extends EditRecord
                 ->modalDescription('This will send a payment failed notification to the client.')
                 ->action(function () {
                     $project = $this->record;
-                    $offer = $project->offers()->where('status', 'active')->first();
+                    $offer = $project->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                     $client = $project->user;
 
                     if (! $client) {
@@ -153,7 +153,7 @@ class EditProjectActive extends EditRecord
                 ])
                 ->action(function (array $data) {
                     $project = $this->record;
-                    $offer = $project->offers()->where('status', 'active')->first();
+                    $offer = $project->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                     $client = $project->user;
 
                     if (! $client) {
