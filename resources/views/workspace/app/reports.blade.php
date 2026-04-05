@@ -92,6 +92,7 @@
                             <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Amount</th>
                             <th style="text-align:center;padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Status</th>
                             <th style="text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Date</th>
+                            <th style="text-align:center;padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -104,6 +105,7 @@
                                 <td style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;text-align:right;font-weight:600">${{ number_format((float) $invoice->amount, 2) }}</td>
                                 <td style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;text-align:center"><span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;background:{{ $invoice->status === 'paid' ? 'var(--jade-50, #e8f5e9)' : '#fff3e0' }};color:{{ $invoice->status === 'paid' ? 'var(--jade-700, #2e7d32)' : '#e65100' }}">{{ ucfirst($invoice->status) }}</span></td>
                                 <td style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap">{{ $invoice->created_at->format('M j, Y') }}</td>
+                                <td style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;text-align:center"><a href="{{ route('workspace.invoice.view', $invoice->id) }}" target="_blank" style="color:#6d6af8;font-weight:600;text-decoration:none;font-size:12px">View</a></td>
                             </tr>
                         @endforeach
                     </tbody>

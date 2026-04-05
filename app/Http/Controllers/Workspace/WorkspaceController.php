@@ -837,6 +837,17 @@ class WorkspaceController extends Controller
         ]));
     }
 
+    public function viewInvoice(Request $request, int $invoice)
+    {
+        $invoiceRecord = \App\Models\Invoice::where('id', $invoice)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        $html = \App\Services\InvoicePdfService::generateHtml($invoiceRecord);
+
+        return response($html)->header('Content-Type', 'text/html');
+    }
+
     public function settings(Request $request)
     {
         return view('workspace.app.settings', [

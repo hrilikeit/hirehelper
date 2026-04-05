@@ -146,6 +146,7 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
     Route::post('/messages.html', [WorkspaceController::class, 'storeMessage'])->name('messages.store');
 
     Route::get('/reports.html', [WorkspaceController::class, 'reports'])->name('reports');
+    Route::get('/invoice/{invoice}', [WorkspaceController::class, 'viewInvoice'])->name('invoice.view');
 
     Route::get('/settings.html', [WorkspaceController::class, 'settings'])->name('settings');
     Route::post('/settings.html', [WorkspaceController::class, 'updateSettings'])->name('settings.update');
