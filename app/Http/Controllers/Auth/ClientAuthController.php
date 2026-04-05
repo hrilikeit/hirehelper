@@ -42,10 +42,29 @@ class ClientAuthController extends Controller
                 : redirect()->route('workspace.dashboard');
         }
 
+        // Bot protection: honeypot field (must be empty)
+        if ($request->filled('website')) {
+            // Silently reject — bots fill hidden fields
+            return redirect()->route('workspace.index');
+        }
+
+        // Bot protection: form must have been open for at least 3 seconds
+        $loadedAt = (int) $request->input('_form_loaded_at', 0);
+        if ($loadedAt > 0 && (now()->timestamp - $loadedAt) < 3) {
+            return back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['email' => 'Please wait a moment before submitting.']);
+        }
+
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\']+$/u'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'agree_terms' => ['required', 'accepted'],
+        ], [
+            'name.regex' => 'Please enter a valid name.',
+            'agree_terms.required' => 'You must agree to the Terms of Service and Privacy Policy.',
+            'agree_terms.accepted' => 'You must agree to the Terms of Service and Privacy Policy.',
         ]);
 
         $user = User::create([

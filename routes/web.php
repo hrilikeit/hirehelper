@@ -70,10 +70,10 @@ Route::get('/client-workspace.html', [WorkspaceController::class, 'landing'])->n
 
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/register', [ClientAuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [ClientAuthController::class, 'register']);
+    Route::post('/register', [ClientAuthController::class, 'register'])->middleware('throttle:5,1');
 
     Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [ClientAuthController::class, 'login']);
+    Route::post('/login', [ClientAuthController::class, 'login'])->middleware('throttle:10,1');
 });
 
 Route::get('/client/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');

@@ -48,6 +48,23 @@
                 </div>
             </div>
 
+            {{-- Honeypot: hidden from humans, bots fill it --}}
+            <div style="position:absolute;left:-9999px;top:-9999px" aria-hidden="true">
+                <label for="website">Website</label>
+                <input type="text" name="website" id="website" tabindex="-1" autocomplete="off" value="" />
+            </div>
+
+            {{-- Timestamp to detect instant bot submissions --}}
+            <input type="hidden" name="_form_loaded_at" value="{{ now()->timestamp }}" />
+
+            <label class="checkbox-line" style="margin-top:4px;margin-bottom:0">
+                <input name="agree_terms" type="checkbox" value="1" {{ old('agree_terms') ? 'checked' : '' }} required />
+                <span>I Agree to the <a href="https://hirehelper.ai/terms.html" target="_blank" style="color:#2563eb;text-decoration:underline;font-weight:600">Terms of Service</a> and <a href="https://hirehelper.ai/privacy.html" target="_blank" style="color:#2563eb;text-decoration:underline;font-weight:600">Privacy Policy</a></span>
+            </label>
+            @error('agree_terms')
+                <p style="color:#dc2626;font-size:12px;margin:4px 0 0">{{ $message }}</p>
+            @enderror
+
             <div class="form-actions">
                 <a class="link-button" href="{{ route('workspace.index') }}">‹ Back</a>
                 <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
