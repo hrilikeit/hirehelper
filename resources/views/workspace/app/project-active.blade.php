@@ -187,20 +187,31 @@
 </div>
 
 <script>
-document.querySelectorAll('.tab-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(function(b) {
-            b.style.borderBottomColor = 'transparent';
-            b.style.color = 'var(--muted)';
-            b.classList.remove('active');
-        });
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+        b.style.borderBottomColor = 'transparent';
+        b.style.color = 'var(--muted)';
+        b.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.style.display = 'none'; });
+
+    var btn = document.querySelector('.tab-btn[data-tab="' + tabName + '"]');
+    if (btn) {
         btn.style.borderBottomColor = 'var(--primary)';
         btn.style.color = 'var(--primary)';
         btn.classList.add('active');
+    }
+    var panel = document.getElementById('tab-' + tabName);
+    if (panel) panel.style.display = 'block';
+}
 
-        document.querySelectorAll('.tab-panel').forEach(function(p) { p.style.display = 'none'; });
-        document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
-    });
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(btn.dataset.tab); });
 });
+
+// Auto-switch tab if URL hash is present
+if (window.location.hash === '#terms-settings') {
+    switchTab('terms-settings');
+}
 </script>
 @endsection
