@@ -76,6 +76,58 @@ class EditProjectActive extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('checkPayPal')
+                ->label('Check PayPal')
+                ->color('success')
+                ->icon('heroicon-o-arrow-path')
+                ->action(function () {
+                    $project = $this->record;
+                    $offer = $project->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+
+                    if (! $offer) {
+                        Notification::make()->title('No offer found for this project.')->danger()->send();
+                        return;
+                    }
+
+                    $subscription = \App\Models\WeeklySubscription::where('project_offer_id', $offer->id)->latest()->first();
+
+                    if (! $subscription) {
+                        Notification::make()->title('No PayPal subscription linked to this offer yet.')->warning()->send();
+                        return;
+                    }
+
+                    if (! filled($subscription->paypal_subscription_id)) {
+                        Notification::make()->title('Subscription has no PayPal ID yet (not yet approved).')->warning()->send();
+                        return;
+                    }
+
+                    try {
+                        $service = app(\App\Services\PayPalSubscriptionService::class);
+                        $synced = $service->sync($subscription);
+
+                        Notification::make()
+                            ->title('PayPal sync complete')
+                            ->body('Status: ' . ($synced->paypal_subscription_status ?: '—') . ' • Next billing: ' . ($synced->next_billing_at?->format('M j, Y') ?: '—'))
+                            ->success()
+                            ->send();
+
+                        // Refresh form so the placeholders re-render with new data
+                        $this->refreshFormData([
+                            'paypal_status_display',
+                            'paypal_payer_email_display',
+                            'paypal_next_billing_display',
+                            'total_paid_display',
+                            'total_pending_display',
+                        ]);
+                    } catch (\Throwable $e) {
+                        report($e);
+                        Notification::make()
+                            ->title('PayPal sync failed: ' . $e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+
             Action::make('sendPaymentFailed')
                 ->label('Send Payment Failed Email')
                 ->color('danger')

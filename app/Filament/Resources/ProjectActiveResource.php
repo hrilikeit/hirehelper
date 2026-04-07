@@ -144,6 +144,65 @@ class ProjectActiveResource extends Resource
                         ->columnSpanFull(),
                 ])
                 ->columns(2),
+
+            Section::make('PayPal & Payments')
+                ->schema([
+                    Placeholder::make('total_paid_display')
+                        ->label('Total paid')
+                        ->content(function (?ClientProject $record) {
+                            if (! $record) {
+                                return '$0.00';
+                            }
+                            $total = \App\Models\Invoice::where('client_project_id', $record->id)
+                                ->where('status', 'paid')
+                                ->sum('amount');
+                            return '$' . number_format((float) $total, 2);
+                        }),
+                    Placeholder::make('total_pending_display')
+                        ->label('Outstanding balance')
+                        ->content(function (?ClientProject $record) {
+                            if (! $record) {
+                                return '$0.00';
+                            }
+                            $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                            if (! $offer) {
+                                return '$0.00';
+                            }
+                            $pending = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+                                ->where('status', 'pending')
+                                ->sum('amount');
+                            return '$' . number_format((float) $pending, 2);
+                        }),
+                    Placeholder::make('paypal_subscription_id_display')
+                        ->label('Subscription ID')
+                        ->content(function (?ClientProject $record) {
+                            $offer = $record?->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                            $sub = $offer ? \App\Models\WeeklySubscription::where('project_offer_id', $offer->id)->latest()->first() : null;
+                            return $sub?->paypal_subscription_id ?: '—';
+                        }),
+                    Placeholder::make('paypal_status_display')
+                        ->label('PayPal status')
+                        ->content(function (?ClientProject $record) {
+                            $offer = $record?->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                            $sub = $offer ? \App\Models\WeeklySubscription::where('project_offer_id', $offer->id)->latest()->first() : null;
+                            return $sub?->paypal_subscription_status ?: '—';
+                        }),
+                    Placeholder::make('paypal_payer_email_display')
+                        ->label('Payer email')
+                        ->content(function (?ClientProject $record) {
+                            $offer = $record?->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                            $sub = $offer ? \App\Models\WeeklySubscription::where('project_offer_id', $offer->id)->latest()->first() : null;
+                            return $sub?->paypal_payer_email ?: '—';
+                        }),
+                    Placeholder::make('paypal_next_billing_display')
+                        ->label('Next billing')
+                        ->content(function (?ClientProject $record) {
+                            $offer = $record?->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                            $sub = $offer ? \App\Models\WeeklySubscription::where('project_offer_id', $offer->id)->latest()->first() : null;
+                            return $sub?->next_billing_at?->format('M j, Y g:i A') ?: '—';
+                        }),
+                ])
+                ->columns(2),
         ]);
     }
 
