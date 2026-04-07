@@ -35,8 +35,8 @@ class PayPalSubscriptionService
         // Step 1: Create a PayPal catalog product
         $product = $this->createProduct(
             $setting,
-            "Weekly payment – {$freelancerName}",
-            "Weekly development payment for {$freelancerName} on {$projectTitle}",
+            "Payment for contract – freelancer: {$freelancerName}",
+            "Payment for contract – freelancer: {$freelancerName}",
         );
 
         $productId = $product['id'];
@@ -47,7 +47,7 @@ class PayPalSubscriptionService
             $productId,
             $weeklyAmount,
             $offer->currency ?? 'USD',
-            "Weekly payment – {$freelancerName} – \${$weeklyAmount}/week",
+            "Payment for contract – freelancer: {$freelancerName}",
         );
 
         $planId = $plan['id'];
@@ -61,7 +61,7 @@ class PayPalSubscriptionService
             $startTime,
             $returnUrl,
             $cancelUrl,
-            "HireHelper weekly payment for {$freelancerName}",
+            "Payment for contract – freelancer: {$freelancerName}",
         );
 
         $approveUrl = $this->findLink($subscription, 'approve');
