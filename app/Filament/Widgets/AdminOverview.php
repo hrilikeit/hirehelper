@@ -24,9 +24,8 @@ class AdminOverview extends BaseWidget
         return [
             Stat::make('Clients', (string) User::query()->where('role', 'client')->count()),
             Stat::make('Freelancers', (string) Freelancer::query()->where('status', 'active')->count()),
-            Stat::make('Projects', (string) ClientProject::query()->count()),
-            Stat::make('Active offers', (string) ProjectOffer::query()->where('status', 'active')->count()),
-            Stat::make('Pending offers', (string) ProjectOffer::query()->where('status', 'pending')->count()),
+            Stat::make('Projects Active', (string) ClientProject::query()->where('status', 'active')->count()),
+            Stat::make('Projects Pending', (string) ClientProject::query()->where('status', 'pending')->count()),
         ];
     }
 }
