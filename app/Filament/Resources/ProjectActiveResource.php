@@ -46,6 +46,11 @@ class ProjectActiveResource extends Resource
 
     protected static ?string $slug = 'projects-active';
 
+    public static function canAccess(): bool
+    {
+        return AdminAccess::canAccessNonSalesResource(auth()->user());
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return AdminAccess::scopeActiveProjects(
@@ -211,8 +216,8 @@ class ProjectActiveResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('title')->searchable()->sortable()->limit(42),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
+                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(42),
                 TextColumn::make('user.country')->label('Country')->toggleable(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
@@ -220,6 +225,34 @@ class ProjectActiveResource extends Resource
                         $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                         return $offer ? $offer->freelancer_display_name : '—';
                     }),
+                TextColumn::make('this_week_debit')
+                    ->label('This week')
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                        if (! $offer) {
+                            return '$0.00';
+                        }
+                        $weekStart = \App\Models\Timesheet::weekStartFor(now());
+                        $amount = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+                            ->where('week_start', $weekStart)
+                            ->value('amount') ?? 0;
+                        return '$' . number_format((float) $amount, 2);
+                    })
+                    ->sortable(false),
+                TextColumn::make('total_debt')
+                    ->label('Total debt')
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                        if (! $offer) {
+                            return '$0.00';
+                        }
+                        $pending = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+                            ->where('status', 'pending')
+                            ->sum('amount');
+                        return '$' . number_format((float) $pending, 2);
+                    })
+                    ->sortable(false)
+                    ->color(fn (string $state) => $state !== '$0.00' ? 'danger' : null),
                 TextColumn::make('salesManager.name')->label('Sales')->toggleable(),
                 TextColumn::make('projectManager.name')->label('PM')->toggleable(),
                 TextColumn::make('status')->badge()->sortable(),
