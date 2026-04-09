@@ -219,6 +219,12 @@ class ClientAuthController extends Controller
             return route('workspace.hire-flow', ['freelancer' => (int) $request->input('freelancer')], false);
         }
 
+        // Support ?redirect=/services/slug for service subscription flow
+        $redirect = trim((string) $request->input('redirect', ''));
+        if ($redirect !== '' && str_starts_with($redirect, '/') && ! str_starts_with($redirect, '//')) {
+            return $redirect;
+        }
+
         $next = trim((string) $request->input('next', ''));
 
         if ($next !== '' && str_starts_with($next, '/') && ! str_starts_with($next, '//')) {

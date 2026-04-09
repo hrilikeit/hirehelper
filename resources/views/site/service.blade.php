@@ -29,7 +29,7 @@
         : null;
     $subscribeUrl = auth()->check()
         ? route('services.subscribe', $service->slug)
-        : url('/client/register?service=' . $service->slug);
+        : url('/client/register?redirect=' . urlencode('/services/' . $service->slug));
 @endphp
 <div class="page-shell">
     <header class="site-header">
@@ -46,7 +46,14 @@
             </nav>
             <div class="header-actions">
                 <a class="button button-secondary button-compact desktop-only" href="{{ route('help.index') }}">Help Center</a>
-                <a class="button button-primary button-compact" href="{{ $subscribeUrl }}">Subscribe</a>
+                @if (auth()->check())
+                    <form method="post" action="{{ route('services.subscribe', $service->slug) }}" style="display:inline">
+                        @csrf
+                        <button class="button button-primary button-compact" type="submit">Subscribe</button>
+                    </form>
+                @else
+                    <a class="button button-primary button-compact" href="{{ $subscribeUrl }}">Subscribe</a>
+                @endif
             </div>
         </div>
     </header>
@@ -77,10 +84,7 @@
                         @if ($existingSubscription)
                             <div style="width:100%;padding:14px;background:#d4edda;border-radius:10px;text-align:center;color:#155724;font-weight:600">Subscribed</div>
                         @else
-                            <form method="post" action="{{ $subscribeUrl }}" style="width:100%">
-                                @csrf
-                                <button class="button button-primary button-large freelancer-hire" type="submit" style="width:100%">Subscribe Now</button>
-                            </form>
+                            <a class="button button-primary button-large freelancer-hire" href="{{ $subscribeUrl }}" style="width:100%;text-align:center">Hire Now</a>
                         @endif
                     </aside>
 
@@ -90,7 +94,7 @@
                             <div style="background:linear-gradient(135deg,#6d6af8 0%,#a78bfa 100%);border-radius:16px;padding:28px 32px;margin-bottom:28px;color:#fff">
                                 <h2 style="font-size:28px;margin:0 0 4px;font-weight:800;letter-spacing:-.03em">{{ $service->name }}</h2>
                                 <p style="margin:0 0 20px;opacity:.85">Monthly service by {{ $freelancer->name }}</p>
-                                <div style="display:flex;gap:32px;flex-wrap:wrap">
+                                <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-end">
                                     <div>
                                         <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Monthly price</div>
                                         <div style="font-size:32px;font-weight:800;letter-spacing:-.03em">${{ number_format((float) $service->monthly_price, 2) }}</div>
@@ -102,6 +106,18 @@
                                     <div>
                                         <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Rating</div>
                                         <div style="font-size:32px;font-weight:800;letter-spacing:-.03em">{{ $ratingValue ?: '—' }}</div>
+                                    </div>
+                                    <div style="margin-left:auto">
+                                        @if ($existingSubscription)
+                                            <div style="padding:12px 28px;background:rgba(255,255,255,.2);border-radius:10px;font-weight:700">Subscribed</div>
+                                        @elseif (auth()->check())
+                                            <form method="post" action="{{ route('services.subscribe', $service->slug) }}">
+                                                @csrf
+                                                <button type="submit" style="padding:14px 36px;background:#fff;color:#6d6af8;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">Subscribe Now</button>
+                                            </form>
+                                        @else
+                                            <a href="{{ $subscribeUrl }}" style="display:inline-block;padding:14px 36px;background:#fff;color:#6d6af8;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none">Subscribe Now</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
