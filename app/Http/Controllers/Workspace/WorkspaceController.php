@@ -1036,6 +1036,63 @@ class WorkspaceController extends Controller
             ->with('success', 'Settings updated.');
     }
 
+    public function serviceSubscriptions(Request $request)
+    {
+        $user = $request->user();
+        $subscriptions = \App\Models\ServiceSubscription::where('user_id', $user->id)
+            ->whereIn('status', ['active', 'paused', 'cancelled'])
+            ->with(['service.freelancer'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('workspace.app.services', [
+            'user' => $user,
+            'subscriptions' => $subscriptions,
+        ]);
+    }
+
+    public function pauseServiceSubscription(Request $request, int $subscription)
+    {
+        $sub = \App\Models\ServiceSubscription::where('id', $subscription)
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        $sub->update(['status' => 'paused']);
+
+        return redirect()->route('workspace.services')
+            ->with('success', 'Subscription paused. Contact support to finalize the change.');
+    }
+
+    public function resumeServiceSubscription(Request $request, int $subscription)
+    {
+        $sub = \App\Models\ServiceSubscription::where('id', $subscription)
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'paused')
+            ->firstOrFail();
+
+        $sub->update(['status' => 'active']);
+
+        return redirect()->route('workspace.services')
+            ->with('success', 'Subscription resumed.');
+    }
+
+    public function cancelServiceSubscription(Request $request, int $subscription)
+    {
+        $sub = \App\Models\ServiceSubscription::where('id', $subscription)
+            ->where('user_id', $request->user()->id)
+            ->whereIn('status', ['active', 'paused'])
+            ->firstOrFail();
+
+        $sub->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
+
+        return redirect()->route('workspace.services')
+            ->with('success', 'Subscription cancelled. Contact support to finalize the PayPal cancellation.');
+    }
+
     protected function buildSnapshot(User $user): array
     {
         $projects = $user->projects()

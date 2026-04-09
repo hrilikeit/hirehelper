@@ -10,6 +10,7 @@ use App\Http\Controllers\HireRequestController;
 use App\Http\Controllers\Workspace\AcbaBillingController;
 use App\Http\Controllers\Workspace\PayPalBillingController;
 use App\Http\Controllers\Workspace\WeeklySubscriptionController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\Workspace\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +53,11 @@ Route::prefix('services')->name('services.')->group(function () {
 
 Route::get('/freelancer/{freelancer}/index.html', [FreelancerProfileController::class, 'showById'])->whereNumber('freelancer')->name('freelancers.show-id');
 Route::get('/freelancers/{slug}', [FreelancerProfileController::class, 'showBySlug'])->name('freelancers.show');
+
+Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('services.show');
+Route::post('/services/{slug}/subscribe', [ServiceController::class, 'subscribe'])->middleware('auth')->name('services.subscribe');
+Route::get('/services/{slug}/subscribe-return', [ServiceController::class, 'subscribeReturn'])->middleware('auth')->name('services.subscribe-return');
+Route::get('/services/{slug}/subscribe-cancel', [ServiceController::class, 'subscribeCancel'])->middleware('auth')->name('services.subscribe-cancel');
 
 Route::get('/help', fn () => redirect('/help/index.html'));
 Route::prefix('help')->name('help.')->group(function () {
@@ -154,6 +160,11 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
 
     Route::get('/settings.html', [WorkspaceController::class, 'settings'])->name('settings');
     Route::post('/settings.html', [WorkspaceController::class, 'updateSettings'])->name('settings.update');
+
+    Route::get('/services.html', [WorkspaceController::class, 'serviceSubscriptions'])->name('services');
+    Route::post('/service-subscription/{subscription}/pause', [WorkspaceController::class, 'pauseServiceSubscription'])->name('service-subscription.pause');
+    Route::post('/service-subscription/{subscription}/resume', [WorkspaceController::class, 'resumeServiceSubscription'])->name('service-subscription.resume');
+    Route::post('/service-subscription/{subscription}/cancel', [WorkspaceController::class, 'cancelServiceSubscription'])->name('service-subscription.cancel');
 });
 
 Route::view('/404.html', 'errors.404')->name('preview.404');
