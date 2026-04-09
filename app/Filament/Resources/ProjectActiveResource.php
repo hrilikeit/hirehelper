@@ -21,6 +21,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Tables\Actions\Action as TableAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -275,11 +277,31 @@ class ProjectActiveResource extends Resource
             ])
             ->defaultSort('updated_at', 'desc')
             ->recordActions([
+                TableAction::make('viewNotes')
+                    ->label('')
+                    ->icon('heroicon-o-bell')
+                    ->color(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'warning' : 'gray')
+                    ->tooltip(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'View acceptance notes' : 'No notes')
+                    ->modalHeading('Acceptance Notes')
+                    ->modalContent(fn (ClientProject $record) => new \Illuminate\Support\HtmlString(
+                        '<div style="padding:16px;white-space:pre-wrap;line-height:1.6">'
+                        . e($record->acceptance_notes ?: 'No acceptance notes for this project.')
+                        . '</div>'
+                    ))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
                 EditAction::make(),
                 DeleteAction::make()
                     ->requiresConfirmation()
                     ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\ProjectActiveResource\Widgets\ProjectActiveOverview::class,
+        ];
     }
 
     public static function getRelations(): array
