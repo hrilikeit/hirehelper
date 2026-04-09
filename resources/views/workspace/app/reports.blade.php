@@ -15,7 +15,19 @@
         <div class="report-card"><small>This week spend</small><strong>${{ number_format((float) $estimatedWeeklySpend, 2) }}</strong><div class="muted small">{{ $estimatedWeeklySpend > 0 ? 'Based on tracked hours' : 'No billed hours yet' }}</div></div>
         <div class="report-card"><small>Active contracts</small><strong>{{ $activeCount }}</strong><div class="muted small">{{ $activeCount ? 'Ready for time tracking' : 'Nothing active yet' }}</div></div>
         <div class="report-card"><small>Pending offers</small><strong>{{ $pendingCount }}</strong><div class="muted small">{{ $pendingCount ? 'Awaiting next action' : 'No pending offers' }}</div></div>
-        <div class="report-card"><small>Billing status</small><strong>PayPal {{ $paypalStatus }}</strong><div class="muted small">{{ $paypalStatus === 'Active' ? 'Subscription active' : 'No active subscription' }}</div></div>
+        <div class="report-card">
+            <small>Billing status</small>
+            @if ($paypalStatus === 'Active')
+                <strong>PayPal Active</strong>
+                <div class="muted small">Subscription active</div>
+            @elseif ($billingMethod)
+                <strong>Subscription inactive</strong>
+                <div class="muted small"><a href="{{ route('workspace.billing-method') }}" style="color:var(--primary)">Change payment method</a></div>
+            @else
+                <strong>No active payment method</strong>
+                <div class="muted small"><a href="{{ route('workspace.billing-method') }}" style="color:var(--primary)">Add payment method</a></div>
+            @endif
+        </div>
     </div>
 
     <div class="spacer"></div>
