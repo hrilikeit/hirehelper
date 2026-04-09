@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
 use UnitEnum;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
@@ -21,8 +22,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\Action as TableAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -277,7 +276,7 @@ class ProjectActiveResource extends Resource
             ])
             ->defaultSort('updated_at', 'desc')
             ->recordActions([
-                TableAction::make('viewNotes')
+                Action::make('viewNotes')
                     ->label('')
                     ->icon('heroicon-o-bell')
                     ->color(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'warning' : 'gray')
