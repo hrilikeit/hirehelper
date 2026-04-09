@@ -93,7 +93,12 @@
                             {{-- Service subscription info --}}
                             <div style="background:linear-gradient(135deg,#6d6af8 0%,#a78bfa 100%);border-radius:16px;padding:28px 32px;margin-bottom:28px;color:#fff">
                                 <h2 style="font-size:28px;margin:0 0 4px;font-weight:800;letter-spacing:-.03em">{{ $service->name }}</h2>
-                                <p style="margin:0 0 20px;opacity:.85">Monthly service by {{ $freelancer->name }}</p>
+                                <p style="margin:0 0 6px;opacity:.85">Monthly service by {{ $freelancer->name }}</p>
+                                @if ($service->description)
+                                    <p style="margin:0 0 20px;opacity:.75;font-size:14px;line-height:1.6">{{ $service->description }}</p>
+                                @else
+                                    <div style="margin-bottom:20px"></div>
+                                @endif
                                 <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-end">
                                     <div>
                                         <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Monthly price</div>
