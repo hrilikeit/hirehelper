@@ -35,6 +35,9 @@
                                     @yield('footer-extra')
                                 </p>
                             @endif
+                            @if(isset($emailLogId))
+                                <img src="{{ url('/email/track/' . $emailLogId . '/' . hash('sha256', $emailLogId . config('app.key'))) }}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
+                            @endif
                         </td>
                     </tr>
                 </table>

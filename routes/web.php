@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\EmailTrackingController;
 use App\Http\Controllers\FreelancerProfileController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\HireRequestController;
@@ -166,6 +167,8 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
     Route::post('/service-subscription/{subscription}/resume', [WorkspaceController::class, 'resumeServiceSubscription'])->name('service-subscription.resume');
     Route::post('/service-subscription/{subscription}/cancel', [WorkspaceController::class, 'cancelServiceSubscription'])->name('service-subscription.cancel');
 });
+
+Route::get('/email/track/{id}/{hash}', [EmailTrackingController::class, 'track'])->name('email.track');
 
 Route::view('/404.html', 'errors.404')->name('preview.404');
 Route::fallback(fn () => response()->view('errors.404', [], 404));

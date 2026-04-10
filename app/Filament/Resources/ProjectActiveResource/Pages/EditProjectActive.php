@@ -46,17 +46,19 @@ class EditProjectActive extends EditRecord
                         userName: $client->name,
                         projectUrl: route('workspace.project-active'),
                     );
-                    Mail::to($client->email)->send($mailable);
 
-                    EmailLog::record(
+                    $emailLog = EmailLog::record(
                         userId: $client->id,
                         emailType: 'contract_active',
                         subject: 'Your contract is now active',
                         toEmail: $client->email,
                         projectId: $project->id,
                         offerId: $offer->id,
-                        body: $mailable->render(),
                     );
+
+                    $mailable->with('emailLogId', $emailLog->id);
+                    Mail::to($client->email)->send($mailable);
+                    $emailLog->update(['body' => $mailable->render()]);
 
                     Notification::make()
                         ->title('Contract active email sent to ' . $client->email)
@@ -156,23 +158,34 @@ class EditProjectActive extends EditRecord
                     }
 
                     try {
+                        // Calculate actual outstanding balance from unpaid timesheets
+                        $outstandingBalance = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+                            ->where('status', 'pending')
+                            ->sum('amount');
+
                         $mailable = new PaymentFailedMail(
                             offer: $offer,
                             userName: $client->name,
                             billingUrl: route('workspace.billing-method'),
-                            amount: '$' . number_format($offer->weekly_amount, 2),
+                            amount: '$' . number_format((float) $outstandingBalance, 2),
                         );
-                        Mail::to($client->email)->send($mailable);
 
-                        EmailLog::record(
+                        // Create log first so we can embed tracking pixel
+                        $emailLog = EmailLog::record(
                             userId: $client->id,
                             emailType: 'payment_failed',
                             subject: 'Payment failed',
                             toEmail: $client->email,
                             projectId: $project->id,
                             offerId: $offer->id,
-                            body: $mailable->render(),
                         );
+
+                        // Attach emailLogId for the tracking pixel in the layout
+                        $mailable->with('emailLogId', $emailLog->id);
+                        Mail::to($client->email)->send($mailable);
+
+                        // Store rendered body after send
+                        $emailLog->update(['body' => $mailable->render()]);
 
                         Notification::make()
                             ->title('Payment failed email sent to ' . $client->email)
@@ -231,17 +244,19 @@ class EditProjectActive extends EditRecord
                             weekLabel: $data['week_label'],
                             reportsUrl: route('workspace.reports'),
                         );
-                        Mail::to($client->email)->send($mailable);
 
-                        EmailLog::record(
+                        $emailLog = EmailLog::record(
                             userId: $client->id,
                             emailType: 'weekly_tracked_hours',
                             subject: 'Weekly tracked hours — ' . $data['week_label'],
                             toEmail: $client->email,
                             projectId: $project->id,
                             offerId: $offer->id,
-                            body: $mailable->render(),
                         );
+
+                        $mailable->with('emailLogId', $emailLog->id);
+                        Mail::to($client->email)->send($mailable);
+                        $emailLog->update(['body' => $mailable->render()]);
 
                         Notification::make()
                             ->title('Weekly hours email sent to ' . $client->email)

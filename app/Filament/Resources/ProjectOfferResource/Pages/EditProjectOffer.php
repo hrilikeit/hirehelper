@@ -6,6 +6,7 @@ use App\Filament\Resources\ProjectOfferResource;
 use App\Mail\ContractActiveMail;
 use App\Mail\PaymentFailedMail;
 use App\Mail\WeeklyTrackedHoursMail;
+use App\Models\EmailLog;
 use App\Models\EmailSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -81,12 +82,31 @@ class EditProjectOffer extends EditRecord
                     }
 
                     try {
-                        Mail::to($client->email)->send(new PaymentFailedMail(
+                        // Calculate actual outstanding balance from unpaid timesheets
+                        $outstandingBalance = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+                            ->where('status', 'pending')
+                            ->sum('amount');
+
+                        $mailable = new PaymentFailedMail(
                             offer: $offer,
                             userName: $client->name,
                             billingUrl: route('workspace.billing-method'),
-                            amount: '$' . number_format($offer->weekly_amount, 2),
-                        ));
+                            amount: '$' . number_format((float) $outstandingBalance, 2),
+                        );
+
+                        $project = $offer->project;
+                        $emailLog = EmailLog::record(
+                            userId: $client->id,
+                            emailType: 'payment_failed',
+                            subject: 'Payment failed',
+                            toEmail: $client->email,
+                            projectId: $project?->id,
+                            offerId: $offer->id,
+                        );
+
+                        $mailable->with('emailLogId', $emailLog->id);
+                        Mail::to($client->email)->send($mailable);
+                        $emailLog->update(['body' => $mailable->render()]);
 
                         Notification::make()
                             ->title('Payment failed email sent to ' . $client->email)
