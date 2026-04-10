@@ -125,7 +125,7 @@ class WorkspaceController extends Controller
         if (($data['action'] ?? null) === 'continue') {
             $offerData = $request->validate([
                 'selected_freelancer_id' => ['nullable', 'integer'],
-                'freelancer_email' => ['required', 'string', 'email', 'max:255'],
+                'freelancer_email' => ['nullable', 'string', 'email', 'max:255'],
                 'hourly_rate' => ['required', 'numeric', 'min:1'],
                 'weekly_limit' => ['required', 'integer', 'min:1'],
             ]);
@@ -178,7 +178,7 @@ class WorkspaceController extends Controller
         $data = $request->validate([
             'project_id' => ['required', 'integer'],
             'selected_freelancer_id' => ['nullable', 'integer'],
-            'freelancer_email' => ['required', 'string', 'email', 'max:255'],
+            'freelancer_email' => ['nullable', 'string', 'email', 'max:255'],
             'hourly_rate' => ['required', 'numeric', 'min:1'],
             'weekly_limit' => ['required', 'integer', 'min:1'],
             'manual_time' => ['nullable', 'boolean'],
