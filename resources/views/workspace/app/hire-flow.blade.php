@@ -108,22 +108,7 @@
                     </div>
                 @endif
 
-                @if ($selectedFreelancerLocked)
-                    <input type="hidden" name="freelancer_email" value="{{ $freelancerEmailValue }}" />
-                @else
-                    <div class="form-group">
-                        <label class="form-label" for="freelancer_email">Freelancer contact email</label>
-                        <input
-                            class="input"
-                            id="freelancer_email"
-                            name="freelancer_email"
-                            type="email"
-                            placeholder="freelancer@example.com"
-                            value="{{ $freelancerEmailValue }}"
-                            required
-                        />
-                    </div>
-                @endif
+                <input type="hidden" name="freelancer_email" value="{{ $freelancerEmailValue }}" />
 
                 <div class="compact-offer-shell">
                     <div class="compact-offer-card">
