@@ -16,12 +16,14 @@ class ProjectMessage extends Model
         'sender_name',
         'message',
         'sent_at',
+        'client_read_at',
     ];
 
     protected function casts(): array
     {
         return [
             'sent_at' => 'datetime',
+            'client_read_at' => 'datetime',
         ];
     }
 

@@ -912,8 +912,18 @@ class WorkspaceController extends Controller
 
     public function messages(Request $request)
     {
-        $snapshot = $this->buildSnapshot($request->user());
+        $user = $request->user();
+        $snapshot = $this->buildSnapshot($user);
         $offer = $snapshot['activeOffer'] ?: $snapshot['pendingOffer'] ?: $snapshot['primaryOffer'];
+
+        // Mark all freelancer messages across this client's projects as read
+        \App\Models\ProjectMessage::whereIn(
+                'client_project_id',
+                \App\Models\ClientProject::where('user_id', $user->id)->pluck('id')
+            )
+            ->where('sender_type', 'freelancer')
+            ->whereNull('client_read_at')
+            ->update(['client_read_at' => now()]);
 
         return view('workspace.app.messages', [
             'offer' => $offer,
