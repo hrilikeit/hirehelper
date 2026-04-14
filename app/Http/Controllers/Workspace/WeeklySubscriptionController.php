@@ -91,18 +91,14 @@ class WeeklySubscriptionController extends Controller
         try {
             $subscription = $service->handleApproval($subscription);
 
-            // Update the offer status
+            // Update the offer payment info — project stays 'pending' until sales approves
             $offer = $subscription->offer;
 
             if ($offer) {
                 $offer->update([
                     'billing_method' => 'PayPal Weekly Subscription',
                     'payment_status' => 'subscription_active',
-                    'status' => 'active',
-                    'activated_at' => now(),
                 ]);
-
-                $offer->project?->update(['status' => 'active']);
             }
 
             // Create or update billing method so it shows in admin and client billing page
@@ -126,8 +122,8 @@ class WeeklySubscriptionController extends Controller
             );
 
             return redirect()
-                ->route('workspace.project-active')
-                ->with('success', 'Weekly PayPal subscription is now active! You will be billed ' . $subscription->formatted_amount . ' every week.');
+                ->route('workspace.project-pending')
+                ->with('success', 'Payment method verified! Your project is now under review. Our team will activate it shortly.');
         } catch (Throwable $e) {
             report($e);
 
