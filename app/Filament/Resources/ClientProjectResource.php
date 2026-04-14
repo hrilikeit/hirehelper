@@ -108,7 +108,6 @@ class ClientProjectResource extends Resource
                         ->options([
                             'draft' => 'Draft',
                             'pending' => 'Pending',
-                            'active' => 'Active (move to Projects Active)',
                             'cancelled' => 'Cancelled',
                         ])
                         ->required(),
