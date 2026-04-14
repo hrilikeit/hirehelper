@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\ConversationResource\Pages;
 
 use App\Filament\Resources\ConversationResource;
+use App\Mail\UnreadMessageMail;
+use App\Models\EmailLog;
 use App\Models\ProjectMessage;
 use Filament\Actions\Action;
+use Illuminate\Support\Facades\Mail;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -23,6 +26,65 @@ class EditConversation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('notifyUnread')
+                ->label('Notify by email')
+                ->color('warning')
+                ->icon('heroicon-o-envelope')
+                ->requiresConfirmation()
+                ->modalHeading('Send unread-messages email')
+                ->modalDescription('Send the client an email letting them know they have unread messages from the freelancer.')
+                ->action(function () {
+                    $project = $this->record;
+                    $client = $project->user;
+
+                    if (! $client) {
+                        Notification::make()->title('No client on this project.')->danger()->send();
+                        return;
+                    }
+
+                    // Find latest freelancer message to reference in the email
+                    $latest = $project->messages()
+                        ->where('sender_type', 'freelancer')
+                        ->orderByDesc('sent_at')
+                        ->first();
+
+                    if (! $latest) {
+                        Notification::make()->title('No freelancer messages exist yet to notify about.')->warning()->send();
+                        return;
+                    }
+
+                    try {
+                        $mailable = new UnreadMessageMail(
+                            message: $latest,
+                            projectTitle: $project->title ?? 'Your project',
+                            messagesUrl: route('workspace.messages'),
+                        );
+
+                        $emailLog = EmailLog::record(
+                            userId: $client->id,
+                            emailType: 'unread_message',
+                            subject: 'New message on "' . ($project->title ?? 'Your project') . '"',
+                            toEmail: $client->email,
+                            projectId: $project->id,
+                        );
+
+                        $mailable->with('emailLogId', $emailLog->id);
+                        Mail::to($client->email)->send($mailable);
+                        $emailLog->update(['body' => $mailable->render()]);
+
+                        Notification::make()
+                            ->title('Notification email sent to ' . $client->email)
+                            ->success()
+                            ->send();
+                    } catch (\Throwable $e) {
+                        report($e);
+                        Notification::make()
+                            ->title('Failed to send: ' . $e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+
             Action::make('sendReply')
                 ->label('Send reply')
                 ->color('primary')
@@ -67,7 +129,7 @@ class EditConversation extends EditRecord
             Section::make('Conversation')
                 ->schema([
                     Placeholder::make('thread_html')
-                        ->label('')
+                        ->hiddenLabel()
                         ->content(fn () => new HtmlString(view('filament.conversation.thread', [
                             'project' => $this->record,
                         ])->render()))
