@@ -137,6 +137,24 @@ class ClientProjectResource extends Resource
                     }),
                 TextColumn::make('salesManager.name')->label('Sales')->toggleable(),
                 TextColumn::make('projectManager.name')->label('PM')->toggleable(),
+                TextColumn::make('payment_status_display')
+                    ->label('Payment')
+                    ->badge()
+                    ->getStateUsing(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->latest()->first();
+                        if (! $offer) return 'No offer';
+                        if ($offer->payment_status === 'subscription_active') return 'Active';
+                        $billing = ClientBillingMethod::where('user_id', $record->user_id)->where('is_default', true)->first();
+                        if ($billing?->verified_at) return 'Verified';
+                        if ($billing) return 'Not verified';
+                        return 'Not added';
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        'Active' => 'success',
+                        'Verified' => 'info',
+                        'Not verified' => 'warning',
+                        default => 'danger',
+                    }),
                 TextColumn::make('status')->badge()->sortable(),
                 TextColumn::make('updated_at')->dateTime('M j, Y g:i A')->sortable(),
             ])
