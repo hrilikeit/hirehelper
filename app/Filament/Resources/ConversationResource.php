@@ -37,7 +37,7 @@ class ConversationResource extends Resource
 
     public static function canAccess(): bool
     {
-        return AdminAccess::canAccessNonSalesResource(auth()->user());
+        return true;
     }
 
     public static function canCreate(): bool
