@@ -134,7 +134,6 @@ class ProjectActiveResource extends Resource
                         ->options([
                             'pending' => 'Pending (move to Projects Pending)',
                             'active' => 'Active',
-                            'accepted' => 'Accepted',
                             'completed' => 'Completed',
                             'cancelled' => 'Cancelled',
                         ])
