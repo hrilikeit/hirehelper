@@ -6,13 +6,20 @@
 
         @auth
             @php
-                $unreadMessagesCount = \App\Models\ProjectMessage::whereIn(
-                        'client_project_id',
-                        \App\Models\ClientProject::where('user_id', auth()->id())->pluck('id')
-                    )
-                    ->where('sender_type', 'freelancer')
-                    ->whereNull('client_read_at')
-                    ->count();
+                $unreadMessagesCount = 0;
+                try {
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('project_messages', 'client_read_at')) {
+                        $unreadMessagesCount = \App\Models\ProjectMessage::whereIn(
+                                'client_project_id',
+                                \App\Models\ClientProject::where('user_id', auth()->id())->pluck('id')
+                            )
+                            ->where('sender_type', 'freelancer')
+                            ->whereNull('client_read_at')
+                            ->count();
+                    }
+                } catch (\Throwable $e) {
+                    $unreadMessagesCount = 0;
+                }
             @endphp
             <nav class="primary-nav" aria-label="Primary">
                 <a href="{{ route('workspace.dashboard') }}" class="{{ ($activeNav ?? '') === 'projects' ? 'active' : '' }}">Projects</a>

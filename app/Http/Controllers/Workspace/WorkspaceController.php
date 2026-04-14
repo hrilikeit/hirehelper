@@ -917,13 +917,19 @@ class WorkspaceController extends Controller
         $offer = $snapshot['activeOffer'] ?: $snapshot['pendingOffer'] ?: $snapshot['primaryOffer'];
 
         // Mark all freelancer messages across this client's projects as read
-        \App\Models\ProjectMessage::whereIn(
-                'client_project_id',
-                \App\Models\ClientProject::where('user_id', $user->id)->pluck('id')
-            )
-            ->where('sender_type', 'freelancer')
-            ->whereNull('client_read_at')
-            ->update(['client_read_at' => now()]);
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('project_messages', 'client_read_at')) {
+                \App\Models\ProjectMessage::whereIn(
+                        'client_project_id',
+                        \App\Models\ClientProject::where('user_id', $user->id)->pluck('id')
+                    )
+                    ->where('sender_type', 'freelancer')
+                    ->whereNull('client_read_at')
+                    ->update(['client_read_at' => now()]);
+            }
+        } catch (\Throwable $e) {
+            // Migration not yet run; ignore
+        }
 
         return view('workspace.app.messages', [
             'offer' => $offer,
