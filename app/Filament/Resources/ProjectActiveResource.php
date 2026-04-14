@@ -132,6 +132,7 @@ class ProjectActiveResource extends Resource
                 ->schema([
                     Select::make('status')
                         ->options([
+                            'pending' => 'Pending (move to Projects Pending)',
                             'active' => 'Active',
                             'accepted' => 'Accepted',
                             'completed' => 'Completed',
