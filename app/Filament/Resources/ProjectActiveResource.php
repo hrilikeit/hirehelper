@@ -24,7 +24,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -219,9 +218,12 @@ class ProjectActiveResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
-                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(30)->wrap(),
-                TextColumn::make('user.email')->label('Email')->searchable()->toggleable(),
+                TextColumn::make('user.name')
+                    ->label('Client')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (ClientProject $record) => $record->user?->email ?? ''),
+                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(35)->wrap(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
                     ->state(function (ClientProject $record) {
@@ -266,14 +268,17 @@ class ProjectActiveResource extends Resource
                     ->label('Last login')
                     ->since()
                     ->sortable(),
-                ViewColumn::make('unread_messages')
-                    ->label('')
-                    ->view('filament.tables.columns.message-badge'),
             ])
             ->defaultSort('updated_at', 'desc')
             ->recordActions([
                 Action::make('openMessages')
-                    ->label('')
+                    ->label(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? '+' . $unread : '';
+                    })
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
                     ->color(function (ClientProject $record) {
                         $unread = $record->messages()
@@ -282,6 +287,14 @@ class ProjectActiveResource extends Resource
                             ->count();
                         return $unread > 0 ? 'danger' : 'gray';
                     })
+                    ->badge(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? $unread : null;
+                    })
+                    ->badgeColor('danger')
                     ->tooltip(function (ClientProject $record) {
                         $unread = $record->messages()
                             ->whereNull('admin_read_at')
