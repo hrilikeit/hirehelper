@@ -32,6 +32,8 @@ class HireRequestResource extends Resource
 
     protected static ?int $navigationSort = 9;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static bool $shouldSkipAuthorization = true;
 
     protected static ?string $slug = 'hire-requests';
