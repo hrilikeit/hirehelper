@@ -55,7 +55,7 @@ class ProjectActiveResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return AdminAccess::scopeActiveProjects(
-            parent::getEloquentQuery()->whereIn('status', ['active', 'accepted', 'completed']),
+            parent::getEloquentQuery()->whereIn('status', ['active', 'accepted']),
             auth()->user()
         );
     }
@@ -136,6 +136,7 @@ class ProjectActiveResource extends Resource
                             'active' => 'Active',
                             'completed' => 'Completed',
                             'cancelled' => 'Cancelled',
+                            'archived' => 'Archived (move to Archive)',
                         ])
                         ->required(),
                     Select::make('project_manager_id')
@@ -219,7 +220,6 @@ class ProjectActiveResource extends Resource
                 TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
                 TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(42),
-                TextColumn::make('user.country')->label('Country')->toggleable(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
                     ->state(function (ClientProject $record) {
@@ -254,25 +254,10 @@ class ProjectActiveResource extends Resource
                     })
                     ->sortable(false)
                     ->color(fn (string $state) => $state !== '$0.00' ? 'danger' : null),
-                TextColumn::make('salesManager.name')->label('Sales')->toggleable(),
-                TextColumn::make('projectManager.name')->label('PM')->toggleable(),
-                TextColumn::make('status')->badge()->sortable(),
                 TextColumn::make('user.last_login_at')
                     ->label('Last login')
                     ->since()
-                    ->toggleable(),
-                TextColumn::make('updated_at')->dateTime('M j, Y g:i A')->sortable(),
-            ])
-            ->filters([
-                SelectFilter::make('status')
-                    ->options([
-                        'active' => 'Active',
-                        'accepted' => 'Accepted',
-                        'completed' => 'Completed',
-                    ]),
-                SelectFilter::make('project_manager_id')
-                    ->label('Project manager')
-                    ->options(fn () => User::query()->whereIn('role', ['superadmin', 'admin', 'project_manager'])->orderBy('name')->pluck('name', 'id')),
+                    ->sortable(),
             ])
             ->defaultSort('updated_at', 'desc')
             ->recordActions([
