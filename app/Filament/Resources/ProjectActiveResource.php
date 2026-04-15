@@ -218,6 +218,7 @@ class ProjectActiveResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('user.name')
                     ->label('Client')
                     ->searchable()
