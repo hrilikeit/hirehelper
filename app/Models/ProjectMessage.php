@@ -17,6 +17,7 @@ class ProjectMessage extends Model
         'message',
         'sent_at',
         'client_read_at',
+        'admin_read_at',
     ];
 
     protected function casts(): array
@@ -24,6 +25,7 @@ class ProjectMessage extends Model
         return [
             'sent_at' => 'datetime',
             'client_read_at' => 'datetime',
+            'admin_read_at' => 'datetime',
         ];
     }
 

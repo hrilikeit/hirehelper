@@ -9,6 +9,7 @@ use App\Filament\Resources\ProjectActiveResource\RelationManagers\EmailLogsRelat
 use App\Filament\Resources\ProjectActiveResource\RelationManagers\InvoicesRelationManager;
 use App\Models\ClientBillingMethod;
 use App\Models\ClientProject;
+use App\Models\ProjectMessage;
 use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
@@ -23,6 +24,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -217,9 +219,8 @@ class ProjectActiveResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
-                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(42),
+                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(30)->wrap(),
                 TextColumn::make('user.email')->label('Email')->searchable()->toggleable(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
@@ -265,9 +266,30 @@ class ProjectActiveResource extends Resource
                     ->label('Last login')
                     ->since()
                     ->sortable(),
+                ViewColumn::make('unread_messages')
+                    ->label('')
+                    ->view('filament.tables.columns.message-badge'),
             ])
             ->defaultSort('updated_at', 'desc')
             ->recordActions([
+                Action::make('openMessages')
+                    ->label('')
+                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                    ->color(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? 'danger' : 'gray';
+                    })
+                    ->tooltip(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? $unread . ' unread message(s)' : 'No new messages';
+                    })
+                    ->url(fn (ClientProject $record) => ConversationResource::getUrl('edit', ['record' => $record])),
                 Action::make('viewNotes')
                     ->label('')
                     ->icon('heroicon-o-bell')
