@@ -220,11 +220,18 @@ class ProjectActiveResource extends Resource
                 TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
                 TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(42),
+                TextColumn::make('user.email')->label('Email')->searchable()->toggleable(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
                     ->state(function (ClientProject $record) {
                         $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                         return $offer ? $offer->freelancer_display_name : '—';
+                    }),
+                TextColumn::make('hired_rate')
+                    ->label('Rate')
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                        return $offer ? '$' . number_format((float) $offer->hourly_rate, 2) . '/hr' : '—';
                     }),
                 TextColumn::make('this_week_debit')
                     ->label('This week')
@@ -267,13 +274,16 @@ class ProjectActiveResource extends Resource
                     ->color(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'warning' : 'gray')
                     ->tooltip(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'View acceptance notes' : 'No notes')
                     ->modalHeading('Acceptance Notes')
-                    ->modalContent(fn (ClientProject $record) => new \Illuminate\Support\HtmlString(
-                        '<div style="padding:16px;white-space:pre-wrap;line-height:1.6">'
-                        . e($record->acceptance_notes ?: 'No acceptance notes for this project.')
-                        . '</div>'
-                    ))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close'),
+                    ->form([
+                        Textarea::make('acceptance_notes')
+                            ->label('Notes')
+                            ->rows(8)
+                            ->default(fn (ClientProject $record) => $record->acceptance_notes),
+                    ])
+                    ->modalSubmitActionLabel('Save')
+                    ->action(function (ClientProject $record, array $data) {
+                        $record->update(['acceptance_notes' => $data['acceptance_notes'] ?? '']);
+                    }),
                 EditAction::make(),
                 DeleteAction::make()
                     ->requiresConfirmation()
