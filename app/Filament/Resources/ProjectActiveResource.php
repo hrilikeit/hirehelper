@@ -236,6 +236,13 @@ class ProjectActiveResource extends Resource
                     ->state(function (ClientProject $record) {
                         $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
                         return $offer ? '$' . number_format((float) $offer->hourly_rate, 2) . '/hr' : '—';
+                    })
+                    ->description(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                        if (! $offer || ! $offer->weekly_limit) {
+                            return '';
+                        }
+                        return $offer->weekly_limit . ' hrs/week';
                     }),
                 TextColumn::make('this_week_debit')
                     ->label('This week')
