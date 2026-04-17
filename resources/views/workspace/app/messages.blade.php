@@ -42,9 +42,12 @@
                         @php
                             $isClient = $message->sender_type === 'client';
                             $isSystem = $message->sender_type === 'system';
+                            $minutesApart = ($message->sent_at && $prevMessage && $prevMessage->sent_at)
+                                ? $message->sent_at->diffInMinutes($prevMessage->sent_at)
+                                : 999;
                             $showHeader = ! $prevMessage
                                 || $prevMessage->sender_type !== $message->sender_type
-                                || optional($message->sent_at)->diffInMinutes(optional($prevMessage->sent_at)) > 5;
+                                || $minutesApart > 5;
                         @endphp
 
                         @if ($isSystem)
