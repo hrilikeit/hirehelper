@@ -91,7 +91,7 @@
                     <label class="form-label" for="freelancer_search">Freelancer name or email</label>
                     <input class="input" id="freelancer_search" type="text" autocomplete="off"
                            placeholder="Type freelancer name or email..."
-                           value="{{ $selectedFreelancer ? $selectedFreelancer->name . ' (' . ($selectedFreelancer->contact_email ?? '') . ')' : '' }}" />
+                           value="{{ $selectedFreelancer ? $selectedFreelancer->name : '' }}" />
                     <input type="hidden" name="freelancer_email" id="freelancer_email" value="{{ $freelancerEmailValue }}" />
                     <input type="hidden" name="selected_freelancer_id" id="selected_freelancer_id_field" value="{{ $selectedFreelancerId ?? '' }}" />
                     <div id="freelancer-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(31,43,82,.12);max-height:280px;overflow-y:auto;margin-top:4px"></div>
@@ -278,11 +278,11 @@
                     }
 
                     dropdown.innerHTML = results.map(function(f) {
-                        return '<div class="fl-search-item" data-id="' + f.id + '" data-email="' + (f.email || '') + '" data-name="' + f.name + '" data-title="' + (f.title || '') + '" data-avatar="' + (f.avatar_url || '') + '" data-rate="' + (f.hourly_rate || '') + '" style="display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;transition:background .12s ease">' +
+                        return '<div class="fl-search-item" data-id="' + f.id + '" data-name="' + f.name + '" data-title="' + (f.title || '') + '" data-avatar="' + (f.avatar_url || '') + '" data-rate="' + (f.hourly_rate || '') + '" style="display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;transition:background .12s ease">' +
                             '<img src="' + (f.avatar_url || '') + '" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb" />' +
                             '<div style="flex:1;min-width:0">' +
                                 '<strong style="display:block;font-size:14px">' + f.name + '</strong>' +
-                                '<span style="display:block;font-size:12px;color:#6b7280">' + (f.email || f.title || '') + '</span>' +
+                                '<span style="display:block;font-size:12px;color:#6b7280">' + (f.title || 'Freelancer') + '</span>' +
                             '</div>' +
                             '<span style="font-size:13px;color:#6b7280;white-space:nowrap">$' + parseFloat(f.hourly_rate || 0).toFixed(0) + '/hr</span>' +
                         '</div>';
@@ -295,7 +295,7 @@
                         item.addEventListener('click', function() {
                             selectFreelancer(
                                 this.dataset.id,
-                                this.dataset.email,
+                                '',
                                 this.dataset.name,
                                 this.dataset.title,
                                 this.dataset.avatar,
@@ -320,7 +320,7 @@
     window.selectFreelancer = function(id, email, name, title, avatarUrl, rate) {
         idField.value = id;
         emailField.value = email || '';
-        searchInput.value = name + (email ? ' (' + email + ')' : '');
+        searchInput.value = name;
         dropdown.style.display = 'none';
 
         // Update preview

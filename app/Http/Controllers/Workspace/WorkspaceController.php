@@ -120,7 +120,6 @@ class WorkspaceController extends Controller
         return response()->json($freelancers->map(fn ($f) => [
             'id' => $f->id,
             'name' => $f->name,
-            'email' => $f->contact_email,
             'title' => $f->title,
             'hourly_rate' => $f->hourly_rate,
             'avatar_url' => $f->avatar_url,
