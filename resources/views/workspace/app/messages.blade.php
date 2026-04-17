@@ -12,66 +12,90 @@
     </div>
 
     <div class="split-layout">
-        <section class="project-card">
+        <section class="project-card" style="display:flex;flex-direction:column;padding:0;overflow:hidden">
             @if ($offer)
-                <div class="avatar-line" style="margin-bottom:18px">
-                    <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}">
+                {{-- Header --}}
+                <div style="padding:22px 28px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px">
+                    <img src="{{ $offer->freelancer_display_avatar_url }}" alt="{{ $offer->freelancer_display_name }}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb">
                     <div>
-                        <strong>{{ $offer->freelancer_display_name }}</strong>
-                        <span>{{ $offer->role }}</span>
+                        <strong style="font-size:16px;display:block">{{ $offer->freelancer_display_name }}</strong>
+                        <span style="font-size:13px;color:var(--muted)">{{ $offer->role }}</span>
                     </div>
+                    <span style="margin-left:auto;font-size:12px;padding:4px 10px;border-radius:999px;background:{{ $offer->status === 'active' ? '#dcfce7' : '#fef9c3' }};color:{{ $offer->status === 'active' ? '#166534' : '#854d0e' }};font-weight:600">{{ ucfirst($offer->status) }}</span>
                 </div>
 
-                <div class="separator"></div>
+                {{-- Messages area --}}
+                <div id="chat-scroll" style="flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:4px;max-height:520px;min-height:300px">
+                    {{-- System note --}}
+                    <div style="text-align:center;margin:8px 0 16px">
+                        <span style="display:inline-block;font-size:12px;color:var(--muted);background:#f4f7ff;padding:6px 14px;border-radius:999px">
+                            @if ($offer->status === 'active')
+                                This room is live — use it for updates and check-ins
+                            @else
+                                Offer pending — you can message before activating
+                            @endif
+                        </span>
+                    </div>
 
-                <div class="chat-card" style="background:#f8fbff;border-style:dashed">
-                    <strong>Workspace note</strong>
-                    <p class="muted" style="margin:8px 0 0">
-                        @if ($offer->status === 'active')
-                            This room is live. Use it for clarifications, check-ins, and contract-related updates.
-                        @else
-                            The offer is still pending. You can message the freelancer before activating the contract.
-                        @endif
-                    </p>
-                </div>
-
-                <div class="msg-thread" style="display:grid;gap:14px;margin-top:18px">
                     @forelse ($messages as $message)
                         @php
                             $isClient = $message->sender_type === 'client';
+                            $isSystem = $message->sender_type === 'system';
+                            $showHeader = $loop->first
+                                || $messages[$loop->index - 1]->sender_type !== $message->sender_type
+                                || optional($message->sent_at)->diffInMinutes(optional($messages[$loop->index - 1]->sent_at)) > 5;
                         @endphp
-                        <div class="msg-bubble {{ $isClient ? 'msg-client' : 'msg-freelancer' }}">
-                            <div class="msg-header">
-                                <strong class="msg-name">{{ $message->sender_name }}</strong>
-                                <time class="msg-time">{{ optional($message->sent_at)->format('M j, g:i A') ?: 'Just now' }}</time>
+
+                        @if ($isSystem)
+                            <div style="text-align:center;margin:12px 0">
+                                <span style="font-size:12px;color:var(--muted);background:#f8f9fc;padding:5px 12px;border-radius:999px">{{ $message->message }}</span>
                             </div>
-                            <div class="msg-body">{!! \App\Support\MessageFormatter::linkify(e($message->message)) !!}</div>
-                        </div>
+                        @else
+                            <div style="display:flex;flex-direction:column;{{ $isClient ? 'align-items:flex-end' : 'align-items:flex-start' }};{{ $showHeader ? 'margin-top:12px' : 'margin-top:2px' }}">
+                                @if ($showHeader)
+                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;{{ $isClient ? 'flex-direction:row-reverse' : '' }}">
+                                        <span style="font-size:12px;font-weight:700;color:var(--text)">{{ $message->sender_name }}</span>
+                                        <span style="font-size:11px;color:var(--muted)">{{ optional($message->sent_at)->format('M j, g:i A') ?: 'Just now' }}</span>
+                                    </div>
+                                @endif
+                                <div style="
+                                    max-width:78%;
+                                    padding:10px 16px;
+                                    border-radius:{{ $isClient ? '18px 18px 4px 18px' : '18px 18px 18px 4px' }};
+                                    background:{{ $isClient ? '#4b4ff5' : '#f0f2f8' }};
+                                    color:{{ $isClient ? '#fff' : '#2c3150' }};
+                                    font-size:14px;
+                                    line-height:1.6;
+                                    word-break:break-word;
+                                ">
+                                    {!! \App\Support\MessageFormatter::linkify(e($message->message), $isClient) !!}
+                                </div>
+                            </div>
+                        @endif
                     @empty
-                        <p class="empty">No messages yet. Start the conversation below.</p>
+                        <div style="text-align:center;padding:40px 0">
+                            <p style="color:var(--muted);font-size:15px">No messages yet. Start the conversation below.</p>
+                        </div>
                     @endforelse
                 </div>
 
-                <div class="separator"></div>
-
-                <form method="post" action="{{ route('workspace.messages.store') }}">
-                    @csrf
-                    <div class="form-group">
-                        <label class="form-label" for="message">New message</label>
-                        <textarea class="textarea" id="message" name="message" rows="5" placeholder="Share the next step, request an update, or confirm the details." required>{{ old('message') }}</textarea>
-                    </div>
-                    <div class="form-actions">
-                        <span class="muted small">Messages stay inside this workspace.</span>
-                        <button class="button button-primary" type="submit">Send message</button>
-                    </div>
-                </form>
-            @else
-                <div class="chat-card" style="background:#f8fbff;border-style:dashed">
-                    <strong>Workspace note</strong>
-                    <p class="muted" style="margin:8px 0 0">Create a project brief and send an offer before the message room becomes active.</p>
+                {{-- Compose --}}
+                <div style="padding:16px 28px 22px;border-top:1px solid var(--line);background:#fafbfe">
+                    <form method="post" action="{{ route('workspace.messages.store') }}" style="display:flex;gap:10px;align-items:flex-end">
+                        @csrf
+                        <textarea class="textarea" id="message" name="message" rows="2" placeholder="Type a message..." required style="flex:1;resize:none;border-radius:16px;padding:12px 16px;font-size:14px;min-height:48px">{{ old('message') }}</textarea>
+                        <button class="button button-primary" type="submit" style="border-radius:16px;padding:12px 22px;white-space:nowrap">Send</button>
+                    </form>
                 </div>
-                <div style="margin-top:18px">
-                    <a class="button button-primary" href="{{ route('workspace.hire-flow') }}">Create project</a>
+            @else
+                <div style="padding:28px">
+                    <div class="chat-card" style="background:#f8fbff;border-style:dashed">
+                        <strong>Workspace note</strong>
+                        <p class="muted" style="margin:8px 0 0">Create a project brief and send an offer before the message room becomes active.</p>
+                    </div>
+                    <div style="margin-top:18px">
+                        <a class="button button-primary" href="{{ route('workspace.hire-flow') }}">Create project</a>
+                    </div>
                 </div>
             @endif
         </section>
@@ -111,3 +135,22 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+// Auto-scroll to bottom of chat
+var chatScroll = document.getElementById('chat-scroll');
+if (chatScroll) {
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+}
+
+// Auto-resize textarea
+var textarea = document.getElementById('message');
+if (textarea) {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+}
+</script>
+@endpush
