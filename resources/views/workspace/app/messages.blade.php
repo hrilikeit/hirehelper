@@ -35,14 +35,17 @@
                     </p>
                 </div>
 
-                <div style="display:grid;gap:16px;margin-top:18px">
+                <div class="msg-thread" style="display:grid;gap:14px;margin-top:18px">
                     @forelse ($messages as $message)
-                        <div class="setting-row" style="align-items:flex-start">
-                            <div>
-                                <strong>{{ $message->sender_name }}</strong>
-                                <span>{{ $message->message }}</span>
+                        @php
+                            $isClient = $message->sender_type === 'client';
+                        @endphp
+                        <div class="msg-bubble {{ $isClient ? 'msg-client' : 'msg-freelancer' }}">
+                            <div class="msg-header">
+                                <strong class="msg-name">{{ $message->sender_name }}</strong>
+                                <time class="msg-time">{{ optional($message->sent_at)->format('M j, g:i A') ?: 'Just now' }}</time>
                             </div>
-                            <span class="badge">{{ optional($message->sent_at)->format('M j') ?: 'Today' }}</span>
+                            <div class="msg-body">{!! \App\Support\MessageFormatter::linkify(e($message->message)) !!}</div>
                         </div>
                     @empty
                         <p class="empty">No messages yet. Start the conversation below.</p>

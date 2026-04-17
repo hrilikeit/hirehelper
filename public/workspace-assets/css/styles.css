@@ -975,6 +975,26 @@ button,input,select,textarea{font:inherit}
 }
 
 
+/* message thread */
+.msg-thread{max-height:600px;overflow-y:auto;padding-right:4px}
+.msg-bubble{
+  padding:14px 18px;border-radius:18px;max-width:88%;
+  border:1px solid var(--line);background:#fff
+}
+.msg-client{justify-self:start}
+.msg-freelancer{justify-self:end;background:#f4f7ff;border-color:#dbe4ff}
+.msg-header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px
+}
+.msg-name{font-size:14px;font-weight:700;color:var(--text)}
+.msg-time{font-size:12px;color:var(--muted);white-space:nowrap}
+.msg-body{font-size:15px;line-height:1.65;color:#3a4260;word-break:break-word}
+.msg-link{
+  color:var(--primary);text-decoration:underline;word-break:break-all;
+  transition:color .15s ease
+}
+.msg-link:hover{color:#3b40e0}
+
 .billing-choice-disabled{opacity:.58;cursor:not-allowed}
 .billing-choice-disabled .billing-choice-brand{opacity:.78}
 .billing-manual-step{max-width:920px;margin:24px auto 0;padding:26px 28px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
