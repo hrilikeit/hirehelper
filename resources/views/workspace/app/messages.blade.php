@@ -37,13 +37,14 @@
                         </span>
                     </div>
 
+                    @php $prevMessage = null; @endphp
                     @forelse ($messages as $message)
                         @php
                             $isClient = $message->sender_type === 'client';
                             $isSystem = $message->sender_type === 'system';
-                            $showHeader = $loop->first
-                                || $messages[$loop->index - 1]->sender_type !== $message->sender_type
-                                || optional($message->sent_at)->diffInMinutes(optional($messages[$loop->index - 1]->sent_at)) > 5;
+                            $showHeader = ! $prevMessage
+                                || $prevMessage->sender_type !== $message->sender_type
+                                || optional($message->sent_at)->diffInMinutes(optional($prevMessage->sent_at)) > 5;
                         @endphp
 
                         @if ($isSystem)
@@ -72,6 +73,7 @@
                                 </div>
                             </div>
                         @endif
+                        @php $prevMessage = $message; @endphp
                     @empty
                         <div style="text-align:center;padding:40px 0">
                             <p style="color:var(--muted);font-size:15px">No messages yet. Start the conversation below.</p>
