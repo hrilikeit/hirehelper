@@ -69,7 +69,7 @@
                 <a class="link-button" href="{{ route('workspace.index') }}">‹ Back</a>
                 <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
                     <a class="button button-secondary" href="{{ $nextUrl ? '/client/login?next=' . urlencode($nextUrl) : '/client/login' }}">Already have an account?</a>
-                    <button class="button button-primary" type="submit">Create workspace</button>
+                    <button class="button button-primary" type="submit">Join as a client</button>
                 </div>
             </div>
         </form>

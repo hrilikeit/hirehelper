@@ -72,10 +72,20 @@ class WorkspaceController extends Controller
         $user = $request->user();
         $project = $this->resolveProject($user, $request->query('project'));
         $offer = $project->exists ? $project->offers()->with('freelancer')->latest()->first() : null;
+
+        // Only auto-attach freelancer if explicitly passed via query param,
+        // or if editing an existing project that already has an offer
+        $freelancerQueryParam = $request->query('freelancer');
         $selectedFreelancer = $this->resolveSelectedFreelancer(
-            $request->query('freelancer'),
-            $offer?->freelancer_id,
+            $freelancerQueryParam,
+            $freelancerQueryParam ? null : ($offer?->freelancer_id),
         );
+
+        // Don't auto-attach from previous offers when creating a brand new project
+        if (! $freelancerQueryParam && ! $request->query('project') && $offer && ! in_array($project->status, ['pending', 'active'], true)) {
+            $selectedFreelancer = null;
+            $offer = null;
+        }
 
         return view('workspace.app.hire-flow', [
             'user' => $user,
@@ -87,6 +97,34 @@ class WorkspaceController extends Controller
             'timeframeOptions' => ['Less than 1 week', 'Less than 1 month', '1–3 months', '3–6 months', 'More than 6 months'],
             'specialtyOptions' => ['Front-end development', 'Back-end development', 'Full stack development', 'Mobile app development', 'UI/UX design', 'E-commerce development'],
         ]);
+    }
+
+    public function searchFreelancers(Request $request)
+    {
+        $query = trim((string) $request->query('q'));
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $freelancers = Freelancer::query()
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('contact_email', 'like', "%{$query}%");
+            })
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->take(10)
+            ->get(['id', 'name', 'contact_email', 'title', 'hourly_rate', 'avatar']);
+
+        return response()->json($freelancers->map(fn ($f) => [
+            'id' => $f->id,
+            'name' => $f->name,
+            'email' => $f->contact_email,
+            'title' => $f->title,
+            'hourly_rate' => $f->hourly_rate,
+            'avatar_url' => $f->avatar_url,
+        ]));
     }
 
     public function storeBrief(Request $request)
@@ -1217,7 +1255,7 @@ class WorkspaceController extends Controller
         $offer = $project->offers()->latest()->first() ?? new ProjectOffer();
         $offer->project()->associate($project);
         $offer->freelancer_id = $freelancer->id;
-        $offer->freelancer_email = Str::lower((string) $data['freelancer_email']);
+        $offer->freelancer_email = Str::lower((string) ($data['freelancer_email'] ?: $freelancer->contact_email));
         $offer->role = $project->specialty ?: 'Freelancer';
         $offer->hourly_rate = $data['hourly_rate'];
         $offer->weekly_limit = (int) ($data['weekly_limit'] ?? 40);

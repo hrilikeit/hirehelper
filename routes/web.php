@@ -118,6 +118,7 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
 
     Route::get('/hire-flow.html', [WorkspaceController::class, 'hireFlow'])->name('hire-flow');
     Route::post('/hire-flow.html', [WorkspaceController::class, 'storeBrief'])->name('hire-flow.store');
+    Route::get('/freelancers/search', [WorkspaceController::class, 'searchFreelancers'])->name('freelancers.search');
 
     Route::get('/invite-offer.html', [WorkspaceController::class, 'inviteOffer'])->name('invite-offer');
     Route::post('/invite-offer.html', [WorkspaceController::class, 'storeOffer'])->name('invite-offer.store');
