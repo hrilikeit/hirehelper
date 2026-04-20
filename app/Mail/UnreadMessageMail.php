@@ -14,7 +14,7 @@ class UnreadMessageMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public ProjectMessage $message,
+        public ProjectMessage $projectMessage,
         public string $projectTitle,
         public string $messagesUrl,
     ) {}

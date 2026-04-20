@@ -31,7 +31,7 @@ class ProjectMessageObserver
 
         try {
             Mail::to($client->email)->send(new UnreadMessageMail(
-                message: $message,
+                projectMessage: $message,
                 projectTitle: $project->title ?? 'Your project',
                 messagesUrl: route('workspace.messages'),
             ));

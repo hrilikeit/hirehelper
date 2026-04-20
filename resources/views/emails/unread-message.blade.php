@@ -6,11 +6,11 @@
     <h2 style="margin:0 0 16px;font-size:20px;color:#1e293b">You have a new message</h2>
 
     <p style="margin:0 0 12px;color:#374151">
-        <strong>{{ $message->sender_name }}</strong> sent a message on project <strong>{{ $projectTitle }}</strong>:
+        <strong>{{ $projectMessage->sender_name }}</strong> sent a message on project <strong>{{ $projectTitle }}</strong>:
     </p>
 
     <div style="background-color:#f1f5f9;border-left:4px solid #2563eb;border-radius:8px;padding:16px;margin:16px 0">
-        <p style="margin:0;color:#334155;white-space:pre-line">{{ \Illuminate\Support\Str::limit($message->message, 300) }}</p>
+        <p style="margin:0;color:#334155;white-space:pre-line">{{ \Illuminate\Support\Str::limit($projectMessage->message, 300) }}</p>
     </div>
 
     <table cellpadding="0" cellspacing="0" style="margin:24px 0">

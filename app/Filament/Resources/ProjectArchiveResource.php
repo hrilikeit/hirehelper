@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ClientProjectResource\RelationManagers\TimesheetsRelationManager;
+use App\Filament\Resources\ProjectActiveResource\RelationManagers\EmailLogsRelationManager;
+use App\Filament\Resources\ProjectActiveResource\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\ProjectArchiveResource\Pages\EditProjectArchive;
 use App\Filament\Resources\ProjectArchiveResource\Pages\ListProjectArchives;
 use App\Models\ClientProject;
@@ -9,6 +12,7 @@ use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
 use UnitEnum;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
@@ -125,13 +129,28 @@ class ProjectArchiveResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('user.name')->label('Client')->searchable()->sortable(),
-                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(42),
+                TextColumn::make('user.name')
+                    ->label('Client')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (ClientProject $record) => $record->user?->email ?? ''),
+                TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(35)->wrap(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
                     ->state(function (ClientProject $record) {
                         $offer = $record->offers()->latest()->first();
                         return $offer ? $offer->freelancer_display_name : '—';
+                    }),
+                TextColumn::make('hired_rate')
+                    ->label('Rate')
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->latest()->first();
+                        return $offer ? '$' . number_format((float) $offer->hourly_rate, 2) . '/hr' : '—';
+                    })
+                    ->description(function (ClientProject $record) {
+                        $offer = $record->offers()->latest()->first();
+                        if (! $offer || ! $offer->weekly_limit) return '';
+                        return $offer->weekly_limit . ' hrs/week';
                     }),
                 TextColumn::make('total_paid')
                     ->label('Total paid')
@@ -140,7 +159,20 @@ class ProjectArchiveResource extends Resource
                             ->where('status', 'paid')
                             ->sum('amount');
                         return '$' . number_format((float) $total, 2);
-                    }),
+                    })
+                    ->color(fn (string $state) => $state !== '$0.00' ? 'success' : null),
+                TextColumn::make('total_debt')
+                    ->label('Total debt')
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->latest()->first();
+                        if (! $offer) return '$0.00';
+                        $pending = \App\Models\Timesheet::where('project_offer_id', $offer->id)
+                            ->where('status', 'pending')
+                            ->sum('amount');
+                        return '$' . number_format((float) $pending, 2);
+                    })
+                    ->sortable(false)
+                    ->color(fn (string $state) => $state !== '$0.00' ? 'danger' : null),
                 TextColumn::make('status')->badge()->sortable()
                     ->color(fn (string $state) => match ($state) {
                         'archived' => 'gray',
@@ -148,15 +180,68 @@ class ProjectArchiveResource extends Resource
                         'cancelled' => 'danger',
                         default => 'warning',
                     }),
-                TextColumn::make('updated_at')->dateTime('M j, Y g:i A')->sortable(),
+                TextColumn::make('user.last_login_at')
+                    ->label('Last login')
+                    ->since()
+                    ->sortable(),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->recordActions([
+                Action::make('openMessages')
+                    ->label(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? '+' . $unread : '';
+                    })
+                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                    ->color(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? 'danger' : 'gray';
+                    })
+                    ->badge(function (ClientProject $record) {
+                        $unread = $record->messages()
+                            ->whereNull('admin_read_at')
+                            ->where('sender_type', 'client')
+                            ->count();
+                        return $unread > 0 ? $unread : null;
+                    })
+                    ->badgeColor('danger')
+                    ->url(fn (ClientProject $record) => ConversationResource::getUrl('edit', ['record' => $record])),
+                Action::make('viewNotes')
+                    ->label('')
+                    ->icon('heroicon-o-bell')
+                    ->color(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'warning' : 'gray')
+                    ->tooltip(fn (ClientProject $record) => filled($record->acceptance_notes) ? 'View acceptance notes' : 'No notes')
+                    ->modalHeading('Acceptance Notes')
+                    ->form([
+                        Textarea::make('acceptance_notes')
+                            ->label('Notes')
+                            ->rows(8)
+                            ->default(fn (ClientProject $record) => $record->acceptance_notes),
+                    ])
+                    ->modalSubmitActionLabel('Save')
+                    ->action(function (ClientProject $record, array $data) {
+                        $record->update(['acceptance_notes' => $data['acceptance_notes'] ?? '']);
+                    }),
                 EditAction::make(),
                 DeleteAction::make()
                     ->requiresConfirmation()
                     ->visible(fn () => AdminAccess::isSuperAdmin(auth()->user())),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            TimesheetsRelationManager::class,
+            InvoicesRelationManager::class,
+            EmailLogsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

@@ -66,7 +66,7 @@ class EditConversation extends EditRecord
 
                     try {
                         $mailable = new UnreadMessageMail(
-                            message: $latest,
+                            projectMessage: $latest,
                             projectTitle: $project->title ?? 'Your project',
                             messagesUrl: route('workspace.messages'),
                         );
