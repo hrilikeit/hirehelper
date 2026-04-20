@@ -277,7 +277,7 @@ class ProjectActiveResource extends Resource
                     ->since()
                     ->sortable(),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->recordActions([
                 Action::make('openMessages')
                     ->label(function (ClientProject $record) {
