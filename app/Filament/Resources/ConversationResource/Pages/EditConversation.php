@@ -23,6 +23,17 @@ class EditConversation extends EditRecord
 
     protected static ?string $title = 'Conversation';
 
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        // Mark all client messages as read by admin
+        $this->record->messages()
+            ->where('sender_type', 'client')
+            ->whereNull('admin_read_at')
+            ->update(['admin_read_at' => now()]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
