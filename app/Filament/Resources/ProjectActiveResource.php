@@ -276,6 +276,33 @@ class ProjectActiveResource extends Resource
                     ->label('Last login')
                     ->since()
                     ->sortable(),
+                TextColumn::make('payment_status')
+                    ->label('Payment')
+                    ->badge()
+                    ->state(function (ClientProject $record) {
+                        $offer = $record->offers()->whereIn('status', ['active', 'pending', 'accepted'])->first();
+                        if (! $offer) return 'No offer';
+
+                        $sub = \App\Models\WeeklySubscription::where('project_offer_id', $offer->id)
+                            ->latest()
+                            ->first();
+
+                        if (! $sub) {
+                            $sub = \App\Models\WeeklySubscription::where('user_id', $record->user_id)
+                                ->where('status', 'active')
+                                ->latest()
+                                ->first();
+                        }
+
+                        if ($sub && $sub->status === 'active') return 'Active';
+                        if ($sub) return ucfirst($sub->status);
+                        return 'Not set';
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        'Active' => 'success',
+                        'Not set', 'No offer' => 'danger',
+                        default => 'warning',
+                    }),
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
