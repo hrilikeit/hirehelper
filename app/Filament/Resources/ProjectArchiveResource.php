@@ -190,6 +190,7 @@ class ProjectArchiveResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'desc')
+            ->recordUrl(null)
             ->recordActions([
                 Action::make('manageLabels')
                     ->label('')

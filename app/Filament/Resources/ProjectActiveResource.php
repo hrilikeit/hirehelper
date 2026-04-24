@@ -309,6 +309,7 @@ class ProjectActiveResource extends Resource
                     }),
             ])
             ->defaultSort('id', 'desc')
+            ->recordUrl(null)
             ->recordActions([
                 Action::make('openMessages')
                     ->label(function (ClientProject $record) {
