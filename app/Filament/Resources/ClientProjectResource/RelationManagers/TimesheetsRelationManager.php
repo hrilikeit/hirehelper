@@ -46,13 +46,27 @@ class TimesheetsRelationManager extends RelationManager
                 ->label('Week starting (Sunday)')
                 ->required()
                 ->default(Timesheet::weekStartFor(now())->toDateString()),
-            TextInput::make('sun')->label('Sun')->numeric()->default(0)->step(0.25),
-            TextInput::make('mon')->label('Mon')->numeric()->default(0)->step(0.25),
-            TextInput::make('tue')->label('Tue')->numeric()->default(0)->step(0.25),
-            TextInput::make('wed')->label('Wed')->numeric()->default(0)->step(0.25),
-            TextInput::make('thu')->label('Thu')->numeric()->default(0)->step(0.25),
-            TextInput::make('fri')->label('Fri')->numeric()->default(0)->step(0.25),
-            TextInput::make('sat')->label('Sat')->numeric()->default(0)->step(0.25),
+            TextInput::make('sun')->label('Sun')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
+            TextInput::make('mon')->label('Mon')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
+            TextInput::make('tue')->label('Tue')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
+            TextInput::make('wed')->label('Wed')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
+            TextInput::make('thu')->label('Thu')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
+            TextInput::make('fri')->label('Fri')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
+            TextInput::make('sat')->label('Sat')->default('00:00')->placeholder('HH:MM')
+                ->formatStateUsing(fn ($state) => self::decimalToTime($state))
+                ->dehydrateStateUsing(fn ($state) => self::timeToDecimal($state)),
             Select::make('status')
                 ->options([
                     'pending' => 'Pending',
@@ -73,15 +87,16 @@ class TimesheetsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('offer.freelancer_display_name')
                     ->label('Freelancer'),
-                TextColumn::make('sun')->label('Sun'),
-                TextColumn::make('mon')->label('Mon'),
-                TextColumn::make('tue')->label('Tue'),
-                TextColumn::make('wed')->label('Wed'),
-                TextColumn::make('thu')->label('Thu'),
-                TextColumn::make('fri')->label('Fri'),
-                TextColumn::make('sat')->label('Sat'),
+                TextColumn::make('sun')->label('Sun')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
+                TextColumn::make('mon')->label('Mon')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
+                TextColumn::make('tue')->label('Tue')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
+                TextColumn::make('wed')->label('Wed')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
+                TextColumn::make('thu')->label('Thu')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
+                TextColumn::make('fri')->label('Fri')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
+                TextColumn::make('sat')->label('Sat')->formatStateUsing(fn ($state) => self::decimalToTime($state)),
                 TextColumn::make('total_hours')
                     ->label('Total')
+                    ->formatStateUsing(fn ($state) => self::decimalToTime($state))
                     ->sortable(),
                 TextColumn::make('amount')
                     ->label('Amount')
@@ -224,5 +239,34 @@ class TimesheetsRelationManager extends RelationManager
                     }),
                 DeleteAction::make(),
             ]);
+    }
+
+    /**
+     * Convert decimal hours to HH:MM string (e.g. 1.5 → "01:30").
+     */
+    public static function decimalToTime($decimal): string
+    {
+        $decimal = (float) ($decimal ?? 0);
+        $hours = (int) floor($decimal);
+        $minutes = (int) round(($decimal - $hours) * 60);
+        return sprintf('%02d:%02d', $hours, $minutes);
+    }
+
+    /**
+     * Convert HH:MM string to decimal hours (e.g. "01:30" → 1.5).
+     */
+    public static function timeToDecimal($time): float
+    {
+        if (is_numeric($time)) {
+            return (float) $time;
+        }
+
+        $time = trim((string) $time);
+        if (str_contains($time, ':')) {
+            [$h, $m] = explode(':', $time, 2);
+            return (float) ((int) $h) + ((int) $m) / 60;
+        }
+
+        return (float) $time;
     }
 }
