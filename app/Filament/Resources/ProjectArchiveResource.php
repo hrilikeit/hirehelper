@@ -132,11 +132,12 @@ class ProjectArchiveResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('user.name')
+                ViewColumn::make('client_info')
                     ->label('Client')
-                    ->searchable()
-                    ->sortable()
-                    ->description(fn (ClientProject $record) => $record->user?->email ?? ''),
+                    ->view('filament.tables.columns.client-with-labels')
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+                    }),
                 TextColumn::make('title')->label('Project')->searchable()->sortable()->limit(35)->wrap(),
                 TextColumn::make('offers_summary')
                     ->label('Freelancer')
@@ -187,9 +188,6 @@ class ProjectArchiveResource extends Resource
                     ->label('Last login')
                     ->since()
                     ->sortable(),
-                ViewColumn::make('labels_display')
-                    ->label('Labels')
-                    ->view('filament.tables.columns.project-labels'),
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
