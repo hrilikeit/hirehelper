@@ -23,7 +23,7 @@
         @endforeach
         <button
             type="button"
-            wire:click="mountTableAction('manageLabels', '{{ $record->getKey() }}')"
+            wire:click.stop="mountTableAction('manageLabels', '{{ $record->getKey() }}')"
             style="
                 display:inline-flex;
                 align-items:center;
