@@ -194,7 +194,7 @@ class ProjectArchiveResource extends Resource
                 Action::make('manageLabels')
                     ->label('')
                     ->icon('heroicon-o-tag')
-                    ->color(fn (ClientProject $record) => $record->labels()->count() > 0 ? 'primary' : 'gray')
+                    ->color('gray')
                     ->tooltip('Manage labels')
                     ->modalHeading('Labels')
                     ->form([

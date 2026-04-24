@@ -343,9 +343,9 @@ class ProjectActiveResource extends Resource
                     })
                     ->url(fn (ClientProject $record) => ConversationResource::getUrl('edit', ['record' => $record])),
                 Action::make('manageLabels')
-                    ->label('')
+                    ->label('Labels')
                     ->icon('heroicon-o-tag')
-                    ->color(fn (ClientProject $record) => $record->labels()->count() > 0 ? 'primary' : 'gray')
+                    ->color('gray')
                     ->tooltip('Manage labels')
                     ->modalHeading('Labels')
                     ->form([
