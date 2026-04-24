@@ -73,6 +73,11 @@ class ClientProject extends Model
         return $this->hasMany(EmailLog::class);
     }
 
+    public function labels()
+    {
+        return $this->belongsToMany(Label::class, 'client_project_label');
+    }
+
     public function invoices()
     {
         return $this->hasMany(Invoice::class);

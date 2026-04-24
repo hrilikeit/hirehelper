@@ -8,6 +8,7 @@ use App\Filament\Resources\ProjectActiveResource\RelationManagers\InvoicesRelati
 use App\Filament\Resources\ProjectArchiveResource\Pages\EditProjectArchive;
 use App\Filament\Resources\ProjectArchiveResource\Pages\ListProjectArchives;
 use App\Models\ClientProject;
+use App\Models\Label;
 use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
@@ -15,9 +16,11 @@ use UnitEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -184,9 +187,29 @@ class ProjectArchiveResource extends Resource
                     ->label('Last login')
                     ->since()
                     ->sortable(),
+                ViewColumn::make('labels_display')
+                    ->label('Labels')
+                    ->view('filament.tables.columns.project-labels'),
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
+                Action::make('manageLabels')
+                    ->label('')
+                    ->icon('heroicon-o-tag')
+                    ->color(fn (ClientProject $record) => $record->labels()->count() > 0 ? 'primary' : 'gray')
+                    ->tooltip('Manage labels')
+                    ->modalHeading('Labels')
+                    ->form([
+                        CheckboxList::make('label_ids')
+                            ->label('Select labels')
+                            ->options(fn () => Label::orderBy('name')->pluck('name', 'id'))
+                            ->default(fn (ClientProject $record) => $record->labels()->pluck('labels.id')->toArray())
+                            ->columns(2),
+                    ])
+                    ->modalSubmitActionLabel('Save')
+                    ->action(function (ClientProject $record, array $data) {
+                        $record->labels()->sync($data['label_ids'] ?? []);
+                    }),
                 Action::make('openMessages')
                     ->label(function (ClientProject $record) {
                         $unread = $record->messages()

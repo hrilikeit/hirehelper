@@ -14,12 +14,15 @@ use App\Models\User;
 use App\Support\AdminAccess;
 use BackedEnum;
 use UnitEnum;
+use App\Models\Label;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -303,6 +306,9 @@ class ProjectActiveResource extends Resource
                         'Not set', 'No offer' => 'danger',
                         default => 'warning',
                     }),
+                ViewColumn::make('labels_display')
+                    ->label('Labels')
+                    ->view('filament.tables.columns.project-labels'),
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
@@ -338,6 +344,23 @@ class ProjectActiveResource extends Resource
                         return $unread > 0 ? $unread . ' unread message(s)' : 'No new messages';
                     })
                     ->url(fn (ClientProject $record) => ConversationResource::getUrl('edit', ['record' => $record])),
+                Action::make('manageLabels')
+                    ->label('')
+                    ->icon('heroicon-o-tag')
+                    ->color(fn (ClientProject $record) => $record->labels()->count() > 0 ? 'primary' : 'gray')
+                    ->tooltip('Manage labels')
+                    ->modalHeading('Labels')
+                    ->form([
+                        CheckboxList::make('label_ids')
+                            ->label('Select labels')
+                            ->options(fn () => Label::orderBy('name')->pluck('name', 'id'))
+                            ->default(fn (ClientProject $record) => $record->labels()->pluck('labels.id')->toArray())
+                            ->columns(2),
+                    ])
+                    ->modalSubmitActionLabel('Save')
+                    ->action(function (ClientProject $record, array $data) {
+                        $record->labels()->sync($data['label_ids'] ?? []);
+                    }),
                 Action::make('viewNotes')
                     ->label('')
                     ->icon('heroicon-o-bell')
