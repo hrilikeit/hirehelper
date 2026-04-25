@@ -207,10 +207,8 @@ class EditProjectActive extends EditRecord
                 ->form([
                     TextInput::make('hours')
                         ->label('Hours tracked this week')
-                        ->numeric()
-                        ->required()
-                        ->minValue(0.1)
-                        ->step(0.1),
+                        ->placeholder('HH:MM')
+                        ->required(),
                     TextInput::make('week_label')
                         ->label('Week label (e.g. "Mar 24 – Mar 30")')
                         ->required()
@@ -237,10 +235,19 @@ class EditProjectActive extends EditRecord
                     }
 
                     try {
+                        // Convert HH:MM to decimal hours
+                        $hoursInput = trim($data['hours']);
+                        if (str_contains($hoursInput, ':')) {
+                            [$h, $m] = explode(':', $hoursInput, 2);
+                            $hoursDecimal = (float) ((int) $h) + ((int) $m) / 60;
+                        } else {
+                            $hoursDecimal = (float) $hoursInput;
+                        }
+
                         $mailable = new WeeklyTrackedHoursMail(
                             offer: $offer,
                             userName: $client->name,
-                            hoursTracked: (float) $data['hours'],
+                            hoursTracked: $hoursDecimal,
                             weekLabel: $data['week_label'],
                             reportsUrl: route('workspace.reports'),
                         );

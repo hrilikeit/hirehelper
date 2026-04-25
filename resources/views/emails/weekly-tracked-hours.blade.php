@@ -21,7 +21,12 @@
             </tr>
             <tr>
                 <td style="color:#6b7280;font-size:14px;padding-bottom:6px">Hours tracked</td>
-                <td align="right" style="font-weight:700;color:#1e293b;font-size:18px;padding-bottom:6px">{{ number_format($hoursTracked, 1) }} hrs</td>
+                @php
+                    $h = (int) floor($hoursTracked);
+                    $m = (int) round(($hoursTracked - $h) * 60);
+                    $hoursFormatted = sprintf('%02d:%02d', $h, $m);
+                @endphp
+                <td align="right" style="font-weight:700;color:#1e293b;font-size:18px;padding-bottom:6px">{{ $hoursFormatted }} hrs</td>
             </tr>
             <tr>
                 <td style="color:#6b7280;font-size:14px;padding-bottom:6px">Hourly rate</td>
