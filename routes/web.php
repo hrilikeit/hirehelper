@@ -12,6 +12,7 @@ use App\Http\Controllers\Workspace\AcbaBillingController;
 use App\Http\Controllers\Workspace\PayPalBillingController;
 use App\Http\Controllers\Workspace\WeeklySubscriptionController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\Workspace\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
@@ -170,6 +171,18 @@ Route::middleware('auth')->prefix('app')->name('workspace.')->group(function () 
 });
 
 Route::get('/email/track/{id}/{hash}', [EmailTrackingController::class, 'track'])->name('email.track');
+
+// Milestones (public link, no auth required to view)
+Route::get('/m/{token}', [MilestoneController::class, 'show'])->name('milestones.show');
+
+// Milestone actions (auth required)
+Route::middleware('auth')->group(function () {
+    Route::post('/m/{token}/milestone/{milestone}/update', [MilestoneController::class, 'update'])->name('milestones.update');
+    Route::post('/m/{token}/milestone/{milestone}/fund', [MilestoneController::class, 'fund'])->name('milestones.fund');
+    Route::get('/m/{token}/milestone/{milestone}/fund-return', [MilestoneController::class, 'fundReturn'])->name('milestones.fund-return');
+    Route::get('/m/{token}/milestone/{milestone}/fund-cancel', [MilestoneController::class, 'fundCancel'])->name('milestones.fund-cancel');
+    Route::post('/m/{token}/milestone/{milestone}/release', [MilestoneController::class, 'release'])->name('milestones.release');
+});
 
 Route::view('/404.html', 'errors.404')->name('preview.404');
 Route::fallback(fn () => response()->view('errors.404', [], 404));
